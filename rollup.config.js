@@ -6,7 +6,8 @@ export default {
   external: ['container'],
   output: {
     file: 'dist/engine-server.js',
-    format: 'iife'
+    exports: 'named',
+    format: 'cjs'
   },
   globals: {
     'container': 'container'

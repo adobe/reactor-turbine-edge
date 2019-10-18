@@ -27,6 +27,9 @@ module.exports = function(moduleProvider, replaceTokens) {
       moduleDescriptor.settings || {},
       syntheticEvent
     );
-    return moduleExports.bind(null, settings).apply(null, moduleCallParameters);
+
+    moduleCallParameters.unshift(settings);
+
+    return moduleExports.apply(null, moduleCallParameters);
   };
 };
