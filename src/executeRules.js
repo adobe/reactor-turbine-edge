@@ -160,10 +160,12 @@ module.exports = function(moduleProvider, replaceTokens, rules, payload) {
       });
     }
 
-    lastPromiseInQueue = lastPromiseInQueue.then(function(lastActionResult) {
-      logRuleCompleted(rule);
-      return lastActionResult;
-    });
+    lastPromiseInQueue = lastPromiseInQueue
+      .then(function(lastActionResult) {
+        logRuleCompleted(rule);
+        return lastActionResult;
+      })
+      .catch(function() {});
 
     rulePromises.push(lastPromiseInQueue);
   });
