@@ -12,7 +12,7 @@ export default {
   globals: {
     'container': 'container'
   },
-  name: 'executeRule',
+  name: 'reactor-turbine-server',
   plugins: [
     resolve({
       preferBuiltins: false
