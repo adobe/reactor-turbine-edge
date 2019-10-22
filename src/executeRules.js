@@ -120,6 +120,7 @@ module.exports = function(moduleProvider, replaceTokens, rules, payload) {
               clearTimeout(timeoutId);
               if (!isConditionMet(condition, result)) {
                 logConditionNotMet(condition, rule);
+                return Promise.reject();
               }
             });
         });
