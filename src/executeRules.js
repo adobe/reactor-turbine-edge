@@ -108,7 +108,7 @@ module.exports = function(moduleProvider, replaceTokens, rules, payload) {
             }, PROMISE_TIMEOUT);
 
             Promise.resolve(
-              executeDelegateModule(condition, payloadPromise, [payloadPromise])
+              executeDelegateModule(condition, payload, [payload])
             ).then(resolve, reject);
           })
             .catch(function(e) {
