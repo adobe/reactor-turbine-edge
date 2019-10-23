@@ -12,7 +12,6 @@ export default {
   globals: {
     'container': 'container'
   },
-  name: 'reactor-turbine-server',
   plugins: [
     resolve({
       preferBuiltins: false
