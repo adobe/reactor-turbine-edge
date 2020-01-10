@@ -53,21 +53,21 @@ module.exports = function(moduleProvider, replaceTokens, rules, payload) {
       logger.error(getErrorMessage(action, e.message, e.stack));
     };
 
-    var logConditionError = function(condition, rule, e) {
-      logger.error(getErrorMessage(condition, rule, e.message, e.stack));
-    };
+    // var logConditionError = function(condition, rule, e) {
+    //   logger.error(getErrorMessage(condition, rule, e.message, e.stack));
+    // };
 
-    var logConditionNotMet = function(condition, rule) {
-      var conditionDisplayName = getModuleDisplayNameByRuleComponent(condition);
+    // var logConditionNotMet = function(condition, rule) {
+    //   var conditionDisplayName = getModuleDisplayNameByRuleComponent(condition);
 
-      logger.log(
-        'Condition ' +
-          conditionDisplayName +
-          ' for rule ' +
-          rule.name +
-          ' not met.'
-      );
-    };
+    //   logger.log(
+    //     'Condition ' +
+    //       conditionDisplayName +
+    //       ' for rule ' +
+    //       rule.name +
+    //       ' not met.'
+    //   );
+    // };
 
     var logRuleCompleted = function(rule) {
       logger.log('Rule "' + rule.name + '" fired.');
@@ -87,45 +87,45 @@ module.exports = function(moduleProvider, replaceTokens, rules, payload) {
       return e;
     };
 
-    var isConditionMet = function(condition, result) {
-      return (result && !condition.negate) || (!result && condition.negate);
-    };
+    // var isConditionMet = function(condition, result) {
+    //   return (result && !condition.negate) || (!result && condition.negate);
+    // };
 
-    if (rule.conditions) {
-      rule.conditions.forEach(function(condition) {
-        lastPromiseInQueue = lastPromiseInQueue.then(function() {
-          var timeoutId;
+    // if (rule.conditions) {
+    //   rule.conditions.forEach(function(condition) {
+    //     lastPromiseInQueue = lastPromiseInQueue.then(function() {
+    //       var timeoutId;
 
-          return new Promise(function(resolve, reject) {
-            timeoutId = setTimeout(function() {
-              // Reject instead of resolve to prevent subsequent
-              // conditions and actions from executing.
-              reject(
-                'A timeout occurred because the condition took longer than ' +
-                  PROMISE_TIMEOUT / 1000 +
-                  ' seconds to complete. '
-              );
-            }, PROMISE_TIMEOUT);
+    //       return new Promise(function(resolve, reject) {
+    //         timeoutId = setTimeout(function() {
+    //           // Reject instead of resolve to prevent subsequent
+    //           // conditions and actions from executing.
+    //           reject(
+    //             'A timeout occurred because the condition took longer than ' +
+    //               PROMISE_TIMEOUT / 1000 +
+    //               ' seconds to complete. '
+    //           );
+    //         }, PROMISE_TIMEOUT);
 
-            Promise.resolve(
-              executeDelegateModule(condition, payload, [payload])
-            ).then(resolve, reject);
-          })
-            .catch(function(e) {
-              e = normalizeError(e, condition);
-              logConditionError(condition, rule, e);
-              return false;
-            })
-            .then(function(result) {
-              clearTimeout(timeoutId);
-              if (!isConditionMet(condition, result)) {
-                logConditionNotMet(condition, rule);
-                return Promise.reject();
-              }
-            });
-        });
-      });
-    }
+    //         Promise.resolve(
+    //           executeDelegateModule(condition, payload, [payload])
+    //         ).then(resolve, reject);
+    //       })
+    //         .catch(function(e) {
+    //           e = normalizeError(e, condition);
+    //           logConditionError(condition, rule, e);
+    //           return false;
+    //         })
+    //         .then(function(result) {
+    //           clearTimeout(timeoutId);
+    //           if (!isConditionMet(condition, result)) {
+    //             logConditionNotMet(condition, rule);
+    //             return Promise.reject();
+    //           }
+    //         });
+    //     });
+    //   });
+    // }
 
     if (rule.actions) {
       lastPromiseInQueue = lastPromiseInQueue.then(function() {
