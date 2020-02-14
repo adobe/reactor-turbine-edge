@@ -188,9 +188,8 @@ module.exports = (
             timeoutId = setTimeout(() => {
               reject(
                 new Error(
-                  `A timeout occurred because the action took longer than
-                    ${PROMISE_TIMEOUT / 1000}
-                    ' seconds to complete. `
+                  `A timeout occurred because the action took longer than ${PROMISE_TIMEOUT /
+                    1000} seconds to complete. `
                 )
               );
             }, PROMISE_TIMEOUT);
