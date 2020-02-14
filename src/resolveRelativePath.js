@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
-var JS_EXTENSION = '.js';
+const JS_EXTENSION = '.js';
 
 /**
  * @private
@@ -24,7 +24,7 @@ var JS_EXTENSION = '.js';
  * @param {string} path
  * @returns {string}
  */
-var dirname = function(path) {
+const dirname = path => {
   return path.substr(0, path.lastIndexOf('/'));
 };
 
@@ -34,7 +34,7 @@ var dirname = function(path) {
  * @param {string} suffix The suffix to look for at the end of str.
  * @returns {boolean} Whether str ends in suffix.
  */
-var endsWith = function(str, suffix) {
+const endsWith = (str, suffix) => {
   return str.indexOf(suffix, str.length - suffix.length) !== -1;
 };
 
@@ -52,18 +52,19 @@ var endsWith = function(str, suffix) {
  * @param {string} relativePath
  * @returns {string}
  */
-module.exports = function(fromPath, relativePath) {
+module.exports = (fromPath, relativePath) => {
+  let rp = relativePath;
+
   // Handle the case where the relative path does not end in the .js extension. We auto-append it.
-  if (!endsWith(relativePath, JS_EXTENSION)) {
-    relativePath = relativePath + JS_EXTENSION;
+  if (!endsWith(rp, JS_EXTENSION)) {
+    rp += JS_EXTENSION;
   }
 
-  var relativePathSegments = relativePath.split('/');
-  var resolvedPathSegments = dirname(fromPath).split('/');
+  const relativePathSegments = relativePath.split('/');
+  const resolvedPathSegments = dirname(fromPath).split('/');
 
-  relativePathSegments.forEach(function(relativePathSegment) {
+  relativePathSegments.forEach(relativePathSegment => {
     if (!relativePathSegment || relativePathSegment === '.') {
-      return;
     } else if (relativePathSegment === '..') {
       if (resolvedPathSegments.length) {
         resolvedPathSegments.pop();

@@ -9,28 +9,29 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  ****************************************************************************************/
-var createReplaceTokens = require('./createReplaceTokens');
-var createGetDataElementValue = require('./createGetDataElementValue');
-var createModuleProvider = require('./createModuleProvider');
-var createIsVar = require('./createIsVar');
-var createGetVar = require('./createGetVar');
-var executeRules = require('./executeRules');
-var hydrateScopedUtilities = require('./hydrateScopedUtilities');
+const createReplaceTokens = require('./createReplaceTokens');
+const createGetDataElementValue = require('./createGetDataElementValue');
+const createModuleProvider = require('./createModuleProvider');
+const createIsDataElement = require('./createIsDataElement');
+const executeRules = require('./executeRules');
+const hydrateScopedUtilities = require('./hydrateScopedUtilities');
+const logger = require('./logger');
 
-var scopedTurbineVariable = {};
-var moduleProvider = createModuleProvider();
+let scopedTurbineVariable = {};
+const moduleProvider = createModuleProvider();
 
-var initialize = function(container, modules) {
-  var undefinedVarsReturnEmpty =
-    container.property.settings.undefinedVarsReturnEmpty;
+const initialize = container => {
+  // TODO: Maybe enable this via a header value.
+  logger.outputEnabled = true;
 
-  var dataElements = container.dataElements || {};
+  const { undefinedVarsReturnEmpty } = container.property.settings;
+  const dataElements = container.dataElements || {};
 
-  var getDataElementDefinition = function(name) {
+  const getDataElementDefinition = name => {
     return dataElements[name];
   };
 
-  var replaceTokens;
+  let replaceTokens;
 
   // We support data elements referencing other data elements. In order to be able to retrieve a
   // data element value, we need to be able to replace data element tokens inside its settings
@@ -41,22 +42,24 @@ var initialize = function(container, modules) {
   // getDataElementValue that will stand in place of the real replaceTokens function until it
   // can be created. This also means that createDataElementValue should not call the proxy
   // replaceTokens function until after the real replaceTokens has been created.
-  var proxyReplaceTokens = function() {
-    return replaceTokens.apply(null, arguments);
+  const proxyReplaceTokens = (...rest) => {
+    return replaceTokens(...rest);
   };
 
-  var getDataElementValue = createGetDataElementValue(
+  const getDataElementValue = createGetDataElementValue(
     moduleProvider,
     getDataElementDefinition,
     proxyReplaceTokens,
     undefinedVarsReturnEmpty
   );
 
-  var isVar = createIsVar(getDataElementDefinition);
+  const isDataElement = createIsDataElement(getDataElementDefinition);
 
-  var getVar = createGetVar(getDataElementDefinition, getDataElementValue);
-
-  replaceTokens = createReplaceTokens(isVar, getVar, undefinedVarsReturnEmpty);
+  replaceTokens = createReplaceTokens(
+    isDataElement,
+    getDataElementValue,
+    undefinedVarsReturnEmpty
+  );
 
   scopedTurbineVariable = hydrateScopedUtilities(
     container,
@@ -64,13 +67,18 @@ var initialize = function(container, modules) {
     getDataElementValue
   );
 
-  moduleProvider.registerModules(container.modules);
+  moduleProvider.registerModules(container.modules, container.extensions);
 
-  return executeRules.bind(null, moduleProvider, replaceTokens, container.rules);
+  return executeRules.bind(
+    null,
+    moduleProvider,
+    replaceTokens,
+    container.rules
+  );
 };
 
 module.exports = {
-  initialize: initialize,
+  initialize,
   getScopedExtensionUtilities: function getScopedExtensionUtilities(
     extensionPackageId
   ) {

@@ -10,30 +10,35 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
-var createGetExtensionSettings = require('./createGetExtensionSettings');
-var logger = require('./logger');
-var scopedTurbine = {};
+const createGetExtensionSettings = require('./createGetExtensionSettings');
+const logger = require('./logger');
 
+const scopedTurbine = {};
 
-module.exports = function(container, replaceTokens, getDataElementValue) {
-  var extensions = container.extensions;
-  var buildInfo = container.buildInfo;
-  var propertySettings = container.property.settings;
+module.exports = (container, replaceTokens, getDataElementValue) => {
+  const {
+    extensions,
+    buildInfo,
+    property: { settings: propertySettings }
+  } = container;
 
   if (extensions) {
-    Object.keys(extensions).forEach(function(extensionName) {
-      var extension = extensions[extensionName];
-      var getExtensionSettings = createGetExtensionSettings(replaceTokens, extension.settings);
+    Object.keys(extensions).forEach(extensionName => {
+      const extension = extensions[extensionName];
+      const getExtensionSettings = createGetExtensionSettings(
+        replaceTokens,
+        extension.settings
+      );
 
-      var prefixedLogger = logger.createPrefixedLogger(extension.displayName);
+      const prefixedLogger = logger.createPrefixedLogger(extension.displayName);
 
       scopedTurbine[extensionName] = {
-        buildInfo: buildInfo,
-        getDataElementValue: getDataElementValue,
-        getExtensionSettings: getExtensionSettings,
+        buildInfo,
+        getDataElementValue,
+        getExtensionSettings,
         logger: prefixedLogger,
-        propertySettings: propertySettings,
-        replaceTokens: replaceTokens
+        propertySettings,
+        replaceTokens
       };
     });
   }

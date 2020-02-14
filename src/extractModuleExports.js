@@ -10,8 +10,8 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
-module.exports = function(script, require, turbine) {
-  var module = {
+module.exports = (script, require, turbine) => {
+  const module = {
     exports: {}
   };
 

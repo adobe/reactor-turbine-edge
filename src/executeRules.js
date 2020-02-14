@@ -10,25 +10,51 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
-var logger = require('./logger');
-var createExecuteDelegateModule = require('./createExecuteDelegateModule');
-var Promise = require('@adobe/reactor-promise');
-var PROMISE_TIMEOUT = 2000;
+const logger = require('./logger');
+const createExecuteDelegateModule = require('./createExecuteDelegateModule');
 
-module.exports = function(moduleProvider, replaceTokens, rules, payload) {
-  var rulePromises = [];
+const PROMISE_TIMEOUT = 2000;
 
-  (rules || []).forEach(function(rule) {
-    var lastPromiseInQueue = Promise.resolve();
-    var payloadPromise = Promise.resolve(payload);
+module.exports = (
+  moduleProvider,
+  replaceTokens,
+  rules,
+  ruleIds,
+  initialPayload
+) => {
+  const rulePromises = [];
 
-    var executeDelegateModule = createExecuteDelegateModule(
+  (
+    rules.filter(rule => {
+      return (ruleIds || []).indexOf(rule.id) !== -1;
+    }) || []
+  ).forEach(rule => {
+    let lastPromiseInQueue = Promise.resolve();
+    const payloadPromise = Promise.resolve({ event: { ...initialPayload } });
+
+    const executeDelegateModule = createExecuteDelegateModule(
       moduleProvider,
       replaceTokens
     );
 
-    var getModuleDisplayNameByRuleComponent = function(ruleComponent) {
-      var moduleDefinition = moduleProvider.getModuleDefinition(
+    const getExtensionNameByRuleComponent = ruleComponent => {
+      const moduleDefinition = moduleProvider.getModuleDefinition(
+        ruleComponent.modulePath
+      );
+
+      return (moduleDefinition && moduleDefinition.extensionName) || '';
+    };
+
+    const getExtensionDisplayNameByRuleComponent = ruleComponent => {
+      const moduleDefinition = moduleProvider.getExtensionDefinition(
+        ruleComponent.modulePath
+      );
+
+      return (moduleDefinition && moduleDefinition.displayName) || '';
+    };
+
+    const getModuleDisplayNameByRuleComponent = ruleComponent => {
+      const moduleDefinition = moduleProvider.getModuleDefinition(
         ruleComponent.modulePath
       );
       return (
@@ -37,19 +63,16 @@ module.exports = function(moduleProvider, replaceTokens, rules, payload) {
       );
     };
 
-    var getErrorMessage = function(ruleComponent, errorMessage, errorStack) {
-      var moduleDisplayName = getModuleDisplayNameByRuleComponent(
+    const getErrorMessage = (ruleComponent, errorMessage, errorStack) => {
+      const moduleDisplayName = getModuleDisplayNameByRuleComponent(
         ruleComponent
       );
-      return (
-        'Failed to execute ' +
-        moduleDisplayName +
-        errorMessage +
-        (errorStack ? '\n' + errorStack : '')
-      );
+      return `Failed to execute ${moduleDisplayName} ${errorMessage} ${
+        errorStack ? `\n ${errorStack}` : ''
+      }`;
     };
 
-    var logActionError = function(action, e) {
+    const logActionError = (action, e) => {
       logger.error(getErrorMessage(action, e.message, e.stack));
     };
 
@@ -69,22 +92,46 @@ module.exports = function(moduleProvider, replaceTokens, rules, payload) {
     //   );
     // };
 
-    var logRuleCompleted = function(rule) {
-      logger.log('Rule "' + rule.name + '" fired.');
+    const logRuleStarting = ruleDefinition => {
+      logger.log(`Rule "${ruleDefinition.name}" is being executed.`);
     };
 
-    var normalizeError = function(e) {
-      if (!e) {
-        e = new Error(
+    const logDelegateModuleCall = (module, payload) => {
+      const m = getModuleDisplayNameByRuleComponent(module);
+      const e = getExtensionDisplayNameByRuleComponent(module);
+
+      logger.log(
+        `Calling "${m}" module from the "${e}" extension.`,
+        'Input: ',
+        payload
+      );
+    };
+
+    const logDelegateModuleOutput = (module, output) => {
+      const m = getModuleDisplayNameByRuleComponent(module);
+      const e = getExtensionDisplayNameByRuleComponent(module);
+
+      logger.log(
+        `"${m}" module from the "${e}" extension returned.`,
+        'Output:',
+        output
+      );
+    };
+
+    const normalizeError = e => {
+      let newError = e;
+
+      if (!newError) {
+        newError = new Error(
           'The extension triggered an error, but no error information was provided.'
         );
       }
 
-      if (!(e instanceof Error)) {
-        e = new Error(String(e));
+      if (!(newError instanceof Error)) {
+        newError = new Error(String(newError));
       }
 
-      return e;
+      return newError;
     };
 
     // var isConditionMet = function(condition, result) {
@@ -128,45 +175,79 @@ module.exports = function(moduleProvider, replaceTokens, rules, payload) {
     // }
 
     if (rule.actions) {
-      lastPromiseInQueue = lastPromiseInQueue.then(function() {
+      lastPromiseInQueue = lastPromiseInQueue.then(() => {
+        logRuleStarting(rule);
         return payloadPromise;
       });
 
-      rule.actions.forEach(function(action) {
-        lastPromiseInQueue = lastPromiseInQueue.then(function(payload) {
-          var timeoutId;
+      rule.actions.forEach(action => {
+        lastPromiseInQueue = lastPromiseInQueue.then(payload => {
+          let timeoutId;
 
-          return new Promise(function(resolve, reject) {
-            timeoutId = setTimeout(function() {
+          return new Promise((resolve, reject) => {
+            timeoutId = setTimeout(() => {
               reject(
-                'A timeout occurred because the action took longer than ' +
-                  PROMISE_TIMEOUT / 1000 +
-                  ' seconds to complete. '
+                new Error(
+                  `A timeout occurred because the action took longer than
+                    ${PROMISE_TIMEOUT / 1000}
+                    ' seconds to complete. `
+                )
               );
             }, PROMISE_TIMEOUT);
 
+            logDelegateModuleCall(action, { ...payload });
+            const clonedPayload = { ...payload };
+
             Promise.resolve(
-              executeDelegateModule(action, payload, [payload, rule])
-            ).then(resolve, reject);
+              executeDelegateModule(action, clonedPayload, [
+                clonedPayload,
+                rule
+              ])
+            ).then(result => {
+              logDelegateModuleOutput(action, result);
+              resolve(result);
+            }, reject);
           })
-            .catch(function(e) {
-              e = normalizeError(e);
-              logActionError(action, rule, e);
+            .catch(e => {
+              logActionError(action, normalizeError(e));
+              throw e;
             })
-            .then(function(result) {
+            .finally(() => {
               clearTimeout(timeoutId);
-              return result;
+            })
+            .then(result => {
+              const extensionName = getExtensionNameByRuleComponent(action);
+              const newPayload = { ...payload };
+
+              if (extensionName) {
+                // If the module result is undefined, the module result will not
+                // be logged correctly. Key with undefined won't be stringified
+                // and then they won't appear in the response.
+                newPayload[extensionName] = result || null;
+              }
+
+              return newPayload;
             });
         });
       });
     }
 
     lastPromiseInQueue = lastPromiseInQueue
-      .then(function(lastActionResult) {
-        logRuleCompleted(rule);
-        return lastActionResult;
+      .then(() => {
+        return {
+          actionId: rule.id,
+          status: 'success',
+          logs: logger.getLogs()
+        };
       })
-      .catch(function() {});
+      .catch(() => {
+        return {
+          actionId: rule.id,
+          status: 'failed',
+          logs: logger.getLogs()
+        };
+      })
+      .finally(() => logger.clearLogs());
 
     rulePromises.push(lastPromiseInQueue);
   });

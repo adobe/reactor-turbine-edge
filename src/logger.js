@@ -10,13 +10,15 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
+let logs = [];
+
 /**
  * Log levels.
  * @readonly
  * @enum {string}
  * @private
  */
-var levels = {
+const levels = {
   LOG: 'log',
   INFO: 'info',
   DEBUG: 'debug',
@@ -28,19 +30,19 @@ var levels = {
  * Rocket unicode surrogate pair.
  * @type {string}
  */
-var ROCKET = '\uD83D\uDE80';
+const ROCKET = '\uD83D\uDE80';
 
 /**
  * Prefix to use on all messages. The rocket unicode doesn't work on IE 10.
  * @type {string}
  */
-var launchPrefix = ROCKET;
+const launchPrefix = ROCKET;
 
 /**
  * Whether logged messages should be output to the console.
  * @type {boolean}
  */
-var outputEnabled = false;
+let outputEnabled = false;
 
 /**
  * Processes a log message.
@@ -48,15 +50,15 @@ var outputEnabled = false;
  * @param {...*} arg Any argument to be logged.
  * @private
  */
-var process = function(level) {
-  if (outputEnabled && console) {
-    var logArguments = Array.prototype.slice.call(arguments, 1);
+const process = (level, ...logArguments) => {
+  if (outputEnabled) {
     logArguments.unshift(launchPrefix);
-    // window.debug is unsupported in IE 10
-    if (level === levels.DEBUG && !console[level]) {
-      level = levels.INFO;
-    }
-    console[level].apply(console, logArguments);
+
+    logs.push({
+      timestamps: Date.now(),
+      type: level,
+      message: logArguments
+    });
   }
 };
 
@@ -64,40 +66,46 @@ var process = function(level) {
  * Outputs a message to the web console.
  * @param {...*} arg Any argument to be logged.
  */
-var log = process.bind(null, levels.LOG);
+const log = process.bind(null, levels.LOG);
 
 /**
  * Outputs informational message to the web console. In some browsers a small "i" icon is
  * displayed next to these items in the web console's log.
  * @param {...*} arg Any argument to be logged.
  */
-var info = process.bind(null, levels.INFO);
+const info = process.bind(null, levels.INFO);
 
 /**
  * Outputs debug message to the web console. In browsers that do not support
  * console.debug, console.info is used instead.
  * @param {...*} arg Any argument to be logged.
  */
-var debug = process.bind(null, levels.DEBUG);
+const debug = process.bind(null, levels.DEBUG);
 
 /**
  * Outputs a warning message to the web console.
  * @param {...*} arg Any argument to be logged.
  */
-var warn = process.bind(null, levels.WARN);
+const warn = process.bind(null, levels.WARN);
 
 /**
  * Outputs an error message to the web console.
  * @param {...*} arg Any argument to be logged.
  */
-var error = process.bind(null, levels.ERROR);
+const error = process.bind(null, levels.ERROR);
 
 module.exports = {
-  log: log,
-  info: info,
-  debug: debug,
-  warn: warn,
-  error: error,
+  log,
+  info,
+  debug,
+  warn,
+  error,
+
+  getLogs: () => logs,
+  clearLogs: () => {
+    logs = [];
+  },
+
   /**
    * Whether logged messages should be output to the console.
    * @type {boolean}
@@ -112,8 +120,8 @@ module.exports = {
    * Creates a logging utility that only exposes logging functionality and prefixes all messages
    * with an identifier.
    */
-  createPrefixedLogger: function(identifier) {
-    var loggerSpecificPrefix = '[' + identifier + ']';
+  createPrefixedLogger: identifier => {
+    const loggerSpecificPrefix = `[ ${identifier} ]`;
 
     return {
       log: log.bind(null, loggerSpecificPrefix),

@@ -7,10 +7,10 @@ export default {
   output: {
     file: 'dist/engine-server.js',
     exports: 'named',
-    format: 'cjs'
-  },
-  globals: {
-    'container': 'container'
+    format: 'cjs',
+    globals: {
+      container: 'container'
+    }
   },
   plugins: [
     resolve({

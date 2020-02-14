@@ -10,12 +10,12 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
-var MODULE_NOT_FUNCTION_ERROR = 'Module did not export a function.';
+const MODULE_NOT_FUNCTION_ERROR = 'Module did not export a function.';
 
-module.exports = function(moduleProvider, replaceTokens) {
-  return function(moduleDescriptor, syntheticEvent, moduleCallParameters) {
-    moduleCallParameters = moduleCallParameters || [];
-    var moduleExports = moduleProvider.getModuleExports(
+module.exports = (moduleProvider, replaceTokens) => {
+  return (moduleDescriptor, syntheticEvent, originalModuleCallParameters) => {
+    const moduleCallParameters = originalModuleCallParameters || [];
+    const moduleExports = moduleProvider.getModuleExports(
       moduleDescriptor.modulePath
     );
 
@@ -23,13 +23,12 @@ module.exports = function(moduleProvider, replaceTokens) {
       throw new Error(MODULE_NOT_FUNCTION_ERROR);
     }
 
-    var settings = replaceTokens(
+    const settings = replaceTokens(
       moduleDescriptor.settings || {},
       syntheticEvent
     );
 
     moduleCallParameters.unshift(settings);
-
-    return moduleExports.apply(null, moduleCallParameters);
+    return moduleExports(...moduleCallParameters);
   };
 };

@@ -18,13 +18,6 @@
  */
 module.exports = function(getDataElementDefinition) {
   return function(variableName) {
-    var nameBeforeDot = variableName.split('.')[0];
-
-    return Boolean(
-      getDataElementDefinition(variableName) ||
-        nameBeforeDot === 'this' ||
-        nameBeforeDot === 'event' ||
-        nameBeforeDot === 'target'
-    );
+    return Boolean(getDataElementDefinition(variableName));
   };
 };

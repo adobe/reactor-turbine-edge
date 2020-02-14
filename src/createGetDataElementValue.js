@@ -12,7 +12,6 @@
 
 var cleanText = require('./cleanText');
 var logger = require('./logger');
-var dataElementSafe = require('./dataElementSafe');
 
 var getErrorMessage = function(dataDef, dataElementName, errorMessage, errorStack) {
   return 'Failed to execute data element module ' + dataDef.modulePath + ' for data element ' +
@@ -30,13 +29,13 @@ module.exports = function(
   undefinedVarsReturnEmpty
 ) {
   return function(name, syntheticEvent) {
+
     var dataDef = getDataElementDefinition(name);
 
     if (!dataDef) {
       return undefinedVarsReturnEmpty ? '' : null;
     }
 
-    var storageDuration = dataDef.storageDuration;
     var moduleExports;
 
     try {
@@ -58,14 +57,6 @@ module.exports = function(
     } catch (e) {
       logger.error(getErrorMessage(dataDef, name, e.message, e.stack));
       return;
-    }
-
-    if (storageDuration) {
-      if (isDataElementValuePresent(value)) {
-        dataElementSafe.setValue(name, storageDuration, value);
-      } else {
-        value = dataElementSafe.getValue(name, storageDuration);
-      }
     }
 
     if (!isDataElementValuePresent(value)) {

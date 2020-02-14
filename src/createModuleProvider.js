@@ -10,25 +10,31 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
-module.exports = function() {
-  var modules = {};
+module.exports = () => {
+  let modules = {};
+  let extensions = {};
 
   return {
-    registerModules: function(newModules) {
+    registerModules: (newModules, newExtensions) => {
       modules = newModules;
+      extensions = newExtensions;
 
-      Object.keys(modules).forEach(function(delegateDescriptorId) {
+      Object.keys(modules).forEach(delegateDescriptorId => {
         modules[delegateDescriptorId].script = modules[
           delegateDescriptorId
         ].script();
       });
     },
 
-    getModuleDefinition: function(modulePath) {
+    getModuleDefinition: modulePath => {
       return modules[modulePath];
     },
 
-    getModuleExports: function(modulePath) {
+    getExtensionDefinition: modulePath => {
+      return extensions[modules[modulePath].extensionName];
+    },
+
+    getModuleExports: modulePath => {
       return modules[modulePath].script;
     }
   };

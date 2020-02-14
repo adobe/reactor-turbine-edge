@@ -24,7 +24,7 @@ var logger = require('./logger');
  * %target.something%)
  * @returns {*} A processed value.
  */
-module.exports = function(isVar, getVar, undefinedVarsReturnEmpty) {
+module.exports = function(isDataElement, getDataElementValue, undefinedVarsReturnEmpty) {
   var replaceTokensInString;
   var replaceTokensInObject;
   var replaceTokensInArray;
@@ -32,12 +32,12 @@ module.exports = function(isVar, getVar, undefinedVarsReturnEmpty) {
   var variablesBeingRetrieved = [];
 
   var getVarValue = function(token, variableName, syntheticEvent) {
-    if (!isVar(variableName)) {
+    if (!isDataElement(variableName)) {
       return token;
     }
 
     variablesBeingRetrieved.push(variableName);
-    var val = getVar(variableName, syntheticEvent);
+    var val = getDataElementValue(variableName, syntheticEvent);
     variablesBeingRetrieved.pop();
     return val == null && undefinedVarsReturnEmpty ? '' : val;
   };
