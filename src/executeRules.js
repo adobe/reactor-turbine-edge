@@ -11,6 +11,7 @@
  ****************************************************************************************/
 
 const logger = require('./logger');
+const clone = require('./clone');
 const createExecuteDelegateModule = require('./createExecuteDelegateModule');
 
 const PROMISE_TIMEOUT = 2000;
@@ -23,14 +24,20 @@ module.exports = (
   initialPayload
 ) => {
   const rulePromises = [];
+  let lastPromiseInQueue = Promise.resolve();
 
   (
     rules.filter(rule => {
       return (ruleIds || []).indexOf(rule.id) !== -1;
     }) || []
   ).forEach(rule => {
-    let lastPromiseInQueue = Promise.resolve();
-    const payloadPromise = Promise.resolve({ event: { ...initialPayload } });
+    // let lastPromiseInQueue = Promise.resolve({
+    //   event: clone(initialPayload)
+    // });
+
+    lastPromiseInQueue = lastPromiseInQueue.then(() => ({
+      event: clone(initialPayload)
+    }));
 
     const executeDelegateModule = createExecuteDelegateModule(
       moduleProvider,
@@ -175,9 +182,9 @@ module.exports = (
     // }
 
     if (rule.actions) {
-      lastPromiseInQueue = lastPromiseInQueue.then(() => {
+      lastPromiseInQueue = lastPromiseInQueue.then(p => {
         logRuleStarting(rule);
-        return payloadPromise;
+        return p;
       });
 
       rule.actions.forEach(action => {
@@ -194,8 +201,8 @@ module.exports = (
               );
             }, PROMISE_TIMEOUT);
 
-            logDelegateModuleCall(action, { ...payload });
-            const clonedPayload = { ...payload };
+            logDelegateModuleCall(action, payload);
+            const clonedPayload = clone(payload);
 
             Promise.resolve(
               executeDelegateModule(action, clonedPayload, [
@@ -216,7 +223,7 @@ module.exports = (
             })
             .then(result => {
               const extensionName = getExtensionNameByRuleComponent(action);
-              const newPayload = { ...payload };
+              const newPayload = payload;
 
               if (extensionName) {
                 // If the module result is undefined, the module result will not
@@ -229,24 +236,24 @@ module.exports = (
             });
         });
       });
-    }
 
-    lastPromiseInQueue = lastPromiseInQueue
-      .then(() => {
-        return {
-          actionId: rule.id,
-          status: 'success',
-          logs: logger.getLogs()
-        };
-      })
-      .catch(() => {
-        return {
-          actionId: rule.id,
-          status: 'failed',
-          logs: logger.getLogs()
-        };
-      })
-      .finally(() => logger.clearLogs());
+      lastPromiseInQueue = lastPromiseInQueue
+        .then(() => {
+          return {
+            actionId: rule.id,
+            status: 'success',
+            logs: logger.getLogs()
+          };
+        })
+        .catch(() => {
+          return {
+            actionId: rule.id,
+            status: 'failed',
+            logs: logger.getLogs()
+          };
+        })
+        .finally(() => logger.clearLogs());
+    }
 
     rulePromises.push(lastPromiseInQueue);
   });

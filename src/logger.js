@@ -10,6 +10,8 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
+const clone = require('./clone');
+
 let logs = [];
 
 /**
@@ -54,11 +56,13 @@ const process = (level, ...logArguments) => {
   if (outputEnabled) {
     logArguments.unshift(launchPrefix);
 
-    logs.push({
-      timestamps: Date.now(),
-      type: level,
-      message: logArguments
-    });
+    logs.push(
+      clone({
+        timestamp: Date.now(),
+        type: level,
+        message: logArguments
+      })
+    );
   }
 };
 
