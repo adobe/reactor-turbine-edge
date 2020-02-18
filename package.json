@@ -1,6 +1,6 @@
 {
-  "name": "@adobe/reactor-turbine",
-  "version": "25.6.0",
+  "name": "reactor-turbine-server",
+  "version": "0.0.1",
   "description": "Launch rule engine which processes rules on client websites and delegates logic to extensions.",
   "license": "Apache-2.0",
   "scripts": {
@@ -18,11 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:Adobe-Marketing-Cloud/reactor-turbine.git"
-  },
-  "dependencies": {
-    "@adobe/reactor-object-assign": "*",
-    "@adobe/reactor-promise": "*"
+    "url": "git@git.corp.adobe.com:reactor/reactor-turbine-server.git"
   },
   "devDependencies": {
     "camelize": "1.0.0",
