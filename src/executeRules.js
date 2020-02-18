@@ -19,25 +19,29 @@ const PROMISE_TIMEOUT = 2000;
 module.exports = (
   moduleProvider,
   replaceTokens,
-  rules,
+  getDataElementValue,
+  container,
   ruleIds,
   initialPayload
 ) => {
   const rulePromises = [];
-  let lastPromiseInQueue = Promise.resolve();
+
+  const {
+    rules,
+    buildInfo,
+    property: { settings: propertySettings }
+  } = container;
 
   (
     rules.filter(rule => {
       return (ruleIds || []).indexOf(rule.id) !== -1;
     }) || []
   ).forEach(rule => {
-    // let lastPromiseInQueue = Promise.resolve({
-    //   event: clone(initialPayload)
-    // });
-
-    lastPromiseInQueue = lastPromiseInQueue.then(() => ({
+    let lastPromiseInQueue = Promise.resolve({
       event: clone(initialPayload)
-    }));
+    });
+
+    const l = logger.createNewLogger();
 
     const executeDelegateModule = createExecuteDelegateModule(
       moduleProvider,
@@ -53,11 +57,24 @@ module.exports = (
     };
 
     const getExtensionDisplayNameByRuleComponent = ruleComponent => {
-      const moduleDefinition = moduleProvider.getExtensionDefinition(
+      const extensionDefinition = moduleProvider.getExtensionDefinition(
         ruleComponent.modulePath
       );
 
-      return (moduleDefinition && moduleDefinition.displayName) || '';
+      return (extensionDefinition && extensionDefinition.displayName) || '';
+    };
+
+    const getExtensionSettingsByRuleComponent = (
+      ruleComponent,
+      syntethicEvent
+    ) => {
+      const extensionDefinition = moduleProvider.getExtensionDefinition(
+        ruleComponent.modulePath
+      );
+
+      const extensionSettings =
+        (extensionDefinition && extensionDefinition.settings) || {};
+      return replaceTokens(l, extensionSettings, syntethicEvent);
     };
 
     const getModuleDisplayNameByRuleComponent = ruleComponent => {
@@ -80,7 +97,7 @@ module.exports = (
     };
 
     const logActionError = (action, e) => {
-      logger.error(getErrorMessage(action, e.message, e.stack));
+      l.error(getErrorMessage(action, e.message, e.stack));
     };
 
     // var logConditionError = function(condition, rule, e) {
@@ -100,14 +117,14 @@ module.exports = (
     // };
 
     const logRuleStarting = ruleDefinition => {
-      logger.log(`Rule "${ruleDefinition.name}" is being executed.`);
+      l.log(`Rule "${ruleDefinition.name}" is being executed.`);
     };
 
     const logDelegateModuleCall = (module, payload) => {
       const m = getModuleDisplayNameByRuleComponent(module);
       const e = getExtensionDisplayNameByRuleComponent(module);
 
-      logger.log(
+      l.log(
         `Calling "${m}" module from the "${e}" extension.`,
         'Input: ',
         payload
@@ -118,7 +135,7 @@ module.exports = (
       const m = getModuleDisplayNameByRuleComponent(module);
       const e = getExtensionDisplayNameByRuleComponent(module);
 
-      logger.log(
+      l.log(
         `"${m}" module from the "${e}" extension returned.`,
         'Output:',
         output
@@ -205,9 +222,20 @@ module.exports = (
             const clonedPayload = clone(payload);
 
             Promise.resolve(
-              executeDelegateModule(action, clonedPayload, [
+              executeDelegateModule(l, action, clonedPayload, [
                 clonedPayload,
-                rule
+                {
+                  buildInfo,
+                  getDataElementValue: getDataElementValue.bind(null, l),
+                  propertySettings,
+                  extensionSettings: getExtensionSettingsByRuleComponent(
+                    action,
+                    clonedPayload
+                  ),
+                  logger: l,
+                  replaceTokens: replaceTokens.bind(null, l),
+                  rule
+                }
               ])
             ).then(result => {
               logDelegateModuleOutput(action, result);
@@ -242,17 +270,18 @@ module.exports = (
           return {
             actionId: rule.id,
             status: 'success',
-            logs: logger.getLogs()
+            logs: l.getLogs()
           };
         })
-        .catch(() => {
+        .catch(e => {
+          l.error(e);
+
           return {
             actionId: rule.id,
             status: 'failed',
-            logs: logger.getLogs()
+            logs: l.getLogs()
           };
-        })
-        .finally(() => logger.clearLogs());
+        });
     }
 
     rulePromises.push(lastPromiseInQueue);

@@ -14,16 +14,10 @@ const createGetDataElementValue = require('./createGetDataElementValue');
 const createModuleProvider = require('./createModuleProvider');
 const createIsDataElement = require('./createIsDataElement');
 const executeRules = require('./executeRules');
-const hydrateScopedUtilities = require('./hydrateScopedUtilities');
-const logger = require('./logger');
 
-let scopedTurbineVariable = {};
 const moduleProvider = createModuleProvider();
 
 const initialize = container => {
-  // TODO: Maybe enable this via a header value.
-  logger.outputEnabled = true;
-
   const { undefinedVarsReturnEmpty } = container.property.settings;
   const dataElements = container.dataElements || {};
 
@@ -61,27 +55,16 @@ const initialize = container => {
     undefinedVarsReturnEmpty
   );
 
-  scopedTurbineVariable = hydrateScopedUtilities(
-    container,
-    replaceTokens,
-    getDataElementValue
-  );
-
   moduleProvider.registerModules(container.modules, container.extensions);
-
   return executeRules.bind(
     null,
     moduleProvider,
     replaceTokens,
-    container.rules
+    getDataElementValue,
+    container
   );
 };
 
 module.exports = {
-  initialize,
-  getScopedExtensionUtilities: function getScopedExtensionUtilities(
-    extensionPackageId
-  ) {
-    return scopedTurbineVariable[extensionPackageId];
-  }
+  initialize
 };

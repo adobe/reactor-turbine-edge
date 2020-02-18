@@ -10,69 +10,70 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
-var cleanText = require('./cleanText');
-var logger = require('./logger');
+const cleanText = require('./cleanText');
 
-var getErrorMessage = function(dataDef, dataElementName, errorMessage, errorStack) {
-  return 'Failed to execute data element module ' + dataDef.modulePath + ' for data element ' +
-    dataElementName + '. ' + errorMessage + (errorStack ? '\n' + errorStack : '');
-};
+const getErrorMessage = (dataDef, dataElementName, errorMessage, errorStack) =>
+  `Failed to execute data element module ${
+    dataDef.modulePath
+  } for data element ${dataElementName}. ${errorMessage} ${
+    errorStack ? `\n ${errorStack} ` : ''
+  }`;
 
-var isDataElementValuePresent = function(value) {
-  return value !== undefined && value !== null;
-};
+const isDataElementValuePresent = value =>
+  value !== undefined && value !== null;
 
-module.exports = function(
+module.exports = (
   moduleProvider,
   getDataElementDefinition,
   replaceTokens,
   undefinedVarsReturnEmpty
-) {
-  return function(name, syntheticEvent) {
+) => (logger, name, syntheticEvent) => {
+  const dataDef = getDataElementDefinition(name);
+  let value = undefinedVarsReturnEmpty ? '' : null;
 
-    var dataDef = getDataElementDefinition(name);
-
-    if (!dataDef) {
-      return undefinedVarsReturnEmpty ? '' : null;
-    }
-
-    var moduleExports;
-
-    try {
-      moduleExports = moduleProvider.getModuleExports(dataDef.modulePath);
-    } catch (e) {
-      logger.error(getErrorMessage(dataDef, name, e.message, e.stack));
-      return;
-    }
-
-    if (typeof moduleExports !== 'function') {
-      logger.error(getErrorMessage(dataDef, name, 'Module did not export a function.'));
-      return;
-    }
-
-    var value;
-
-    try {
-      value = moduleExports(replaceTokens(dataDef.settings, syntheticEvent), syntheticEvent);
-    } catch (e) {
-      logger.error(getErrorMessage(dataDef, name, e.message, e.stack));
-      return;
-    }
-
-    if (!isDataElementValuePresent(value)) {
-      value = dataDef.defaultValue || '';
-    }
-
-    if (typeof value === 'string') {
-      if (dataDef.cleanText) {
-        value = cleanText(value);
-      }
-
-      if (dataDef.forceLowerCase) {
-        value = value.toLowerCase();
-      }
-    }
-
+  if (!dataDef) {
     return value;
-  };
+  }
+
+  let moduleExports;
+
+  try {
+    moduleExports = moduleProvider.getModuleExports(dataDef.modulePath);
+  } catch (e) {
+    logger.error(getErrorMessage(dataDef, name, e.message, e.stack));
+    return value;
+  }
+
+  if (typeof moduleExports !== 'function') {
+    logger.error(
+      getErrorMessage(dataDef, name, 'Module did not export a function.')
+    );
+    return value;
+  }
+
+  try {
+    value = moduleExports(
+      replaceTokens(logger, dataDef.settings, syntheticEvent),
+      syntheticEvent
+    );
+  } catch (e) {
+    logger.error(getErrorMessage(dataDef, name, e.message, e.stack));
+    return value;
+  }
+
+  if (!isDataElementValuePresent(value)) {
+    value = dataDef.defaultValue || value;
+  }
+
+  if (typeof value === 'string') {
+    if (dataDef.cleanText) {
+      value = cleanText(value);
+    }
+
+    if (dataDef.forceLowerCase) {
+      value = value.toLowerCase();
+    }
+  }
+
+  return value;
 };

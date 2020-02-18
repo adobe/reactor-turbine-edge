@@ -10,8 +10,6 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
-var logger = require('./logger');
-
 /**
  * Replacing any variable tokens (%myDataElement%, %this.foo%, etc.) with their associated values.
  * A new string, object, or array will be created; the thing being processed will never be
@@ -24,20 +22,22 @@ var logger = require('./logger');
  * %target.something%)
  * @returns {*} A processed value.
  */
-module.exports = function(isDataElement, getDataElementValue, undefinedVarsReturnEmpty) {
-  var replaceTokensInString;
-  var replaceTokensInObject;
-  var replaceTokensInArray;
-  var replaceTokens;
-  var variablesBeingRetrieved = [];
+module.exports = (
+  isDataElement,
+  getDataElementValue,
+  undefinedVarsReturnEmpty
+) => {
+  let replaceTokens;
 
-  var getVarValue = function(token, variableName, syntheticEvent) {
+  const variablesBeingRetrieved = [];
+
+  const getVarValue = (logger, token, variableName, syntheticEvent) => {
     if (!isDataElement(variableName)) {
       return token;
     }
 
     variablesBeingRetrieved.push(variableName);
-    var val = getDataElementValue(variableName, syntheticEvent);
+    const val = getDataElementValue(logger, variableName, syntheticEvent);
     variablesBeingRetrieved.pop();
     return val == null && undefinedVarsReturnEmpty ? '' : val;
   };
@@ -52,59 +52,67 @@ module.exports = function(isDataElement, getDataElementValue, undefinedVarsRetur
    * @param event {Object} The event object to use for tokens in the form of %target.property%.
    * @returns {*}
    */
-  replaceTokensInString = function(str, syntheticEvent) {
+  const replaceTokensInString = (logger, str, syntheticEvent) => {
     // Is the string a single data element token and nothing else?
-    var result = /^%([^%]+)%$/.exec(str);
+    const result = /^%([^%]+)%$/.exec(str);
 
     if (result) {
-      return getVarValue(str, result[1], syntheticEvent);
-    } else {
-      return str.replace(/%(.+?)%/g, function(token, variableName) {
-        return getVarValue(token, variableName, syntheticEvent);
-      });
+      return getVarValue(logger, str, result[1], syntheticEvent);
     }
+
+    return str.replace(/%(.+?)%/g, (token, variableName) => {
+      return getVarValue(logger, token, variableName, syntheticEvent);
+    });
   };
 
-  replaceTokensInObject = function(obj, syntheticEvent) {
-    var ret = {};
-    var keys = Object.keys(obj);
-    for (var i = 0; i < keys.length; i++) {
-      var key = keys[i];
-      var value = obj[key];
-      ret[key] = replaceTokens(value, syntheticEvent);
-    }
-    return ret;
-  };
-
-  replaceTokensInArray = function(arr, syntheticEvent) {
-    var ret = [];
-    for (var i = 0, len = arr.length; i < len; i++) {
-      ret.push(replaceTokens(arr[i], syntheticEvent));
+  const replaceTokensInObject = (logger, obj, syntheticEvent) => {
+    const ret = {};
+    const keys = Object.keys(obj);
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i];
+      const value = obj[key];
+      ret[key] = replaceTokens(logger, value, syntheticEvent);
     }
     return ret;
   };
 
-  replaceTokens = function(thing, syntheticEvent) {
+  const replaceTokensInArray = (logger, arr, syntheticEvent) => {
+    const ret = [];
+    for (let i = 0, len = arr.length; i < len; i += 1) {
+      ret.push(replaceTokens(logger, arr[i], syntheticEvent));
+    }
+    return ret;
+  };
+
+  replaceTokens = (logger, thing, syntheticEvent) => {
     if (typeof thing === 'string') {
-      return replaceTokensInString(thing, syntheticEvent);
-    } else if (Array.isArray(thing)) {
-      return replaceTokensInArray(thing, syntheticEvent);
-    } else if (typeof thing === 'object' && thing !== null) {
-      return replaceTokensInObject(thing, syntheticEvent);
+      return replaceTokensInString(logger, thing, syntheticEvent);
+    }
+
+    if (Array.isArray(thing)) {
+      return replaceTokensInArray(logger, thing, syntheticEvent);
+    }
+
+    if (typeof thing === 'object' && thing !== null) {
+      return replaceTokensInObject(logger, thing, syntheticEvent);
     }
 
     return thing;
   };
 
-  return function(thing, syntheticEvent) {
+  return (logger, thing, syntheticEvent) => {
     // It's possible for a data element to reference another data element. Because of this,
     // we need to prevent circular dependencies from causing an infinite loop.
     if (variablesBeingRetrieved.length > 10) {
-      logger.error('Data element circular reference detected: ' +
-        variablesBeingRetrieved.join(' -> '));
+      logger.error(
+        `Data element circular reference detected: ${variablesBeingRetrieved.join(
+          ' -> '
+        )}`
+      );
+
       return thing;
     }
 
-    return replaceTokens(thing, syntheticEvent);
+    return replaceTokens(logger, thing, syntheticEvent);
   };
 };

@@ -12,8 +12,6 @@
 
 const clone = require('./clone');
 
-let logs = [];
-
 /**
  * Log levels.
  * @readonly
@@ -41,98 +39,81 @@ const ROCKET = '\uD83D\uDE80';
 const launchPrefix = ROCKET;
 
 /**
- * Whether logged messages should be output to the console.
- * @type {boolean}
- */
-let outputEnabled = false;
-
-/**
  * Processes a log message.
  * @param {string} level The level of message to log.
  * @param {...*} arg Any argument to be logged.
  * @private
  */
-const process = (level, ...logArguments) => {
-  if (outputEnabled) {
-    logArguments.unshift(launchPrefix);
+const process = (level, logs, ...logArguments) => {
+  logArguments.unshift(launchPrefix);
 
-    logs.push(
-      clone({
-        timestamp: Date.now(),
-        type: level,
-        message: logArguments
-      })
-    );
-  }
+  logs.push(
+    clone({
+      timestamp: Date.now(),
+      type: level,
+      message: logArguments
+    })
+  );
 };
 
-/**
- * Outputs a message to the web console.
- * @param {...*} arg Any argument to be logged.
- */
-const log = process.bind(null, levels.LOG);
-
-/**
- * Outputs informational message to the web console. In some browsers a small "i" icon is
- * displayed next to these items in the web console's log.
- * @param {...*} arg Any argument to be logged.
- */
-const info = process.bind(null, levels.INFO);
-
-/**
- * Outputs debug message to the web console. In browsers that do not support
- * console.debug, console.info is used instead.
- * @param {...*} arg Any argument to be logged.
- */
-const debug = process.bind(null, levels.DEBUG);
-
-/**
- * Outputs a warning message to the web console.
- * @param {...*} arg Any argument to be logged.
- */
-const warn = process.bind(null, levels.WARN);
-
-/**
- * Outputs an error message to the web console.
- * @param {...*} arg Any argument to be logged.
- */
-const error = process.bind(null, levels.ERROR);
-
 module.exports = {
-  log,
-  info,
-  debug,
-  warn,
-  error,
+  createNewLogger: () => {
+    const logs = [];
 
-  getLogs: () => logs,
-  clearLogs: () => {
-    logs = [];
-  },
+    /**
+     * Outputs a message to the SSF logs.
+     * @param {...*} arg Any argument to be logged.
+     */
+    const log = process.bind(null, levels.LOG, logs);
 
-  /**
-   * Whether logged messages should be output to the console.
-   * @type {boolean}
-   */
-  get outputEnabled() {
-    return outputEnabled;
-  },
-  set outputEnabled(value) {
-    outputEnabled = value;
-  },
-  /**
-   * Creates a logging utility that only exposes logging functionality and prefixes all messages
-   * with an identifier.
-   */
-  createPrefixedLogger: identifier => {
-    const loggerSpecificPrefix = `[ ${identifier} ]`;
+    /**
+     * Outputs informational message to the SSF logs.
+     * @param {...*} arg Any argument to be logged.
+     */
+    const info = process.bind(null, levels.INFO, logs);
+
+    /**
+     * Outputs debug message to the SSF logs.
+     * @param {...*} arg Any argument to be logged.
+     */
+    const debug = process.bind(null, levels.DEBUG, logs);
+
+    /**
+     * Outputs a warning message to the SSF logs.
+     * @param {...*} arg Any argument to be logged.
+     */
+    const warn = process.bind(null, levels.WARN, logs);
+
+    /**
+     * Outputs an error message to the SSF logs.
+     * @param {...*} arg Any argument to be logged.
+     */
+    const error = process.bind(null, levels.ERROR, logs);
 
     return {
-      log: log.bind(null, loggerSpecificPrefix),
-      info: info.bind(null, loggerSpecificPrefix),
-      debug: debug.bind(null, loggerSpecificPrefix),
-      warn: warn.bind(null, loggerSpecificPrefix),
-      error: error.bind(null, loggerSpecificPrefix)
+      log,
+      info,
+      debug,
+      warn,
+      error,
+
+      getLogs: () => logs,
+
+      /**
+       * Creates a logging utility that only exposes logging functionality and prefixes all messages
+       * with an identifier.
+       */
+      createPrefixedLogger: identifier => {
+        const loggerSpecificPrefix = `[ ${identifier} ]`;
+
+        return {
+          log: log.bind(null, loggerSpecificPrefix),
+          info: info.bind(null, loggerSpecificPrefix),
+          debug: debug.bind(null, loggerSpecificPrefix),
+          warn: warn.bind(null, loggerSpecificPrefix),
+          error: error.bind(null, loggerSpecificPrefix)
+        };
+      }
     };
   }
 };
