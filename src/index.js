@@ -56,13 +56,7 @@ const initialize = container => {
   );
 
   moduleProvider.registerModules(container.modules, container.extensions);
-  return executeRules.bind(
-    null,
-    moduleProvider,
-    replaceTokens,
-    getDataElementValue,
-    container
-  );
+  return executeRules.bind(null, moduleProvider, replaceTokens, container);
 };
 
 module.exports = {

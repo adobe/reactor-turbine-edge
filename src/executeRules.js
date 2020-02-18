@@ -19,7 +19,6 @@ const PROMISE_TIMEOUT = 2000;
 module.exports = (
   moduleProvider,
   replaceTokens,
-  getDataElementValue,
   container,
   ruleIds,
   initialPayload
@@ -226,14 +225,12 @@ module.exports = (
                 clonedPayload,
                 {
                   buildInfo,
-                  getDataElementValue: getDataElementValue.bind(null, l),
                   propertySettings,
                   extensionSettings: getExtensionSettingsByRuleComponent(
                     action,
                     clonedPayload
                   ),
                   logger: l,
-                  replaceTokens: replaceTokens.bind(null, l),
                   rule
                 }
               ])
