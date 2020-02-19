@@ -7,8 +7,9 @@
     "build": "rollup -c && terser dist/engine-server.js -c -m -o dist/engine-server.min.js",
     "build:watch": "touch ./dist/engine-server.js & rollup --watch -c & watch -f ./dist/engine-server.js -r './node_modules/.bin/terser ./dist/engine-server.js -c -m -o ./dist/engine-server.min.js'",
     "prepublishOnly": "npm run build",
-    "test": "karma start",
-    "test:watch": "npm test -- --no-single-run --no-coverage",
+    "coverage": "nyc --reporter=lcov --reporter=html --reporter=text-summary --reporter=text ava",
+    "test": "ava",
+    "test:watch": "ava --watch",
     "lint": "eslint 'src/**/*.js'"
   },
   "author": {
@@ -21,6 +22,7 @@
     "url": "git@git.corp.adobe.com:reactor/reactor-turbine-server.git"
   },
   "devDependencies": {
+    "ava": "^3.3.0",
     "camelize": "1.0.0",
     "cli-watch": "^1.0.7",
     "eslint": "^6.8.0",
@@ -30,6 +32,7 @@
     "eslint-plugin-prettier": "^3.1.2",
     "inject-loader": "^4.0.1",
     "kebab-case": "1.0.0",
+    "nyc": "^15.0.0",
     "prettier": "^1.19.1",
     "rollup": "^1.31.0",
     "rollup-plugin-commonjs": "^10.1.0",
