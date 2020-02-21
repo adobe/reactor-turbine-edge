@@ -26,29 +26,27 @@ module.exports = (
   moduleProvider,
   getDataElementDefinition,
   replaceTokens,
-  undefinedVarsReturnEmpty
+  undefinedVarsReturnEmpty = false
 ) => (logger, name, syntheticEvent) => {
   const dataDef = getDataElementDefinition(name);
-  let value = undefinedVarsReturnEmpty ? '' : null;
 
   if (!dataDef) {
-    return value;
+    return undefinedVarsReturnEmpty ? '' : null;
   }
 
+  let value;
   let moduleExports;
 
   try {
     moduleExports = moduleProvider.getModuleExports(dataDef.modulePath);
   } catch (e) {
-    logger.error(getErrorMessage(dataDef, name, e.message, e.stack));
-    return value;
+    throw new Error(getErrorMessage(dataDef, name, e.message, e.stack));
   }
 
   if (typeof moduleExports !== 'function') {
-    logger.error(
+    throw new Error(
       getErrorMessage(dataDef, name, 'Module did not export a function.')
     );
-    return value;
   }
 
   try {
@@ -57,12 +55,11 @@ module.exports = (
       syntheticEvent
     );
   } catch (e) {
-    logger.error(getErrorMessage(dataDef, name, e.message, e.stack));
-    return value;
+    throw new Error(getErrorMessage(dataDef, name, e.message, e.stack));
   }
 
   if (!isDataElementValuePresent(value)) {
-    value = dataDef.defaultValue || value;
+    value = dataDef.defaultValue || '';
   }
 
   if (typeof value === 'string') {
