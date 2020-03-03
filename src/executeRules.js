@@ -265,7 +265,7 @@ module.exports = (
       lastPromiseInQueue = lastPromiseInQueue
         .then(() => {
           return {
-            actionId: rule.id,
+            ruleId: rule.id,
             status: 'success',
             logs: l.getLogs()
           };
@@ -274,7 +274,7 @@ module.exports = (
           l.error(e);
 
           return {
-            actionId: rule.id,
+            ruleId: rule.id,
             status: 'failed',
             logs: l.getLogs()
           };
