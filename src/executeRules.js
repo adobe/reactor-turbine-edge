@@ -36,9 +36,7 @@ module.exports = (
       return (ruleIds || []).indexOf(rule.id) !== -1;
     }) || []
   ).forEach(rule => {
-    let lastPromiseInQueue = Promise.resolve({
-      event: clone(initialPayload)
-    });
+    let lastPromiseInQueue = Promise.resolve(clone(initialPayload));
 
     const l = logger.createNewLogger();
 
