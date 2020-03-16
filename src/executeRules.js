@@ -40,10 +40,15 @@ module.exports = (
   ).forEach(rule => {
     let lastPromiseInQueue = Promise.resolve(clone(initialPayload));
 
-    const l = logger.createNewLogger({
-      requestId,
+    const logMeta = {
       ruleId: rule.id
-    });
+    };
+
+    if (requestId) {
+      logMeta.requestId = requestId;
+    }
+
+    const l = logger.createNewLogger(logMeta);
 
     const executeDelegateModule = createExecuteDelegateModule(
       moduleProvider,
