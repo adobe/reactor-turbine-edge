@@ -10,8 +10,6 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
-const clone = require('./clone');
-
 /**
  * Log levels.
  * @readonly
@@ -44,51 +42,52 @@ const launchPrefix = ROCKET;
  * @param {...*} arg Any argument to be logged.
  * @private
  */
-const process = (level, logs, ...logArguments) => {
+const process = (level, meta, logs, ...logArguments) => {
   logArguments.unshift(launchPrefix);
 
-  logs.push(
-    clone({
-      timestamp: Date.now(),
-      type: level,
-      message: logArguments
-    })
-  );
+  logs.push({
+    timestamp: Date.now(),
+    level,
+    message: logArguments.map(l =>
+      typeof l !== 'string' ? JSON.stringify(l) : l
+    ),
+    meta
+  });
 };
 
 module.exports = {
-  createNewLogger: () => {
+  createNewLogger: meta => {
     const logs = [];
 
     /**
      * Outputs a message to the SSF logs.
      * @param {...*} arg Any argument to be logged.
      */
-    const log = process.bind(null, levels.LOG, logs);
+    const log = process.bind(null, levels.LOG, meta, logs);
 
     /**
      * Outputs informational message to the SSF logs.
      * @param {...*} arg Any argument to be logged.
      */
-    const info = process.bind(null, levels.INFO, logs);
+    const info = process.bind(null, levels.INFO, meta, logs);
 
     /**
      * Outputs debug message to the SSF logs.
      * @param {...*} arg Any argument to be logged.
      */
-    const debug = process.bind(null, levels.DEBUG, logs);
+    const debug = process.bind(null, levels.DEBUG, meta, logs);
 
     /**
      * Outputs a warning message to the SSF logs.
      * @param {...*} arg Any argument to be logged.
      */
-    const warn = process.bind(null, levels.WARN, logs);
+    const warn = process.bind(null, levels.WARN, meta, logs);
 
     /**
      * Outputs an error message to the SSF logs.
      * @param {...*} arg Any argument to be logged.
      */
-    const error = process.bind(null, levels.ERROR, logs);
+    const error = process.bind(null, levels.ERROR, meta, logs);
 
     return {
       log,

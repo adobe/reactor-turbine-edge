@@ -21,9 +21,11 @@ module.exports = (
   replaceTokens,
   container,
   ruleIds,
-  initialPayload
+  initialPayload,
+  { requestId, debugSessionId }
 ) => {
   const rulePromises = [];
+  const logResult = Boolean(debugSessionId);
 
   const {
     rules,
@@ -38,7 +40,10 @@ module.exports = (
   ).forEach(rule => {
     let lastPromiseInQueue = Promise.resolve(clone(initialPayload));
 
-    const l = logger.createNewLogger();
+    const l = logger.createNewLogger({
+      requestId,
+      ruleId: rule.id
+    });
 
     const executeDelegateModule = createExecuteDelegateModule(
       moduleProvider,
@@ -262,20 +267,32 @@ module.exports = (
 
       lastPromiseInQueue = lastPromiseInQueue
         .then(() => {
-          return {
+          const r = {
             ruleId: rule.id,
-            status: 'success',
-            logs: l.getLogs()
+            status: 'success'
           };
+
+          if (logResult) {
+            r.logs = l.getLogs();
+          }
+
+          return r;
         })
         .catch(e => {
           l.error(e);
 
           return {
             ruleId: rule.id,
-            status: 'failed',
-            logs: l.getLogs()
+            status: 'failed'
           };
+        })
+        .then(baseResult => {
+          const r = baseResult;
+          if (logResult) {
+            r.logs = l.getLogs();
+          }
+
+          return r;
         });
     }
 
