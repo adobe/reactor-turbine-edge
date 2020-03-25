@@ -38,17 +38,19 @@ const launchPrefix = ROCKET;
 
 /**
  * Processes a log message.
- * @param {string} level The level of message to log.
+ * @param {string} logLevel The level of message to log.
+ * @param {object} meta Meta information related to the log (eg. ruleId, requestId).
+ * @param {array} logs Queue where the log should be pushed.
  * @param {...*} arg Any argument to be logged.
  * @private
  */
-const process = (level, meta, logs, ...logArguments) => {
+const process = (logLevel, meta, logs, ...logArguments) => {
   logArguments.unshift(launchPrefix);
 
   logs.push({
     timestamp: Date.now(),
-    level,
-    message: logArguments.map(l =>
+    logLevel,
+    messages: logArguments.map(l =>
       typeof l !== 'string' ? JSON.stringify(l) : l
     ),
     meta
