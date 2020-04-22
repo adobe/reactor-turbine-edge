@@ -22,7 +22,7 @@ module.exports = (
   container,
   ruleIds,
   initialPayload,
-  { requestId, debugSessionId }
+  { requestId, debugSessionId } = {}
 ) => {
   const rulePromises = [];
   const logResult = Boolean(debugSessionId);
