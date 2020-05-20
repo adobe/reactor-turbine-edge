@@ -48,12 +48,7 @@ const initialize = container => {
   );
 
   const isDataElement = createIsDataElement(getDataElementDefinition);
-
-  replaceTokens = createReplaceTokens(
-    isDataElement,
-    getDataElementValue,
-    undefinedVarsReturnEmpty
-  );
+  replaceTokens = createReplaceTokens(isDataElement, getDataElementValue);
 
   moduleProvider.registerModules(container.modules, container.extensions);
   return executeRules.bind(null, moduleProvider, replaceTokens, container);

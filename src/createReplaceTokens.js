@@ -22,11 +22,7 @@
  * %target.something%)
  * @returns {*} A processed value.
  */
-module.exports = (
-  isDataElement,
-  getDataElementValue,
-  undefinedVarsReturnEmpty
-) => {
+module.exports = (isDataElement, getDataElementValue) => {
   let replaceTokens;
 
   const variablesBeingRetrieved = [];
@@ -39,7 +35,7 @@ module.exports = (
     variablesBeingRetrieved.push(variableName);
     const val = getDataElementValue(logger, variableName, syntheticEvent);
     variablesBeingRetrieved.pop();
-    return val == null && undefinedVarsReturnEmpty ? '' : val;
+    return val;
   };
 
   /**
@@ -67,12 +63,12 @@ module.exports = (
 
   const replaceTokensInObject = (logger, obj, syntheticEvent) => {
     const ret = {};
-    const keys = Object.keys(obj);
-    for (let i = 0; i < keys.length; i += 1) {
-      const key = keys[i];
+
+    Object.keys(obj).forEach(key => {
       const value = obj[key];
       ret[key] = replaceTokens(logger, value, syntheticEvent);
-    }
+    });
+
     return ret;
   };
 
@@ -104,13 +100,11 @@ module.exports = (
     // It's possible for a data element to reference another data element. Because of this,
     // we need to prevent circular dependencies from causing an infinite loop.
     if (variablesBeingRetrieved.length > 10) {
-      logger.error(
+      throw new Error(
         `Data element circular reference detected: ${variablesBeingRetrieved.join(
           ' -> '
         )}`
       );
-
-      return thing;
     }
 
     return replaceTokens(logger, thing, syntheticEvent);

@@ -107,21 +107,19 @@ module.exports = (
       l.error(getErrorMessage(action, e.message, e.stack));
     };
 
-    // var logConditionError = function(condition, rule, e) {
-    //   logger.error(getErrorMessage(condition, rule, e.message, e.stack));
-    // };
+    const logConditionError = (condition, e) => {
+      l.error(getErrorMessage(condition, e.message, e.stack));
+    };
 
-    // var logConditionNotMet = function(condition, rule) {
-    //   var conditionDisplayName = getModuleDisplayNameByRuleComponent(condition);
+    const logConditionNotMet = (condition, r) => {
+      const conditionDisplayName = getModuleDisplayNameByRuleComponent(
+        condition
+      );
 
-    //   logger.log(
-    //     'Condition ' +
-    //       conditionDisplayName +
-    //       ' for rule ' +
-    //       rule.name +
-    //       ' not met.'
-    //   );
-    // };
+      logger.log(
+        `Condition ${conditionDisplayName}  for rule ${r.name} not met.`
+      );
+    };
 
     const logRuleStarting = ruleDefinition => {
       l.log(`Rule "${ruleDefinition.name}" is being executed.`);
@@ -165,45 +163,65 @@ module.exports = (
       return newError;
     };
 
-    // var isConditionMet = function(condition, result) {
-    //   return (result && !condition.negate) || (!result && condition.negate);
-    // };
+    const isConditionMet = (condition, result) => {
+      return (result && !condition.negate) || (!result && condition.negate);
+    };
 
-    // if (rule.conditions) {
-    //   rule.conditions.forEach(function(condition) {
-    //     lastPromiseInQueue = lastPromiseInQueue.then(function() {
-    //       var timeoutId;
+    if (rule.conditions) {
+      rule.conditions.forEach(condition => {
+        lastPromiseInQueue = lastPromiseInQueue.then(payload => {
+          let timeoutId;
 
-    //       return new Promise(function(resolve, reject) {
-    //         timeoutId = setTimeout(function() {
-    //           // Reject instead of resolve to prevent subsequent
-    //           // conditions and actions from executing.
-    //           reject(
-    //             'A timeout occurred because the condition took longer than ' +
-    //               PROMISE_TIMEOUT / 1000 +
-    //               ' seconds to complete. '
-    //           );
-    //         }, PROMISE_TIMEOUT);
+          return new Promise((resolve, reject) => {
+            timeoutId = setTimeout(() => {
+              // Reject instead of resolve to prevent subsequent
+              // conditions and actions from executing.
+              reject(
+                new Error(
+                  `A timeout occurred because the condition took longer than ${PROMISE_TIMEOUT /
+                    1000} seconds to complete. `
+                )
+              );
+            }, PROMISE_TIMEOUT);
 
-    //         Promise.resolve(
-    //           executeDelegateModule(condition, payload, [payload, rule])
-    //         ).then(resolve, reject);
-    //       })
-    //         .catch(function(e) {
-    //           e = normalizeError(e, condition);
-    //           logConditionError(condition, rule, e);
-    //           return false;
-    //         })
-    //         .then(function(result) {
-    //           clearTimeout(timeoutId);
-    //           if (!isConditionMet(condition, result)) {
-    //             logConditionNotMet(condition, rule);
-    //             return Promise.reject();
-    //           }
-    //         });
-    //     });
-    //   });
-    // }
+            const clonedPayload = clone(payload);
+            logDelegateModuleCall(condition, payload);
+
+            Promise.resolve(
+              executeDelegateModule(l, condition, clonedPayload, [
+                clonedPayload,
+                {
+                  buildInfo,
+                  propertySettings,
+                  extensionSettings: getExtensionSettingsByRuleComponent(
+                    condition,
+                    clonedPayload
+                  ),
+                  logger: l,
+                  rule
+                }
+              ])
+            ).then(result => {
+              logDelegateModuleOutput(condition, result);
+              resolve(result);
+            }, reject);
+          })
+            .catch(e => {
+              logConditionError(condition, normalizeError(e));
+              return false;
+            })
+            .then(result => {
+              clearTimeout(timeoutId);
+              if (!isConditionMet(condition, result)) {
+                logConditionNotMet(condition, rule);
+                return Promise.reject();
+              }
+
+              return payload;
+            });
+        });
+      });
+    }
 
     if (rule.actions) {
       lastPromiseInQueue = lastPromiseInQueue.then(p => {
@@ -272,20 +290,12 @@ module.exports = (
 
       lastPromiseInQueue = lastPromiseInQueue
         .then(() => {
-          const r = {
+          return {
             ruleId: rule.id,
             status: 'success'
           };
-
-          if (logResult) {
-            r.logs = l.getLogs();
-          }
-
-          return r;
         })
-        .catch(e => {
-          l.error(e);
-
+        .catch(() => {
           return {
             ruleId: rule.id,
             status: 'failed'
