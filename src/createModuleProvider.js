@@ -19,22 +19,22 @@ module.exports = () => {
       modules = newModules;
       extensions = newExtensions;
 
-      Object.keys(modules).forEach(delegateDescriptorId => {
+      Object.keys(modules).forEach((delegateDescriptorId) => {
         modules[delegateDescriptorId].script = modules[
           delegateDescriptorId
         ].script();
       });
     },
 
-    getModuleDefinition: modulePath => {
+    getModuleDefinition: (modulePath) => {
       return modules[modulePath];
     },
 
-    getExtensionDefinition: modulePath => {
+    getExtensionDefinition: (modulePath) => {
       return extensions[modules[modulePath].extensionName];
     },
 
-    getModuleExports: modulePath => {
+    getModuleExports: (modulePath) => {
       return modules[modulePath].script;
     }
   };

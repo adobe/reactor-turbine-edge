@@ -10,6 +10,7 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 const createReplaceTokens = require('./createReplaceTokens');
+const searchTokens = require('./searchTokens');
 const createGetDataElementValue = require('./createGetDataElementValue');
 const createModuleProvider = require('./createModuleProvider');
 const createIsDataElement = require('./createIsDataElement');
@@ -17,11 +18,11 @@ const executeRules = require('./executeRules');
 
 const moduleProvider = createModuleProvider();
 
-const initialize = container => {
+const initialize = (container) => {
   const { undefinedVarsReturnEmpty } = container.property.settings;
   const dataElements = container.dataElements || {};
 
-  const getDataElementDefinition = name => {
+  const getDataElementDefinition = (name) => {
     return dataElements[name];
   };
 
@@ -48,7 +49,11 @@ const initialize = container => {
   );
 
   const isDataElement = createIsDataElement(getDataElementDefinition);
-  replaceTokens = createReplaceTokens(isDataElement, getDataElementValue);
+  replaceTokens = createReplaceTokens(
+    isDataElement,
+    getDataElementValue,
+    searchTokens
+  );
 
   moduleProvider.registerModules(container.modules, container.extensions);
   return executeRules.bind(null, moduleProvider, replaceTokens, container);

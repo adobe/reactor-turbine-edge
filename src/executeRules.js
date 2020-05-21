@@ -34,10 +34,10 @@ module.exports = (
   } = container;
 
   (
-    rules.filter(rule => {
+    rules.filter((rule) => {
       return (ruleIds || []).indexOf(rule.id) !== -1;
     }) || []
-  ).forEach(rule => {
+  ).forEach((rule) => {
     let lastPromiseInQueue = Promise.resolve(clone(initialPayload));
 
     const logMeta = {
@@ -48,14 +48,14 @@ module.exports = (
       logMeta.requestId = requestId;
     }
 
-    const l = logger.createNewLogger(logMeta);
+    const l = logger.createNewLogger(logMeta, logResult);
 
     const executeDelegateModule = createExecuteDelegateModule(
       moduleProvider,
       replaceTokens
     );
 
-    const getExtensionNameByRuleComponent = ruleComponent => {
+    const getExtensionNameByRuleComponent = (ruleComponent) => {
       const moduleDefinition = moduleProvider.getModuleDefinition(
         ruleComponent.modulePath
       );
@@ -63,7 +63,7 @@ module.exports = (
       return (moduleDefinition && moduleDefinition.extensionName) || '';
     };
 
-    const getExtensionDisplayNameByRuleComponent = ruleComponent => {
+    const getExtensionDisplayNameByRuleComponent = (ruleComponent) => {
       const extensionDefinition = moduleProvider.getExtensionDefinition(
         ruleComponent.modulePath
       );
@@ -84,7 +84,7 @@ module.exports = (
       return replaceTokens(l, extensionSettings, syntethicEvent);
     };
 
-    const getModuleDisplayNameByRuleComponent = ruleComponent => {
+    const getModuleDisplayNameByRuleComponent = (ruleComponent) => {
       const moduleDefinition = moduleProvider.getModuleDefinition(
         ruleComponent.modulePath
       );
@@ -121,7 +121,7 @@ module.exports = (
       );
     };
 
-    const logRuleStarting = ruleDefinition => {
+    const logRuleStarting = (ruleDefinition) => {
       l.log(`Rule "${ruleDefinition.name}" is being executed.`);
     };
 
@@ -147,7 +147,7 @@ module.exports = (
       );
     };
 
-    const normalizeError = e => {
+    const normalizeError = (e) => {
       let newError = e;
 
       if (!newError) {
@@ -167,9 +167,14 @@ module.exports = (
       return (result && !condition.negate) || (!result && condition.negate);
     };
 
+    lastPromiseInQueue = lastPromiseInQueue.then((p) => {
+      logRuleStarting(rule);
+      return p;
+    });
+
     if (rule.conditions) {
-      rule.conditions.forEach(condition => {
-        lastPromiseInQueue = lastPromiseInQueue.then(payload => {
+      rule.conditions.forEach((condition) => {
+        lastPromiseInQueue = lastPromiseInQueue.then((payload) => {
           let timeoutId;
 
           return new Promise((resolve, reject) => {
@@ -178,8 +183,9 @@ module.exports = (
               // conditions and actions from executing.
               reject(
                 new Error(
-                  `A timeout occurred because the condition took longer than ${PROMISE_TIMEOUT /
-                    1000} seconds to complete. `
+                  `A timeout occurred because the condition took longer than ${
+                    PROMISE_TIMEOUT / 1000
+                  } seconds to complete. `
                 )
               );
             }, PROMISE_TIMEOUT);
@@ -187,30 +193,29 @@ module.exports = (
             const clonedPayload = clone(payload);
             logDelegateModuleCall(condition, payload);
 
-            Promise.resolve(
-              executeDelegateModule(l, condition, clonedPayload, [
-                clonedPayload,
-                {
-                  buildInfo,
-                  propertySettings,
-                  extensionSettings: getExtensionSettingsByRuleComponent(
-                    condition,
-                    clonedPayload
-                  ),
-                  logger: l,
-                  rule
-                }
-              ])
-            ).then(result => {
-              logDelegateModuleOutput(condition, result);
-              resolve(result);
-            }, reject);
+            getExtensionSettingsByRuleComponent(condition, clonedPayload)
+              .then((extensionSettings) => {
+                return executeDelegateModule(l, condition, clonedPayload, [
+                  clonedPayload,
+                  {
+                    buildInfo,
+                    propertySettings,
+                    extensionSettings,
+                    logger: l,
+                    rule
+                  }
+                ]);
+              })
+              .then((result) => {
+                logDelegateModuleOutput(condition, result);
+                resolve(result);
+              }, reject);
           })
-            .catch(e => {
+            .catch((e) => {
               logConditionError(condition, normalizeError(e));
               return false;
             })
-            .then(result => {
+            .then((result) => {
               clearTimeout(timeoutId);
               if (!isConditionMet(condition, result)) {
                 logConditionNotMet(condition, rule);
@@ -224,21 +229,17 @@ module.exports = (
     }
 
     if (rule.actions) {
-      lastPromiseInQueue = lastPromiseInQueue.then(p => {
-        logRuleStarting(rule);
-        return p;
-      });
-
-      rule.actions.forEach(action => {
-        lastPromiseInQueue = lastPromiseInQueue.then(payload => {
+      rule.actions.forEach((action) => {
+        lastPromiseInQueue = lastPromiseInQueue.then((payload) => {
           let timeoutId;
 
           return new Promise((resolve, reject) => {
             timeoutId = setTimeout(() => {
               reject(
                 new Error(
-                  `A timeout occurred because the action took longer than ${PROMISE_TIMEOUT /
-                    1000} seconds to complete. `
+                  `A timeout occurred because the action took longer than ${
+                    PROMISE_TIMEOUT / 1000
+                  } seconds to complete. `
                 )
               );
             }, PROMISE_TIMEOUT);
@@ -246,33 +247,32 @@ module.exports = (
             logDelegateModuleCall(action, payload);
             const clonedPayload = clone(payload);
 
-            Promise.resolve(
-              executeDelegateModule(l, action, clonedPayload, [
-                clonedPayload,
-                {
-                  buildInfo,
-                  propertySettings,
-                  extensionSettings: getExtensionSettingsByRuleComponent(
-                    action,
-                    clonedPayload
-                  ),
-                  logger: l,
-                  rule
-                }
-              ])
-            ).then(result => {
-              logDelegateModuleOutput(action, result);
-              resolve(result);
-            }, reject);
+            getExtensionSettingsByRuleComponent(action, clonedPayload)
+              .then((extensionSettings) => {
+                return executeDelegateModule(l, action, clonedPayload, [
+                  clonedPayload,
+                  {
+                    buildInfo,
+                    propertySettings,
+                    extensionSettings,
+                    logger: l,
+                    rule
+                  }
+                ]);
+              })
+              .then((result) => {
+                logDelegateModuleOutput(action, result);
+                resolve(result);
+              }, reject);
           })
-            .catch(e => {
+            .catch((e) => {
               logActionError(action, normalizeError(e));
               throw e;
             })
             .finally(() => {
               clearTimeout(timeoutId);
             })
-            .then(result => {
+            .then((result) => {
               const extensionName = getExtensionNameByRuleComponent(action);
               const newPayload = payload;
 
@@ -301,10 +301,11 @@ module.exports = (
             status: 'failed'
           };
         })
-        .then(baseResult => {
+        .then((baseResult) => {
           const r = baseResult;
           if (logResult) {
-            r.logs = l.getLogs();
+            r.logs = l.getJsonLogs();
+            l.flushLogsToConsole();
           }
 
           return r;

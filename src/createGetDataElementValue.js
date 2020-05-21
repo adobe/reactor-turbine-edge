@@ -19,7 +19,7 @@ const getErrorMessage = (dataDef, dataElementName, errorMessage, errorStack) =>
     errorStack ? `\n ${errorStack} ` : ''
   }`;
 
-const isDataElementValuePresent = value =>
+const isDataElementValuePresent = (value) =>
   value !== undefined && value !== null;
 
 module.exports = (
@@ -34,7 +34,7 @@ module.exports = (
     return undefinedVarsReturnEmpty ? '' : null;
   }
 
-  let value;
+  let valuePromise;
   let moduleExports;
 
   try {
@@ -50,27 +50,32 @@ module.exports = (
   }
 
   try {
-    value = moduleExports(
-      replaceTokens(logger, dataDef.settings, syntheticEvent),
-      syntheticEvent
+    valuePromise = replaceTokens(logger, dataDef.settings, syntheticEvent).then(
+      (replaceSettings) => {
+        return moduleExports(replaceSettings, syntheticEvent);
+      }
     );
   } catch (e) {
     throw new Error(getErrorMessage(dataDef, name, e.message, e.stack));
   }
 
-  if (!isDataElementValuePresent(value)) {
-    value = dataDef.defaultValue || '';
-  }
+  return valuePromise.then((resolvedValue) => {
+    let value = resolvedValue;
 
-  if (typeof value === 'string') {
-    if (dataDef.cleanText) {
-      value = cleanText(value);
+    if (!isDataElementValuePresent(resolvedValue)) {
+      value = dataDef.defaultValue || '';
     }
 
-    if (dataDef.forceLowerCase) {
-      value = value.toLowerCase();
-    }
-  }
+    if (typeof value === 'string') {
+      if (dataDef.cleanText) {
+        value = cleanText(value);
+      }
 
-  return value;
+      if (dataDef.forceLowerCase) {
+        value = value.toLowerCase();
+      }
+    }
+
+    return value;
+  });
 };

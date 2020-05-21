@@ -16,24 +16,23 @@
  * modified.
  * @param {*} thing Thing potentially containing variable tokens. Objects and arrays will be
  * deeply processed.
- * @param {HTMLElement} [element] Associated HTML element. Used for special tokens
- * (%this.something%).
  * @param {Object} [event] Associated event. Used for special tokens (%event.something%,
  * %target.something%)
  * @returns {*} A processed value.
  */
-module.exports = (isDataElement, getDataElementValue) => {
+
+module.exports = (isDataElement, getDataElementValue, searchTokens) => {
   let replaceTokens;
 
   const variablesBeingRetrieved = [];
 
-  const getVarValue = (logger, token, variableName, syntheticEvent) => {
+  const getVarValue = (token, variableName, tokensBucket) => {
     if (!isDataElement(variableName)) {
       return token;
     }
 
     variablesBeingRetrieved.push(variableName);
-    const val = getDataElementValue(logger, variableName, syntheticEvent);
+    const val = tokensBucket[token];
     variablesBeingRetrieved.pop();
     return val;
   };
@@ -48,49 +47,49 @@ module.exports = (isDataElement, getDataElementValue) => {
    * @param event {Object} The event object to use for tokens in the form of %target.property%.
    * @returns {*}
    */
-  const replaceTokensInString = (logger, str, syntheticEvent) => {
+  const replaceTokensInString = (str, tokensBucket) => {
     // Is the string a single data element token and nothing else?
     const result = /^%([^%]+)%$/.exec(str);
 
     if (result) {
-      return getVarValue(logger, str, result[1], syntheticEvent);
+      return getVarValue(str, result[1], tokensBucket);
     }
 
     return str.replace(/%(.+?)%/g, (token, variableName) => {
-      return getVarValue(logger, token, variableName, syntheticEvent);
+      return getVarValue(token, variableName, tokensBucket);
     });
   };
 
-  const replaceTokensInObject = (logger, obj, syntheticEvent) => {
+  const replaceTokensInObject = (obj, tokensBucket) => {
     const ret = {};
 
-    Object.keys(obj).forEach(key => {
+    Object.keys(obj).forEach((key) => {
       const value = obj[key];
-      ret[key] = replaceTokens(logger, value, syntheticEvent);
+      ret[key] = replaceTokens(value, tokensBucket);
     });
 
     return ret;
   };
 
-  const replaceTokensInArray = (logger, arr, syntheticEvent) => {
+  const replaceTokensInArray = (arr, tokensBucket) => {
     const ret = [];
     for (let i = 0, len = arr.length; i < len; i += 1) {
-      ret.push(replaceTokens(logger, arr[i], syntheticEvent));
+      ret.push(replaceTokens(arr[i], tokensBucket));
     }
     return ret;
   };
 
-  replaceTokens = (logger, thing, syntheticEvent) => {
+  replaceTokens = (thing, tokensBucket) => {
     if (typeof thing === 'string') {
-      return replaceTokensInString(logger, thing, syntheticEvent);
+      return replaceTokensInString(thing, tokensBucket);
     }
 
     if (Array.isArray(thing)) {
-      return replaceTokensInArray(logger, thing, syntheticEvent);
+      return replaceTokensInArray(thing, tokensBucket);
     }
 
     if (typeof thing === 'object' && thing !== null) {
-      return replaceTokensInObject(logger, thing, syntheticEvent);
+      return replaceTokensInObject(thing, tokensBucket);
     }
 
     return thing;
@@ -107,6 +106,19 @@ module.exports = (isDataElement, getDataElementValue) => {
       );
     }
 
-    return replaceTokens(logger, thing, syntheticEvent);
+    const promises = [];
+    const tokensToBeReplaced = searchTokens(thing);
+    tokensToBeReplaced.forEach((t) => {
+      promises.push(getDataElementValue(logger, t, syntheticEvent));
+    });
+
+    return Promise.all(promises).then((dataElementValues) => {
+      const tokensBucket = tokensToBeReplaced.reduce((acc, k, i) => {
+        acc[`%${k}%`] = dataElementValues[i];
+        return acc;
+      }, {});
+
+      return replaceTokens(thing, tokensBucket);
+    });
   };
 };

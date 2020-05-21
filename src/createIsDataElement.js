@@ -16,8 +16,8 @@
  * @param variableName
  * @returns {boolean}
  */
-module.exports = function(getDataElementDefinition) {
-  return function(variableName) {
+module.exports = (getDataElementDefinition) => {
+  return (variableName) => {
     return Boolean(getDataElementDefinition(variableName));
   };
 };

@@ -28,13 +28,15 @@ module.exports = (moduleProvider, replaceTokens) => {
       throw new Error(MODULE_NOT_FUNCTION_ERROR);
     }
 
-    const settings = replaceTokens(
+    return replaceTokens(
       logger,
       moduleDescriptor.settings || {},
       syntheticEvent
-    );
+    ).then((replacedSettings) => {
+      const settings = replacedSettings;
 
-    moduleCallParameters.unshift(settings);
-    return moduleExports(...moduleCallParameters);
+      moduleCallParameters.unshift(settings);
+      return moduleExports(...moduleCallParameters);
+    });
   };
 };
