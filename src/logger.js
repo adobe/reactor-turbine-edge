@@ -10,6 +10,9 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
+const clone = require('./clone');
+const emptyFn = () => {};
+
 /**
  * Log levels.
  * @readonly
@@ -50,46 +53,54 @@ const process = (logLevel, meta, logs, ...logArguments) => {
   logs.push({
     timestamp: Date.now(),
     logLevel,
-    messages: logArguments.map(l =>
-      typeof l !== 'string' ? JSON.stringify(l) : l
-    ),
+    messages: clone(logArguments),
     meta
   });
 };
 
 module.exports = {
-  createNewLogger: meta => {
-    const logs = [];
+  createNewLogger: (meta, logEnabled) => {
+    let logs = [];
 
     /**
      * Outputs a message to the SSF logs.
      * @param {...*} arg Any argument to be logged.
      */
-    const log = process.bind(null, levels.LOG, meta, logs);
+    const log = logEnabled
+      ? process.bind(null, levels.LOG, meta, logs)
+      : emptyFn;
 
     /**
      * Outputs informational message to the SSF logs.
      * @param {...*} arg Any argument to be logged.
      */
-    const info = process.bind(null, levels.INFO, meta, logs);
+    const info = logEnabled
+      ? process.bind(null, levels.INFO, meta, logs)
+      : emptyFn;
 
     /**
      * Outputs debug message to the SSF logs.
      * @param {...*} arg Any argument to be logged.
      */
-    const debug = process.bind(null, levels.DEBUG, meta, logs);
+    const debug = logEnabled
+      ? process.bind(null, levels.DEBUG, meta, logs)
+      : emptyFn;
 
     /**
      * Outputs a warning message to the SSF logs.
      * @param {...*} arg Any argument to be logged.
      */
-    const warn = process.bind(null, levels.WARN, meta, logs);
+    const warn = logEnabled
+      ? process.bind(null, levels.WARN, meta, logs)
+      : emptyFn;
 
     /**
      * Outputs an error message to the SSF logs.
      * @param {...*} arg Any argument to be logged.
      */
-    const error = process.bind(null, levels.ERROR, meta, logs);
+    const error = logEnabled
+      ? process.bind(null, levels.ERROR, meta, logs)
+      : emptyFn;
 
     return {
       log,
@@ -98,13 +109,25 @@ module.exports = {
       warn,
       error,
 
-      getLogs: () => logs,
+      getJsonLogs: () =>
+        logs.map((l) => (typeof l !== 'string' ? JSON.stringify(l) : l)),
+
+      flushLogsToConsole: () => {
+        if (typeof console !== 'undefined') {
+          logs.forEach((l) => {
+            // eslint-disable-next-line no-console
+            console[l.logLevel || 'log'].apply(null, l.messages);
+          });
+
+          logs = [];
+        }
+      },
 
       /**
        * Creates a logging utility that only exposes logging functionality and prefixes all messages
        * with an identifier.
        */
-      createPrefixedLogger: identifier => {
+      createPrefixedLogger: (identifier) => {
         const loggerSpecificPrefix = `[ ${identifier} ]`;
 
         return {
