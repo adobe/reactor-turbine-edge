@@ -27,7 +27,7 @@ module.exports = (
   getDataElementDefinition,
   replaceTokens,
   undefinedVarsReturnEmpty = false
-) => (logger, name, syntheticEvent) => {
+) => (logger, name, payload) => {
   const dataDef = getDataElementDefinition(name);
 
   if (!dataDef) {
@@ -50,9 +50,9 @@ module.exports = (
   }
 
   try {
-    valuePromise = replaceTokens(logger, dataDef.settings, syntheticEvent).then(
-      (replaceSettings) => {
-        return moduleExports(replaceSettings, syntheticEvent);
+    valuePromise = replaceTokens(logger, dataDef.settings, payload).then(
+      (replacedSettings) => {
+        return moduleExports(replacedSettings, payload);
       }
     );
   } catch (e) {

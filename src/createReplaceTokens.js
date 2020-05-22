@@ -95,7 +95,7 @@ module.exports = (isDataElement, getDataElementValue, searchTokens) => {
     return thing;
   };
 
-  return (logger, thing, syntheticEvent) => {
+  return (logger, thing, payload) => {
     // It's possible for a data element to reference another data element. Because of this,
     // we need to prevent circular dependencies from causing an infinite loop.
     if (variablesBeingRetrieved.length > 10) {
@@ -109,7 +109,7 @@ module.exports = (isDataElement, getDataElementValue, searchTokens) => {
     const promises = [];
     const tokensToBeReplaced = searchTokens(thing);
     tokensToBeReplaced.forEach((t) => {
-      promises.push(getDataElementValue(logger, t, syntheticEvent));
+      promises.push(getDataElementValue(logger, t, payload));
     });
 
     return Promise.all(promises).then((dataElementValues) => {

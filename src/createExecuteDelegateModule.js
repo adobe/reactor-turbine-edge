@@ -13,12 +13,7 @@
 const MODULE_NOT_FUNCTION_ERROR = 'Module did not export a function.';
 
 module.exports = (moduleProvider, replaceTokens) => {
-  return (
-    logger,
-    moduleDescriptor,
-    syntheticEvent,
-    originalModuleCallParameters
-  ) => {
+  return (logger, moduleDescriptor, payload, originalModuleCallParameters) => {
     const moduleCallParameters = originalModuleCallParameters || [];
     const moduleExports = moduleProvider.getModuleExports(
       moduleDescriptor.modulePath
@@ -28,15 +23,13 @@ module.exports = (moduleProvider, replaceTokens) => {
       throw new Error(MODULE_NOT_FUNCTION_ERROR);
     }
 
-    return replaceTokens(
-      logger,
-      moduleDescriptor.settings || {},
-      syntheticEvent
-    ).then((replacedSettings) => {
-      const settings = replacedSettings;
+    return replaceTokens(logger, moduleDescriptor.settings || {}, payload).then(
+      (replacedSettings) => {
+        const settings = replacedSettings;
 
-      moduleCallParameters.unshift(settings);
-      return moduleExports(...moduleCallParameters);
-    });
+        moduleCallParameters.unshift(settings);
+        return moduleExports(...moduleCallParameters);
+      }
+    );
   };
 };
