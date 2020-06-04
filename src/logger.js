@@ -52,10 +52,11 @@ const process = (logLevel, meta, logs, ...logArguments) => {
   logArguments.unshift(launchPrefix);
 
   logs.push({
+    name: 'evaluatingRule',
     timestamp: Date.now(),
-    logLevel,
+    attributes: { logLevel },
     messages: clone(logArguments),
-    meta
+    context: meta
   });
 };
 
@@ -111,7 +112,12 @@ module.exports = {
       error,
 
       getJsonLogs: () =>
-        logs.map((l) => (typeof l !== 'string' ? JSON.stringify(l) : l)),
+        logs.map((l) => ({
+          ...l,
+          messages: l.messages.map((m) =>
+            typeof m !== 'string' ? JSON.stringify(m) : m
+          )
+        })),
 
       flushLogsToConsole: () => {
         if (typeof console !== 'undefined') {
