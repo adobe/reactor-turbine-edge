@@ -53,7 +53,7 @@ const process = (logLevel, meta, logs, ...logArguments) => {
 
   logs.push({
     name: 'evaluatingRule',
-    timestamp: Date.now(),
+    timestampMs: Date.now(),
     attributes: { logLevel },
     messages: clone(logArguments),
     context: meta
