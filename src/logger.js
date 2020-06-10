@@ -48,7 +48,7 @@ const launchPrefix = ROCKET;
  * @param {...*} arg Any argument to be logged.
  * @private
  */
-const process = (logLevel, meta, logs, ...logArguments) => {
+const process = (logLevel, context, logs, ...logArguments) => {
   logArguments.unshift(launchPrefix);
 
   logs.push({
@@ -56,12 +56,12 @@ const process = (logLevel, meta, logs, ...logArguments) => {
     timestampMs: Date.now(),
     attributes: { logLevel },
     messages: clone(logArguments),
-    context: meta
+    context
   });
 };
 
 module.exports = {
-  createNewLogger: (meta, logEnabled) => {
+  createNewLogger: (context, logEnabled) => {
     let logs = [];
 
     /**
@@ -69,7 +69,7 @@ module.exports = {
      * @param {...*} arg Any argument to be logged.
      */
     const log = logEnabled
-      ? process.bind(null, levels.LOG, meta, logs)
+      ? process.bind(null, levels.LOG, context, logs)
       : emptyFn;
 
     /**
@@ -77,7 +77,7 @@ module.exports = {
      * @param {...*} arg Any argument to be logged.
      */
     const info = logEnabled
-      ? process.bind(null, levels.INFO, meta, logs)
+      ? process.bind(null, levels.INFO, context, logs)
       : emptyFn;
 
     /**
@@ -85,7 +85,7 @@ module.exports = {
      * @param {...*} arg Any argument to be logged.
      */
     const debug = logEnabled
-      ? process.bind(null, levels.DEBUG, meta, logs)
+      ? process.bind(null, levels.DEBUG, context, logs)
       : emptyFn;
 
     /**
@@ -93,7 +93,7 @@ module.exports = {
      * @param {...*} arg Any argument to be logged.
      */
     const warn = logEnabled
-      ? process.bind(null, levels.WARN, meta, logs)
+      ? process.bind(null, levels.WARN, context, logs)
       : emptyFn;
 
     /**
@@ -101,7 +101,7 @@ module.exports = {
      * @param {...*} arg Any argument to be logged.
      */
     const error = logEnabled
-      ? process.bind(null, levels.ERROR, meta, logs)
+      ? process.bind(null, levels.ERROR, context, logs)
       : emptyFn;
 
     return {
@@ -120,14 +120,16 @@ module.exports = {
         })),
 
       flushLogsToConsole: () => {
-        if (typeof console !== 'undefined') {
-          logs.forEach((l) => {
-            // eslint-disable-next-line no-console
-            console[l.logLevel || 'log'].apply(null, l.messages);
-          });
-
-          logs = [];
+        if (typeof console === 'undefined') {
+          return;
         }
+
+        logs.forEach((l) => {
+          // eslint-disable-next-line no-console
+          console[l.logLevel || 'log'].apply(null, l.messages);
+        });
+
+        logs = [];
       },
 
       /**

@@ -22,10 +22,9 @@ module.exports = (
   container,
   ruleIds,
   initialPayload,
-  { requestId, debugSessionId } = {}
+  { isDebugEnabled } = {}
 ) => {
   const rulePromises = [];
-  const logResult = Boolean(debugSessionId);
 
   const {
     rules,
@@ -40,15 +39,12 @@ module.exports = (
   ).forEach((rule) => {
     let lastPromiseInQueue = Promise.resolve(clone(initialPayload));
 
-    const logMeta = {
-      ruleId: rule.id
-    };
-
-    if (requestId) {
-      logMeta.requestId = requestId;
-    }
-
-    const l = logger.createNewLogger(logMeta, logResult);
+    const l = logger.createNewLogger(
+      {
+        ruleId: rule.id
+      },
+      isDebugEnabled
+    );
 
     const executeDelegateModule = createExecuteDelegateModule(
       moduleProvider,
@@ -303,7 +299,7 @@ module.exports = (
         })
         .then((baseResult) => {
           const r = baseResult;
-          if (logResult) {
+          if (isDebugEnabled) {
             r.logs = l.getJsonLogs();
             l.flushLogsToConsole();
           }
