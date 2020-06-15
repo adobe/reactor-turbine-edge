@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
-const clone = require('./clone');
+const getCurrentTimestamp = require('./getCurrentTimestamp');
 
 const emptyFn = () => {};
 
@@ -53,16 +53,18 @@ const process = (logLevel, context, logs, ...logArguments) => {
 
   logs.push({
     name: 'evaluatingRule',
-    timestampMs: Date.now(),
+    timestampMs: getCurrentTimestamp(),
     attributes: { logLevel },
-    messages: clone(logArguments),
+    messages: logArguments.map((m) =>
+      typeof m !== 'string' ? JSON.stringify(m) : m
+    ),
     context
   });
 };
 
 module.exports = {
   createNewLogger: (context, logEnabled) => {
-    let logs = [];
+    const logs = [];
 
     /**
      * Outputs a message to the SSF logs.
@@ -111,26 +113,7 @@ module.exports = {
       warn,
       error,
 
-      getJsonLogs: () =>
-        logs.map((l) => ({
-          ...l,
-          messages: l.messages.map((m) =>
-            typeof m !== 'string' ? JSON.stringify(m) : m
-          )
-        })),
-
-      flushLogsToConsole: () => {
-        if (typeof console === 'undefined') {
-          return;
-        }
-
-        logs.forEach((l) => {
-          // eslint-disable-next-line no-console
-          console[l.logLevel || 'log'].apply(null, l.messages);
-        });
-
-        logs = [];
-      },
+      getJsonLogs: () => logs,
 
       /**
        * Creates a logging utility that only exposes logging functionality and prefixes all messages

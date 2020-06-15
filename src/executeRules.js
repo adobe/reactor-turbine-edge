@@ -32,12 +32,14 @@ module.exports = (
     property: { settings: propertySettings }
   } = container;
 
+  const freezedInitialPayload = JSON.stringify(initialPayload);
+
   (
     rules.filter((rule) => {
       return (ruleIds || []).indexOf(rule.id) !== -1;
     }) || []
   ).forEach((rule) => {
-    let lastPromiseInQueue = Promise.resolve(clone(initialPayload));
+    let lastPromiseInQueue = Promise.resolve(JSON.parse(freezedInitialPayload));
 
     const l = logger.createNewLogger(
       {
@@ -301,7 +303,6 @@ module.exports = (
           const r = baseResult;
           if (isDebugEnabled) {
             r.logs = l.getJsonLogs();
-            l.flushLogsToConsole();
           }
 
           return r;
