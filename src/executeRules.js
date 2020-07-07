@@ -13,6 +13,7 @@
 const logger = require('./logger');
 const clone = require('./clone');
 const createExecuteDelegateModule = require('./createExecuteDelegateModule');
+const getRuleFetchFn = require('./getRuleFetchFn');
 
 const PROMISE_TIMEOUT = 2000;
 
@@ -20,9 +21,10 @@ module.exports = (
   moduleProvider,
   replaceTokens,
   container,
+  globalFetch,
   ruleIds,
   initialPayload,
-  { isDebugEnabled } = {}
+  { isDebugEnabled, headersForSubrequests } = {}
 ) => {
   const rulePromises = [];
 
@@ -47,6 +49,8 @@ module.exports = (
       },
       isDebugEnabled
     );
+
+    const fetch = getRuleFetchFn(globalFetch, headersForSubrequests, l);
 
     const executeDelegateModule = createExecuteDelegateModule(
       moduleProvider,
@@ -200,6 +204,7 @@ module.exports = (
                     propertySettings,
                     extensionSettings,
                     logger: l,
+                    fetch,
                     rule
                   }
                 ]);
@@ -254,6 +259,7 @@ module.exports = (
                     propertySettings,
                     extensionSettings,
                     logger: l,
+                    fetch,
                     rule
                   }
                 ]);

@@ -19,6 +19,9 @@ const executeRules = require('./executeRules');
 const moduleProvider = createModuleProvider();
 
 const initialize = (container) => {
+  const { fetch } = global;
+  global.fetch = () => {};
+
   const { undefinedVarsReturnEmpty } = container.property.settings;
   const dataElements = container.dataElements || {};
 
@@ -56,7 +59,13 @@ const initialize = (container) => {
   );
 
   moduleProvider.registerModules(container.modules, container.extensions);
-  return executeRules.bind(null, moduleProvider, replaceTokens, container);
+  return executeRules.bind(
+    null,
+    moduleProvider,
+    replaceTokens,
+    container,
+    fetch
+  );
 };
 
 module.exports = {
