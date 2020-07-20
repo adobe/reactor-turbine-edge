@@ -166,7 +166,14 @@ module.exports = (
     };
 
     const isConditionMet = (condition, result) => {
-      return (result && !condition.negate) || (!result && condition.negate);
+      if (typeof result !== 'boolean') {
+        throw new Error('Condition result is not boolean.');
+      }
+
+      return (
+        (result === true && !condition.negate) ||
+        (result === false && condition.negate)
+      );
     };
 
     lastPromiseInQueue = lastPromiseInQueue.then((p) => {
