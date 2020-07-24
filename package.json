@@ -7,38 +7,47 @@
     "build": "rollup -c && terser dist/engine-server.js -c -m -o dist/engine-server.min.js",
     "build:watch": "touch ./dist/engine-server.js & rollup --watch -c & watch -f ./dist/engine-server.js -r './node_modules/.bin/terser ./dist/engine-server.js -c -m -o ./dist/engine-server.min.js'",
     "prepublishOnly": "npm run build",
-    "coverage": "nyc --reporter=lcov --reporter=html --reporter=text-summary --reporter=text ava",
-    "test": "ava",
-    "test:watch": "ava --watch",
-    "lint": "eslint 'src/**/*.js'"
+    "lint": "eslint 'src/**'",
+    "format": "pretty-quick",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch"
   },
   "author": {
     "name": "Adobe Systems",
     "url": "http://adobe.com",
     "email": "reactor@adobe.com"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged",
+      "pre-push": "npm test"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git@git.corp.adobe.com:reactor/reactor-turbine-server.git"
   },
   "devDependencies": {
-    "ava": "^3.3.0",
+    "@testing-library/jest-dom": "^5.11.0",
     "camelize": "1.0.0",
     "cli-watch": "^1.0.7",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-jest-dom": "^3.0.1",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-testing-library": "^3.3.1",
     "inject-loader": "^4.0.1",
+    "jest": "^26.0.1",
+    "jest-runner-eslint": "^0.10.0",
     "kebab-case": "1.0.0",
-    "nyc": "^15.0.0",
     "prettier": "^2.0.5",
+    "pretty-quick": "^2.0.1",
     "proxyquire": "^2.1.3",
     "rollup": "^1.31.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "sinon": "^9.0.0",
     "terser": "^4.6.3"
   }
 }

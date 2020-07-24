@@ -10,15 +10,13 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
-'use strict';
+describe('extract module exports', function () {
+  const extractModuleExports = require('../extractModuleExports');
 
-describe('extract module exports', function() {
-  var extractModuleExports = require('../extractModuleExports');
-
-  it('runs the module code', function() {
-    var moduleScript = jasmine.createSpy('module');
-    var require = function() {};
-    var turbine = {};
+  it('runs the module code', function () {
+    const moduleScript = jasmine.createSpy('module');
+    const require = function () {};
+    const turbine = {};
     extractModuleExports(moduleScript, require, turbine);
 
     expect(moduleScript).toHaveBeenCalledWith(
@@ -29,10 +27,10 @@ describe('extract module exports', function() {
     );
   });
 
-  it('returns the extracted exports', function() {
-    var moduleExports = 'exportedvalue';
+  it('returns the extracted exports', function () {
+    const moduleExports = 'exportedvalue';
 
-    var moduleScript = function(module) {
+    const moduleScript = function (module) {
       module.exports = moduleExports;
     };
 

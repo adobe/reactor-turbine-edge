@@ -1,7 +1,4 @@
 src
-coreModulePackages
 .*
 coverage
-karma.conf.js
 rollup.config.js
-testIndex.js

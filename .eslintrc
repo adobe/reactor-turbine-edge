@@ -2,18 +2,30 @@
   "parserOptions": {
     "ecmaVersion": 2018
   },
-  "extends": ["airbnb-base", "plugin:prettier/recommended"],
+  "extends": [
+    "airbnb-base",
+    "plugin:jest-dom/recommended",
+    "plugin:prettier/recommended"
+  ],
   "env": {
     "es6": true,
-    "jasmine": true,
+    "jest": true,
     "node": true
   },
+  "ignorePatterns": ["src/__t__/**/**"],
   "rules": {
     "camelcase": [2, { "properties": "always" }],
     "indent": [2, 2, { "SwitchCase": 1 }], // 2 spaces indentation
     "semi": [2, "always"],
     "keyword-spacing": [2],
-    "space-before-function-paren": [2, "never"],
+    "space-before-function-paren": [
+      2,
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "always"
+      }
+    ],
     "space-before-blocks": [2, "always"],
     "space-infix-ops": [2, { "int32Hint": false }],
     "quotes": [1, "single", "avoid-escape"],
