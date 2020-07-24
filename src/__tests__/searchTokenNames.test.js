@@ -1,7 +1,7 @@
-const searchTokens = require('../searchTokens');
+const searchTokens = require('../searchTokenNames');
 
-describe('searchTokens', () => {
-  test('finds all the tokens inside the object', () => {
+describe('searchTokenNames', () => {
+  test('finds all the token names inside the object', () => {
     expect(
       searchTokens({
         a: '%a%',

@@ -21,7 +21,7 @@
  * @returns {*} A processed value.
  */
 
-module.exports = (isDataElement, getDataElementValue, searchTokens) => {
+module.exports = (isDataElement, getDataElementValue, searchTokenNames) => {
   let replaceTokens;
 
   const variablesBeingRetrieved = [];
@@ -95,7 +95,7 @@ module.exports = (isDataElement, getDataElementValue, searchTokens) => {
     return thing;
   };
 
-  return (logger, thing, payload) => {
+  return (logger, thing, context) => {
     // It's possible for a data element to reference another data element. Because of this,
     // we need to prevent circular dependencies from causing an infinite loop.
     if (variablesBeingRetrieved.length > 10) {
@@ -107,13 +107,13 @@ module.exports = (isDataElement, getDataElementValue, searchTokens) => {
     }
 
     const promises = [];
-    const tokensToBeReplaced = searchTokens(thing);
-    tokensToBeReplaced.forEach((t) => {
-      promises.push(getDataElementValue(logger, t, payload));
+    const tokensNamesToBeReplaced = searchTokenNames(thing);
+    tokensNamesToBeReplaced.forEach((dataElementName) => {
+      promises.push(getDataElementValue(logger, dataElementName, context));
     });
 
     return Promise.all(promises).then((dataElementValues) => {
-      const tokensBucket = tokensToBeReplaced.reduce((acc, k, i) => {
+      const tokensBucket = tokensNamesToBeReplaced.reduce((acc, k, i) => {
         acc[`%${k}%`] = dataElementValues[i];
         return acc;
       }, {});

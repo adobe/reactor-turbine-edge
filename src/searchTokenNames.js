@@ -1,6 +1,6 @@
-let searchTokens;
+let searchTokenNames;
 
-const searchTokensInString = (str, tokensBucket) => {
+const searchTokenNamesInString = (str, tokensBucket) => {
   const tokenRegex = RegExp('%(.+?)%', 'g');
   let result;
 
@@ -11,33 +11,33 @@ const searchTokensInString = (str, tokensBucket) => {
   }
 };
 
-const searchTokensInObject = (obj, tokensBucket) => {
+const searchTokenNamesInObject = (obj, tokensBucket) => {
   Object.keys(obj).forEach((key) => {
     const value = obj[key];
-    searchTokens(value, tokensBucket);
+    searchTokenNames(value, tokensBucket);
   });
 
   return tokensBucket;
 };
 
-const searchTokensInArray = (arr, tokensBucket) => {
+const searchTokenNamesInArray = (arr, tokensBucket) => {
   for (let i = 0, len = arr.length; i < len; i += 1) {
-    searchTokens(arr[i], tokensBucket);
+    searchTokenNames(arr[i], tokensBucket);
   }
   return tokensBucket;
 };
 
-searchTokens = (thing, tokensBucket) => {
+searchTokenNames = (thing, tokensBucket) => {
   if (typeof thing === 'string') {
-    return searchTokensInString(thing, tokensBucket);
+    return searchTokenNamesInString(thing, tokensBucket);
   }
 
   if (Array.isArray(thing)) {
-    return searchTokensInArray(thing, tokensBucket);
+    return searchTokenNamesInArray(thing, tokensBucket);
   }
 
   if (typeof thing === 'object' && thing !== null) {
-    return searchTokensInObject(thing, tokensBucket);
+    return searchTokenNamesInObject(thing, tokensBucket);
   }
 
   return thing;
@@ -45,5 +45,5 @@ searchTokens = (thing, tokensBucket) => {
 
 module.exports = (thing) => {
   const tokensBucket = [];
-  return searchTokens(thing, tokensBucket);
+  return searchTokenNames(thing, tokensBucket);
 };
