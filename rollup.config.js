@@ -1,12 +1,12 @@
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 
 export default {
   input: 'src/index.js',
   external: ['container'],
   output: {
     file: 'dist/engine-server.js',
-    exports: 'named',
+    exports: 'auto',
     format: 'cjs',
     globals: {
       container: 'container'

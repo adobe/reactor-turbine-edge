@@ -17,10 +17,11 @@ const byteArrayToString = (buf) =>
 
 module.exports = (globalFetch, headersForSubrequests, logger) => {
   return (resource, init = {}) => {
-    // If resource is an Request object, read it's headers. Otherwise the
-    // Request headers will be lost when we add our mandatory headers.
+    // If resource is not a string then it must be a Request object and we
+    // need to read it's headers. Otherwise the Request headers will be
+    // lost when we add our mandatory headers.
     const resourceHeaders = {};
-    if (resource instanceof global.Request) {
+    if (typeof resource !== 'string' && resource.headers) {
       [...resource.headers.entries()].reduce((acc, [k, v]) => {
         acc[k] = v;
         return acc;

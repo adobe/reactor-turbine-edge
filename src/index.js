@@ -18,10 +18,7 @@ const executeRules = require('./executeRules');
 
 const moduleProvider = createModuleProvider();
 
-const initialize = (container) => {
-  const { fetch } = global;
-  global.fetch = () => {};
-
+const initialize = (container, { fetch }) => {
   const { undefinedVarsReturnEmpty } = container.property.settings;
   const dataElements = container.dataElements || {};
 
