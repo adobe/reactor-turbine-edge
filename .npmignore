@@ -1,4 +1,5 @@
-src
-.*
 coverage
+jest.config.js
 rollup.config.js
+reactor-turbine-server-*.tgz
+\.*
