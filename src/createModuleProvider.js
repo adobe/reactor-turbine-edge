@@ -18,12 +18,6 @@ module.exports = () => {
     registerModules: (newModules, newExtensions) => {
       modules = newModules;
       extensions = newExtensions;
-
-      Object.keys(modules).forEach((delegateDescriptorId) => {
-        modules[delegateDescriptorId].script = modules[
-          delegateDescriptorId
-        ].script();
-      });
     },
 
     getModuleDefinition: (modulePath) => {
