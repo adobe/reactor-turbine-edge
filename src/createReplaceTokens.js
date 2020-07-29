@@ -21,20 +21,25 @@
  * @returns {*} A processed value.
  */
 
+let uniqueId = 0;
+
+const getUniqueId = () => {
+  uniqueId += 1;
+  return uniqueId;
+};
+
 module.exports = (isDataElement, getDataElementValue, searchTokenNames) => {
   let replaceTokens;
 
   const variablesBeingRetrieved = [];
+  const store = {};
 
   const getVarValue = (token, variableName, tokensBucket) => {
     if (!isDataElement(variableName)) {
       return token;
     }
 
-    variablesBeingRetrieved.push(variableName);
-    const val = tokensBucket[token];
-    variablesBeingRetrieved.pop();
-    return val;
+    return tokensBucket[token];
   };
 
   /**
@@ -100,14 +105,22 @@ module.exports = (isDataElement, getDataElementValue, searchTokenNames) => {
     // we need to prevent circular dependencies from causing an infinite loop.
     if (variablesBeingRetrieved.length > 10) {
       throw new Error(
-        `Data element circular reference detected: ${variablesBeingRetrieved.join(
-          ' -> '
-        )}`
+        `Data element circular reference detected: ${variablesBeingRetrieved
+          .map((v) => store[v])
+          .join(' -> ')}`
       );
     }
 
     const promises = [];
     const tokensNamesToBeReplaced = searchTokenNames(thing);
+    let rUniqueId;
+
+    if (tokensNamesToBeReplaced.length > 0) {
+      rUniqueId = getUniqueId();
+      variablesBeingRetrieved.push(rUniqueId);
+      store[rUniqueId] = tokensNamesToBeReplaced;
+    }
+
     tokensNamesToBeReplaced.forEach((dataElementName) => {
       promises.push(getDataElementValue(logger, dataElementName, context));
     });
@@ -117,6 +130,15 @@ module.exports = (isDataElement, getDataElementValue, searchTokenNames) => {
         acc[`%${k}%`] = dataElementValues[i];
         return acc;
       }, {});
+
+      if (rUniqueId) {
+        variablesBeingRetrieved.splice(
+          variablesBeingRetrieved.indexOf(rUniqueId),
+          1
+        );
+
+        delete store[rUniqueId];
+      }
 
       return replaceTokens(thing, tokensBucket);
     });
