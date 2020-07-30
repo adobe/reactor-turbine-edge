@@ -1,5 +1,5 @@
 {
-  "name": "reactor-turbine-server",
+  "name": "reactor-turbine-edge",
   "version": "0.0.1",
   "description": "Launch rule engine which processes rules on client websites and delegates logic to extensions.",
   "license": "Apache-2.0",
