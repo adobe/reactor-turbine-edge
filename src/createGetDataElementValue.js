@@ -19,9 +19,6 @@ const getErrorMessage = (dataDef, dataElementName, errorMessage, errorStack) =>
     errorStack ? `\n ${errorStack} ` : ''
   }`;
 
-const isDataElementValuePresent = (value) =>
-  value !== undefined && value !== null;
-
 module.exports = (moduleProvider, getDataElementDefinition, replaceTokens) => (
   logger,
   name,
@@ -61,8 +58,8 @@ module.exports = (moduleProvider, getDataElementDefinition, replaceTokens) => (
   return valuePromise.then((resolvedValue) => {
     let value = resolvedValue;
 
-    if (!isDataElementValuePresent(resolvedValue)) {
-      value = dataDef.defaultValue || '';
+    if (value == null && dataDef.defaultValue != null) {
+      value = dataDef.defaultValue;
     }
 
     if (typeof value === 'string') {
