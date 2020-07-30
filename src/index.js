@@ -19,7 +19,6 @@ const executeRules = require('./executeRules');
 const moduleProvider = createModuleProvider();
 
 const initialize = (container, { fetch }) => {
-  const { undefinedVarsReturnEmpty } = container.property.settings;
   const dataElements = container.dataElements || {};
 
   const getDataElementDefinition = (name) => {
@@ -44,8 +43,7 @@ const initialize = (container, { fetch }) => {
   const getDataElementValue = createGetDataElementValue(
     moduleProvider,
     getDataElementDefinition,
-    proxyReplaceTokens,
-    undefinedVarsReturnEmpty
+    proxyReplaceTokens
   );
 
   const isDataElement = createIsDataElement(getDataElementDefinition);

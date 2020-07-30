@@ -22,16 +22,15 @@ const getErrorMessage = (dataDef, dataElementName, errorMessage, errorStack) =>
 const isDataElementValuePresent = (value) =>
   value !== undefined && value !== null;
 
-module.exports = (
-  moduleProvider,
-  getDataElementDefinition,
-  replaceTokens,
-  undefinedVarsReturnEmpty = false
-) => (logger, name, payload) => {
+module.exports = (moduleProvider, getDataElementDefinition, replaceTokens) => (
+  logger,
+  name,
+  payload
+) => {
   const dataDef = getDataElementDefinition(name);
 
   if (!dataDef) {
-    return undefinedVarsReturnEmpty ? '' : null;
+    throw new Error(`Data element definition for "${name}" was not found.`);
   }
 
   let valuePromise;
