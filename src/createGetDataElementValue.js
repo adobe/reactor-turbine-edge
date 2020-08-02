@@ -19,19 +19,29 @@ const getErrorMessage = (dataDef, dataElementName, errorMessage, errorStack) =>
     errorStack ? `\n ${errorStack} ` : ''
   }`;
 
-module.exports = (moduleProvider, getDataElementDefinition, replaceTokens) => (
-  logger,
+module.exports = (moduleProvider, getDataElementDefinition) => (
   name,
-  payload
+  { payload, dataElementCallStack }
 ) => {
-  const dataDef = getDataElementDefinition(name);
+  let valuePromise;
+  let moduleExports;
 
+  const dataDef = getDataElementDefinition(name);
   if (!dataDef) {
     throw new Error(`Data element definition for "${name}" was not found.`);
   }
 
-  let valuePromise;
-  let moduleExports;
+  if (dataElementCallStack.includes(name)) {
+    dataElementCallStack.push(name);
+
+    throw new Error(
+      `Data element circular reference detected: ${dataElementCallStack.join(
+        ' -> '
+      )}`
+    );
+  }
+
+  dataElementCallStack.push(name);
 
   try {
     moduleExports = moduleProvider.getModuleExports(dataDef.modulePath);
@@ -46,11 +56,9 @@ module.exports = (moduleProvider, getDataElementDefinition, replaceTokens) => (
   }
 
   try {
-    valuePromise = replaceTokens(logger, dataDef.settings, payload).then(
-      (replacedSettings) => {
-        return moduleExports(replacedSettings, payload);
-      }
-    );
+    valuePromise = dataDef
+      .getSettings({ payload, dataElementCallStack })
+      .then((settings) => moduleExports(settings, payload));
   } catch (e) {
     throw new Error(getErrorMessage(dataDef, name, e.message, e.stack));
   }

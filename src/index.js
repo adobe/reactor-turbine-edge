@@ -9,58 +9,34 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  ****************************************************************************************/
-const createReplaceTokens = require('./createReplaceTokens');
-const searchTokenNames = require('./searchTokenNames');
+const createGetDataElementValues = require('./createGetDataElementValues');
 const createGetDataElementValue = require('./createGetDataElementValue');
 const createModuleProvider = require('./createModuleProvider');
-const createIsDataElement = require('./createIsDataElement');
 const executeRules = require('./executeRules');
+
+let dataElements = {};
 
 const moduleProvider = createModuleProvider();
 
-const initialize = (container, { fetch }) => {
-  const dataElements = container.dataElements || {};
+const getDataElementDefinition = (name) => {
+  return dataElements[name];
+};
 
-  const getDataElementDefinition = (name) => {
-    return dataElements[name];
-  };
+const getDataElementValue = createGetDataElementValue(
+  moduleProvider,
+  getDataElementDefinition
+);
 
-  let replaceTokens;
+const getDataElementValues = createGetDataElementValues(getDataElementValue);
 
-  // We support data elements referencing other data elements. In order to be able to retrieve a
-  // data element value, we need to be able to replace data element tokens inside its settings
-  // object (which is what replaceTokens is for). In order to be able to replace data element
-  // tokens inside a settings object, we need to be able to retrieve data element
-  // values (which is what getDataElementValue is for). This proxy replaceTokens function solves the
-  // chicken-or-the-egg problem by allowing us to provide a replaceTokens function to
-  // getDataElementValue that will stand in place of the real replaceTokens function until it
-  // can be created. This also means that createDataElementValue should not call the proxy
-  // replaceTokens function until after the real replaceTokens has been created.
-  const proxyReplaceTokens = (...rest) => {
-    return replaceTokens(...rest);
-  };
-
-  const getDataElementValue = createGetDataElementValue(
-    moduleProvider,
-    getDataElementDefinition,
-    proxyReplaceTokens
-  );
-
-  const isDataElement = createIsDataElement(getDataElementDefinition);
-  replaceTokens = createReplaceTokens(
-    isDataElement,
-    getDataElementValue,
-    searchTokenNames
-  );
+const initialize = (containerInitFunction, { fetch }) => {
+  const container = containerInitFunction(getDataElementValues);
+  if (container.dataElements) {
+    dataElements = container.dataElements;
+  }
 
   moduleProvider.registerModules(container.modules, container.extensions);
-  return executeRules.bind(
-    null,
-    moduleProvider,
-    replaceTokens,
-    container,
-    fetch
-  );
+  return executeRules.bind(null, moduleProvider, container, fetch);
 };
 
 module.exports = {

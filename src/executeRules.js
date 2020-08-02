@@ -19,10 +19,8 @@ const PROMISE_TIMEOUT = 2000;
 
 module.exports = (
   moduleProvider,
-  replaceTokens,
   container,
   globalFetch,
-  ruleIds,
   initialPayload,
   { isDebugEnabled, headersForSubrequests } = {}
 ) => {
@@ -36,11 +34,7 @@ module.exports = (
 
   const freezedInitialPayload = JSON.stringify(initialPayload);
 
-  (
-    rules.filter((rule) => {
-      return (ruleIds || []).indexOf(rule.id) !== -1;
-    }) || []
-  ).forEach((rule) => {
+  rules.forEach((rule) => {
     let lastPromiseInQueue = Promise.resolve(JSON.parse(freezedInitialPayload));
 
     const l = logger.createNewLogger(
@@ -52,10 +46,7 @@ module.exports = (
 
     const fetch = getRuleFetchFn(globalFetch, headersForSubrequests, l);
 
-    const executeDelegateModule = createExecuteDelegateModule(
-      moduleProvider,
-      replaceTokens
-    );
+    const executeDelegateModule = createExecuteDelegateModule(moduleProvider);
 
     const getExtensionNameByRuleComponent = (ruleComponent) => {
       const moduleDefinition = moduleProvider.getModuleDefinition(
@@ -73,17 +64,19 @@ module.exports = (
       return (extensionDefinition && extensionDefinition.displayName) || '';
     };
 
-    const getExtensionSettingsByRuleComponent = (
-      ruleComponent,
-      syntethicEvent
-    ) => {
+    const getExtensionSettingsByRuleComponent = (ruleComponent, payload) => {
       const extensionDefinition = moduleProvider.getExtensionDefinition(
         ruleComponent.modulePath
       );
 
-      const extensionSettings =
-        (extensionDefinition && extensionDefinition.settings) || {};
-      return replaceTokens(l, extensionSettings, syntethicEvent);
+      if (extensionDefinition && extensionDefinition.getSettings) {
+        return extensionDefinition.getSettings({
+          payload,
+          dataElementCallStack: []
+        });
+      }
+
+      return Promise.resolve({});
     };
 
     const getModuleDisplayNameByRuleComponent = (ruleComponent) => {
@@ -204,17 +197,24 @@ module.exports = (
 
             getExtensionSettingsByRuleComponent(condition, clonedPayload)
               .then((extensionSettings) => {
-                return executeDelegateModule(l, condition, clonedPayload, [
-                  clonedPayload,
+                return executeDelegateModule(
+                  condition,
                   {
-                    buildInfo,
-                    propertySettings,
-                    extensionSettings,
-                    logger: l,
-                    fetch,
-                    rule
-                  }
-                ]);
+                    payload: clonedPayload,
+                    dataElementCallStack: []
+                  },
+                  [
+                    clonedPayload,
+                    {
+                      buildInfo,
+                      propertySettings,
+                      extensionSettings,
+                      logger: l,
+                      fetch,
+                      rule
+                    }
+                  ]
+                );
               })
               .then((result) => {
                 logDelegateModuleOutput(condition, result);
@@ -259,17 +259,24 @@ module.exports = (
 
             getExtensionSettingsByRuleComponent(action, clonedPayload)
               .then((extensionSettings) => {
-                return executeDelegateModule(l, action, clonedPayload, [
-                  clonedPayload,
+                return executeDelegateModule(
+                  action,
                   {
-                    buildInfo,
-                    propertySettings,
-                    extensionSettings,
-                    logger: l,
-                    fetch,
-                    rule
-                  }
-                ]);
+                    payload: clonedPayload,
+                    dataElementCallStack: []
+                  },
+                  [
+                    clonedPayload,
+                    {
+                      buildInfo,
+                      propertySettings,
+                      extensionSettings,
+                      logger: l,
+                      fetch,
+                      rule
+                    }
+                  ]
+                );
               })
               .then((result) => {
                 logDelegateModuleOutput(action, result);
