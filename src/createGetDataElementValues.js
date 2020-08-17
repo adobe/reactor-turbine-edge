@@ -17,5 +17,5 @@ module.exports = (getDataElementValue) => (
       zipResults[dataElementName] = resolvedValues[index];
     });
 
-    return zipResults;
+    return (name) => zipResults[name];
   });
