@@ -9,20 +9,14 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = (getDataElementValue) => (tokenList, context) =>
-  Promise.all(
-    tokenList.map((t) => {
-      const { dataElementCallStack = [] } = context;
-      context.dataElementCallStack = dataElementCallStack.slice();
+const logDelegateModuleCall = require('./logDelegateModuleCall');
+const logDelegateModuleOutput = require('./logDelegateModuleOutput');
+const getExtensionSettingsByRuleComponent = require('./getExtensionSettingsByRuleComponent');
+const executeDelegateModule = require('./executeDelegateModule');
 
-      return getDataElementValue(t, context);
-    })
-  ).then((resolvedValues) => {
-    const zipResults = {};
-
-    tokenList.forEach((dataElementName, index) => {
-      zipResults[dataElementName] = resolvedValues[index];
-    });
-
-    return (name) => zipResults[name];
-  });
+module.exports = (data) =>
+  Promise.resolve(data)
+    .then(logDelegateModuleCall)
+    .then(getExtensionSettingsByRuleComponent)
+    .then(executeDelegateModule)
+    .then(logDelegateModuleOutput);

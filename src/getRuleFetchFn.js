@@ -75,6 +75,7 @@ module.exports = (globalFetch, headersForSubrequests, logger) => {
           'Error',
           e
         );
+
         throw e;
       }
     );

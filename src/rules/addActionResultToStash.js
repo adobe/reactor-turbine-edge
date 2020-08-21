@@ -9,20 +9,21 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = (getDataElementValue) => (tokenList, context) =>
-  Promise.all(
-    tokenList.map((t) => {
-      const { dataElementCallStack = [] } = context;
-      context.dataElementCallStack = dataElementCallStack.slice();
+module.exports = ({
+  moduleOutput: actionResult,
+  contextData,
+  delegateConfig: {
+    extension: { name: extensionName }
+  }
+}) => {
+  const { ruleStash } = contextData;
 
-      return getDataElementValue(t, context);
-    })
-  ).then((resolvedValues) => {
-    const zipResults = {};
+  if (extensionName) {
+    // If the module result is undefined, the module result will not
+    // be logged correctly. Key with undefined won't be stringified
+    // and then they won't appear in the response.
+    ruleStash[extensionName] = actionResult || null;
+  }
 
-    tokenList.forEach((dataElementName, index) => {
-      zipResults[dataElementName] = resolvedValues[index];
-    });
-
-    return (name) => zipResults[name];
-  });
+  return contextData;
+};

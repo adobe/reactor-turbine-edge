@@ -12,19 +12,17 @@
 
 const cleanText = require('./cleanText');
 
-const getErrorMessage = (dataDef, dataElementName, errorMessage, errorStack) =>
-  `Failed to execute data element module ${
-    dataDef.modulePath
-  } for data element ${dataElementName}. ${errorMessage} ${
-    errorStack ? `\n ${errorStack} ` : ''
-  }`;
+const enhanceErrorMessage = (dataElementName, e) => {
+  e.message = `Failed to execute module for data element "${dataElementName}". ${e.message}`;
+};
 
 module.exports = (moduleProvider, getDataElementDefinition) => (
   name,
-  { payload, dataElementCallStack }
+  context
 ) => {
   let valuePromise;
-  let moduleExports;
+
+  const { dataElementCallStack, utils, contextData } = context;
 
   const dataDef = getDataElementDefinition(name);
   if (!dataDef) {
@@ -40,27 +38,17 @@ module.exports = (moduleProvider, getDataElementDefinition) => (
       )}`
     );
   }
-
   dataElementCallStack.push(name);
 
-  try {
-    moduleExports = moduleProvider.getModuleExports(dataDef.modulePath);
-  } catch (e) {
-    throw new Error(getErrorMessage(dataDef, name, e.message, e.stack));
-  }
-
-  if (typeof moduleExports !== 'function') {
-    throw new Error(
-      getErrorMessage(dataDef, name, 'Module did not export a function.')
-    );
-  }
+  const moduleExports = moduleProvider.getModuleExports(dataDef.modulePath);
 
   try {
     valuePromise = dataDef
-      .getSettings({ payload, dataElementCallStack })
-      .then((settings) => moduleExports(settings, payload));
+      .getSettings(context)
+      .then((settings) => moduleExports(settings, contextData, utils));
   } catch (e) {
-    throw new Error(getErrorMessage(dataDef, name, e.message, e.stack));
+    enhanceErrorMessage(name, e);
+    throw e;
   }
 
   return valuePromise.then((resolvedValue) => {

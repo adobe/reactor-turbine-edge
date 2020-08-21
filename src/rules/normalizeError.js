@@ -9,20 +9,18 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = (getDataElementValue) => (tokenList, context) =>
-  Promise.all(
-    tokenList.map((t) => {
-      const { dataElementCallStack = [] } = context;
-      context.dataElementCallStack = dataElementCallStack.slice();
+module.exports = (e) => {
+  let newError = e;
 
-      return getDataElementValue(t, context);
-    })
-  ).then((resolvedValues) => {
-    const zipResults = {};
+  if (!newError) {
+    newError = new Error(
+      'The extension triggered an error, but no error information was provided.'
+    );
+  }
 
-    tokenList.forEach((dataElementName, index) => {
-      zipResults[dataElementName] = resolvedValues[index];
-    });
+  if (!(newError instanceof Error)) {
+    newError = new Error(String(newError));
+  }
 
-    return (name) => zipResults[name];
-  });
+  return newError;
+};

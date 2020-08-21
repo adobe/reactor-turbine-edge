@@ -9,20 +9,13 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = (getDataElementValue) => (tokenList, context) =>
-  Promise.all(
-    tokenList.map((t) => {
-      const { dataElementCallStack = [] } = context;
-      context.dataElementCallStack = dataElementCallStack.slice();
+const normalizeError = require('./normalizeError');
 
-      return getDataElementValue(t, context);
-    })
-  ).then((resolvedValues) => {
-    const zipResults = {};
+module.exports = ({ delegateConfig: { displayName: moduleDisplayName } }) => (
+  error
+) => {
+  const normalizedError = normalizeError(error);
+  normalizedError.message = `Failed to execute "${moduleDisplayName}". ${normalizedError.message}`;
 
-    tokenList.forEach((dataElementName, index) => {
-      zipResults[dataElementName] = resolvedValues[index];
-    });
-
-    return (name) => zipResults[name];
-  });
+  return Promise.reject(normalizedError);
+};

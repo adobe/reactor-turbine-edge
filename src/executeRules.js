@@ -10,10 +10,14 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
-const logger = require('./logger');
-const clone = require('./clone');
-const createExecuteDelegateModule = require('./createExecuteDelegateModule');
+const createNewLogger = require('./createNewLogger');
+const fakeLogger = require('./getFakeLogger');
+
 const getRuleFetchFn = require('./getRuleFetchFn');
+const checkConditionResult = require('./rules/checkConditionResult');
+const addActionResultToStash = require('./rules/addActionResultToStash');
+const addModuleToQueue = require('./rules/addModuleToQueue');
+const normalizeDelegate = require('./rules/normalizeDelegate');
 
 const PROMISE_TIMEOUT = 5000;
 
@@ -21,7 +25,7 @@ module.exports = (
   moduleProvider,
   container,
   globalFetch,
-  initialPayload,
+  callData,
   { isDebugEnabled, headersForSubrequests } = {}
 ) => {
   const rulePromises = [];
@@ -32,302 +36,86 @@ module.exports = (
     property: { settings: propertySettings }
   } = container;
 
-  const freezedInitialPayload = JSON.stringify(initialPayload);
+  const freezedInitialCallData = JSON.stringify(callData);
 
   rules.forEach((rule) => {
-    let lastPromiseInQueue = Promise.resolve(JSON.parse(freezedInitialPayload));
+    const logger = isDebugEnabled
+      ? createNewLogger({ ruleId: rule.id })
+      : fakeLogger;
 
-    const l = logger.createNewLogger(
-      {
-        ruleId: rule.id
-      },
-      isDebugEnabled
-    );
+    const fetch = getRuleFetchFn(globalFetch, headersForSubrequests, logger);
 
-    const fetch = getRuleFetchFn(globalFetch, headersForSubrequests, l);
-
-    const executeDelegateModule = createExecuteDelegateModule(moduleProvider);
-
-    const getExtensionNameByRuleComponent = (ruleComponent) => {
-      const moduleDefinition = moduleProvider.getModuleDefinition(
-        ruleComponent.modulePath
-      );
-
-      return (moduleDefinition && moduleDefinition.extensionName) || '';
+    const utils = {
+      logger,
+      fetch
     };
 
-    const getExtensionDisplayNameByRuleComponent = (ruleComponent) => {
-      const extensionDefinition = moduleProvider.getExtensionDefinition(
-        ruleComponent.modulePath
-      );
-
-      return (extensionDefinition && extensionDefinition.displayName) || '';
+    const initialRuleContextData = {
+      buildInfo,
+      propertySettings,
+      rule,
+      ruleStash: {},
+      ...JSON.parse(freezedInitialCallData)
     };
 
-    const getExtensionSettingsByRuleComponent = (ruleComponent, payload) => {
-      const extensionDefinition = moduleProvider.getExtensionDefinition(
-        ruleComponent.modulePath
-      );
-
-      if (extensionDefinition && extensionDefinition.getSettings) {
-        return extensionDefinition.getSettings({
-          payload,
-          dataElementCallStack: []
-        });
-      }
-
-      return Promise.resolve({});
-    };
-
-    const getModuleDisplayNameByRuleComponent = (ruleComponent) => {
-      const moduleDefinition = moduleProvider.getModuleDefinition(
-        ruleComponent.modulePath
-      );
-      return (
-        (moduleDefinition && moduleDefinition.displayName) ||
-        ruleComponent.modulePath
-      );
-    };
-
-    const getErrorMessage = (ruleComponent, errorMessage, errorStack) => {
-      const moduleDisplayName = getModuleDisplayNameByRuleComponent(
-        ruleComponent
-      );
-      return `Failed to execute ${moduleDisplayName} ${errorMessage} ${
-        errorStack ? `\n ${errorStack}` : ''
-      }`;
-    };
-
-    const logActionError = (action, e) => {
-      l.error(getErrorMessage(action, e.message, e.stack));
-    };
-
-    const logConditionError = (condition, e) => {
-      l.error(getErrorMessage(condition, e.message, e.stack));
-    };
-
-    const logConditionNotMet = (condition, r) => {
-      const conditionDisplayName = getModuleDisplayNameByRuleComponent(
-        condition
-      );
-
-      logger.log(
-        `Condition ${conditionDisplayName}  for rule ${r.name} not met.`
-      );
-    };
+    let lastPromiseInQueue = Promise.resolve(initialRuleContextData);
 
     const logRuleStarting = (ruleDefinition) => {
-      l.log(`Rule "${ruleDefinition.name}" is being executed.`);
+      logger.log(`Rule "${ruleDefinition.name}" is being executed.`);
     };
 
-    const logDelegateModuleCall = (module, payload) => {
-      const m = getModuleDisplayNameByRuleComponent(module);
-      const e = getExtensionDisplayNameByRuleComponent(module);
-
-      l.log(
-        `Calling "${m}" module from the "${e}" extension.`,
-        'Input: ',
-        payload
-      );
-    };
-
-    const logDelegateModuleOutput = (module, output) => {
-      const m = getModuleDisplayNameByRuleComponent(module);
-      const e = getExtensionDisplayNameByRuleComponent(module);
-
-      l.log(
-        `"${m}" module from the "${e}" extension returned.`,
-        'Output:',
-        output
-      );
-    };
-
-    const normalizeError = (e) => {
-      let newError = e;
-
-      if (!newError) {
-        newError = new Error(
-          'The extension triggered an error, but no error information was provided.'
-        );
-      }
-
-      if (!(newError instanceof Error)) {
-        newError = new Error(String(newError));
-      }
-
-      return newError;
-    };
-
-    const isConditionMet = (condition, result) => {
-      if (typeof result !== 'boolean') {
-        throw new Error('Condition result is not boolean.');
-      }
-
-      return (
-        (result === true && !condition.negate) ||
-        (result === false && condition.negate)
-      );
-    };
-
-    lastPromiseInQueue = lastPromiseInQueue.then((p) => {
+    lastPromiseInQueue = lastPromiseInQueue.then((context) => {
       logRuleStarting(rule);
-      return p;
+      return context;
     });
 
     if (rule.conditions) {
       rule.conditions.forEach((condition) => {
-        lastPromiseInQueue = lastPromiseInQueue.then((payload) => {
-          let timeoutId;
-
-          return new Promise((resolve, reject) => {
-            timeoutId = setTimeout(() => {
-              // Reject instead of resolve to prevent subsequent
-              // conditions and actions from executing.
-              reject(
-                new Error(
-                  `A timeout occurred because the condition took longer than ${
-                    PROMISE_TIMEOUT / 1000
-                  } seconds to complete. `
-                )
-              );
-            }, PROMISE_TIMEOUT);
-
-            const clonedPayload = clone(payload);
-            logDelegateModuleCall(condition, payload);
-
-            getExtensionSettingsByRuleComponent(condition, clonedPayload)
-              .then((extensionSettings) => {
-                return executeDelegateModule(
-                  condition,
-                  {
-                    payload: clonedPayload,
-                    dataElementCallStack: []
-                  },
-                  [
-                    clonedPayload,
-                    {
-                      buildInfo,
-                      propertySettings,
-                      extensionSettings,
-                      logger: l,
-                      fetch,
-                      rule
-                    }
-                  ]
-                );
-              })
-              .then((result) => {
-                logDelegateModuleOutput(condition, result);
-                resolve(result);
-              }, reject);
-          })
-            .catch((e) => {
-              logConditionError(condition, normalizeError(e));
-              return false;
-            })
-            .then((result) => {
-              clearTimeout(timeoutId);
-              if (!isConditionMet(condition, result)) {
-                logConditionNotMet(condition, rule);
-                return Promise.reject();
-              }
-
-              return payload;
-            });
-        });
+        lastPromiseInQueue = addModuleToQueue(
+          lastPromiseInQueue,
+          checkConditionResult,
+          {
+            ...normalizeDelegate(condition, moduleProvider),
+            timeout: PROMISE_TIMEOUT
+          },
+          utils
+        );
       });
     }
 
     if (rule.actions) {
       rule.actions.forEach((action) => {
-        lastPromiseInQueue = lastPromiseInQueue.then((payload) => {
-          let timeoutId;
-
-          return new Promise((resolve, reject) => {
-            timeoutId = setTimeout(() => {
-              reject(
-                new Error(
-                  `A timeout occurred because the action took longer than ${
-                    PROMISE_TIMEOUT / 1000
-                  } seconds to complete. `
-                )
-              );
-            }, PROMISE_TIMEOUT);
-
-            logDelegateModuleCall(action, payload);
-            const clonedPayload = clone(payload);
-
-            getExtensionSettingsByRuleComponent(action, clonedPayload)
-              .then((extensionSettings) => {
-                return executeDelegateModule(
-                  action,
-                  {
-                    payload: clonedPayload,
-                    dataElementCallStack: []
-                  },
-                  [
-                    clonedPayload,
-                    {
-                      buildInfo,
-                      propertySettings,
-                      extensionSettings,
-                      logger: l,
-                      fetch,
-                      rule
-                    }
-                  ]
-                );
-              })
-              .then((result) => {
-                logDelegateModuleOutput(action, result);
-                resolve(result);
-              }, reject);
-          })
-            .catch((e) => {
-              logActionError(action, normalizeError(e));
-              throw e;
-            })
-            .finally(() => {
-              clearTimeout(timeoutId);
-            })
-            .then((result) => {
-              const extensionName = getExtensionNameByRuleComponent(action);
-              const newPayload = payload;
-
-              if (extensionName) {
-                // If the module result is undefined, the module result will not
-                // be logged correctly. Key with undefined won't be stringified
-                // and then they won't appear in the response.
-                newPayload[extensionName] = result || null;
-              }
-
-              return newPayload;
-            });
-        });
+        lastPromiseInQueue = addModuleToQueue(
+          lastPromiseInQueue,
+          addActionResultToStash,
+          {
+            ...normalizeDelegate(action, moduleProvider),
+            timeout: PROMISE_TIMEOUT
+          },
+          utils
+        );
       });
-
-      lastPromiseInQueue = lastPromiseInQueue
-        .then(() => {
-          return {
-            ruleId: rule.id,
-            status: 'success'
-          };
-        })
-        .catch(() => {
-          return {
-            ruleId: rule.id,
-            status: 'failed'
-          };
-        })
-        .then((baseResult) => {
-          const r = baseResult;
-          if (isDebugEnabled) {
-            r.logs = l.getJsonLogs();
-          }
-
-          return r;
-        });
     }
+
+    lastPromiseInQueue = lastPromiseInQueue
+      .then(() => {
+        return {
+          ruleId: rule.id,
+          status: 'success'
+        };
+      })
+      .catch(() => {
+        return {
+          ruleId: rule.id,
+          status: 'failed'
+        };
+      })
+      .then((baseResult) => {
+        const r = baseResult;
+        r.logs = logger.getJsonLogs();
+
+        return r;
+      });
 
     rulePromises.push(lastPromiseInQueue);
   });

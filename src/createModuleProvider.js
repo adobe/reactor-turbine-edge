@@ -29,7 +29,21 @@ module.exports = () => {
     },
 
     getModuleExports: (modulePath) => {
-      return modules[modulePath].script;
+      let moduleExports;
+
+      try {
+        moduleExports = modules[modulePath].script;
+      } catch (e) {
+        throw new Error(
+          `Failed to access module "${modulePath}". ${e.message}`
+        );
+      }
+
+      if (typeof moduleExports !== 'function') {
+        throw new Error(`Module "${modulePath}" did not export a function.`);
+      }
+
+      return moduleExports;
     }
   };
 };
