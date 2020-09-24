@@ -10,9 +10,28 @@ governing permissions and limitations under the License.
 */
 
 /**
- * "Cleans" text by trimming the string and removing spaces and newlines.
- * @param {string} str The string to clean.
- * @returns {string}
+ * Log levels.
+ * @readonly
+ * @enum {string}
+ * @private
  */
-module.exports = (str) =>
-  typeof str === 'string' ? str.replace(/\s+/g, ' ').trim() : str;
+const levels = {
+  LOG: 'log',
+  ERROR: 'error'
+};
+
+const process = (logLevel, context, logsBucket, args) => {
+  logsBucket.push(
+    args.map((m) => (typeof m !== 'string' ? JSON.stringify(m) : m))
+  );
+};
+
+module.exports = (context) => {
+  const logsBucket = [];
+
+  return {
+    log: (...args) => process(levels.LOG, context, logsBucket, args),
+    error: (...args) => process(levels.ERROR, context, logsBucket, args),
+    getJsonLogs: () => logsBucket
+  };
+};

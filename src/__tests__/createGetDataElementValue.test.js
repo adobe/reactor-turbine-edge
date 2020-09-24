@@ -1,73 +1,77 @@
-/***************************************************************************************
- * (c) 2017 Adobe. All rights reserved.
- * This file is licensed to you under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License. You may obtain a copy
- * of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- * OF ANY KIND, either express or implied. See the License for the specific language
- * governing permissions and limitations under the License.
- ****************************************************************************************/
+/*
+Copyright 2020 Adobe. All rights reserved.
+This file is licensed to you under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License. You may obtain a copy
+of the License at http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software distributed under
+the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+OF ANY KIND, either express or implied. See the License for the specific language
+governing permissions and limitations under the License.
+*/
 
-const createGetDataElementValue = require('../createGetDataElementValue');
+const createGetDataElementValueModule = require('../createGetDataElementValue');
 
-const createGetDataElementDefinition = (settings) =>
+jest.mock('../cleanText.js');
+
+const createGetDataElementDefinitionDefault = (dataDef) =>
   jest.fn().mockImplementation((dataElementName) => {
     if (dataElementName === 'testDataElement') {
-      return settings;
+      return {
+        ...dataDef,
+        getSettings: () => Promise.resolve(dataDef.settings)
+      };
     }
 
     return null;
   });
 
-const createModuleProvider = (f) => ({
-  getModuleExports: () => f
-});
-
-const replaceTokens = jest
-  .fn()
-  .mockImplementation((_, settings, context) =>
-    Promise.resolve(settings, context)
+const createGetDataElementValue = (
+  delegateDefinition,
+  {
+    moduleProvider = {
+      getModuleExports: () => (settings) => settings.foo
+    },
+    createGetDataElementDefinition = createGetDataElementDefinitionDefault
+  } = {}
+) => {
+  const getDataElementDefinition = createGetDataElementDefinition(
+    delegateDefinition
   );
 
-describe('function returned by createGetDataElementValue', () => {
-  test('returns a data element value using data from settings', () => {
-    const moduleProvider = {
-      getModuleExports: () => (settings) => settings.foo
-    };
+  return createGetDataElementValueModule(
+    moduleProvider,
+    getDataElementDefinition
+  );
+};
 
-    const getDataElementDefinition = createGetDataElementDefinition({
+describe('function returned by createGetDataElementValue', () => {
+  test('returns a value from the settings object as value', () => {
+    const getDataElementValue = createGetDataElementValue({
       settings: {
         foo: 'bar'
       }
     });
 
-    const getDataElementValue = createGetDataElementValue(
-      moduleProvider,
-      getDataElementDefinition,
-      replaceTokens
-    ).bind(null, null);
-
-    return getDataElementValue('testDataElement', {
-      a: 1
-    }).then((dataElementValue) => expect(dataElementValue).toBe('bar'));
+    return getDataElementValue('testDataElement', {}).then((dataElementValue) =>
+      expect(dataElementValue).toBe('bar')
+    );
   });
 
-  test('returns a data element value using data from event', () => {
-    const getDataElementDefinition = createGetDataElementDefinition({
-      settings: {}
-    });
+  test('returns a value from the contextData object as value', () => {
+    const context = {
+      contextData: {
+        foo: 'bar'
+      }
+    };
+
+    const moduleProvider = {
+      getModuleExports: () => (_, contextData) => contextData.foo
+    };
 
     const getDataElementValue = createGetDataElementValue(
-      createModuleProvider((_, context) => context.foo),
-      getDataElementDefinition,
-      replaceTokens
-    ).bind(null, null);
-
-    const context = {
-      foo: 'bar'
-    };
+      {},
+      { moduleProvider }
+    );
 
     return getDataElementValue(
       'testDataElement',
@@ -75,243 +79,189 @@ describe('function returned by createGetDataElementValue', () => {
     ).then((dataElementValue) => expect(dataElementValue).toBe('bar'));
   });
 
-  //   test(`${d} cleans the value when cleanText = true`, (t) => {
-  //     createGetDataElementValue = proxyquire('../createGetDataElementValue', {
-  //       './cleanText': sinon.stub().callsFake((value) => `cleaned:${value}`)
-  //     });
+  test('cleans the value when cleanText = true', () => {
+    const getDataElementValue = createGetDataElementValue({
+      cleanText: true,
+      settings: { foo: 'bar' }
+    });
 
-  //     const getDataElementDefinition = createGetDataElementDefinition({
-  //       cleanText: true,
-  //       settings: {}
-  //     });
+    return getDataElementValue('testDataElement', {}).then((dataElementValue) =>
+      expect(dataElementValue).toBe('cleaned:bar')
+    );
+  });
 
-  //     const getDataElementValue = createGetDataElementValue(
-  //       createModuleProvider(() => 'bar'),
-  //       getDataElementDefinition,
-  //       replaceTokens
-  //     ).bind(null, null);
+  [undefined, null].forEach((testDataElementValue) => {
+    const moduleProvider = {
+      getModuleExports: () => () => testDataElementValue
+    };
 
-  //     t.is(getDataElementValue('testDataElement'), 'cleaned:bar');
-  //   });
+    test(`returns a default value if data element value is ${testDataElementValue}`, () => {
+      const getDataElementValue = createGetDataElementValue(
+        {
+          defaultValue: 'defaultValue',
+          settings: {}
+        },
+        moduleProvider
+      );
 
-  //   test(`${d} cleans the default value when cleanText = true`, (t) => {
-  //     createGetDataElementValue = proxyquire('../createGetDataElementValue', {
-  //       './cleanText': sinon.stub().callsFake((value) => `cleaned:${value}`)
-  //     });
+      return getDataElementValue(
+        'testDataElement',
+        {}
+      ).then((dataElementValue) =>
+        expect(dataElementValue).toBe('defaultValue')
+      );
+    });
 
-  //     const getDataElementDefinition = createGetDataElementDefinition({
-  //       cleanText: true,
-  //       defaultValue: 'bar',
-  //       settings: {}
-  //     });
+    test(`returns ${testDataElementValue} if data element value is ${testDataElementValue}
+            and default is undefined`, () => {
+      const getDataElementValue = createGetDataElementValue(
+        {
+          settings: {}
+        },
+        { moduleProvider }
+      );
 
-  //     const getDataElementValue = createGetDataElementValue(
-  //       createModuleProvider(() => {}),
-  //       getDataElementDefinition,
-  //       replaceTokens
-  //     ).bind(null, null);
+      return getDataElementValue(
+        'testDataElement',
+        {}
+      ).then((dataElementValue) =>
+        expect(dataElementValue).toBe(testDataElementValue)
+      );
+    });
+  });
 
-  //     t.is(getDataElementValue('testDataElement'), 'cleaned:bar');
-  //   });
+  ['', 0, false, NaN].forEach((testDataElementValue) => {
+    const moduleProvider = {
+      getModuleExports: () => () => testDataElementValue
+    };
 
-  //   test(`${d} returns an empty string when undefinedVarsReturnEmpty = true and data element
-  //         does not exist`, (t) => {
-  //     const getDataElementDefinition = sinon.spy();
-  //     const getDataElementValue = createGetDataElementValue(
-  //       {},
-  //       getDataElementDefinition,
-  //       replaceTokens,
-  //       true
-  //     ).bind(null, null);
+    test(`does not return a default value if value is ${testDataElementValue}`, () => {
+      const getDataElementValue = createGetDataElementValue(
+        {
+          defaultValue: 'defaultValue',
+          settings: {}
+        },
+        { moduleProvider }
+      );
 
-  //     t.is(getDataElementValue('testDataElement'), '');
-  //     t.true(getDataElementDefinition.calledWith('testDataElement'));
-  //     t.true(getDataElementDefinition.calledOnce);
-  //   });
+      return getDataElementValue(
+        'testDataElement',
+        {}
+      ).then((dataElementValue) =>
+        expect(dataElementValue).toBe(testDataElementValue)
+      );
+    });
+  });
 
-  //   test(`${d} returns null when undefinedVarsReturnEmpty = false and data element
-  //         does not exist`, (t) => {
-  //     const getDataElementDefinition = sinon.spy();
-  //     const getDataElementValue = createGetDataElementValue(
-  //       {},
-  //       getDataElementDefinition,
-  //       replaceTokens,
-  //       false
-  //     ).bind(null, null);
+  test('lowercases the value if forceLowerCase = true', () => {
+    const getDataElementValue = createGetDataElementValue({
+      forceLowerCase: true,
+      settings: {
+        foo: 'bAr'
+      }
+    });
 
-  //     t.is(getDataElementValue('testDataElement'), null);
-  //     t.true(getDataElementDefinition.calledWith('testDataElement'));
-  //     t.true(getDataElementDefinition.calledOnce);
-  //   });
+    return getDataElementValue('testDataElement', {}).then((dataElementValue) =>
+      expect(dataElementValue).toBe('bar')
+    );
+  });
 
-  //   [undefined, null].forEach((dataElementValue) => {
-  //     test(`${d} returns a default value if value is ${dataElementValue}`, (t) => {
-  //       const getDataElementDefinition = createGetDataElementDefinition({
-  //         defaultValue: 'defaultValue',
-  //         settings: {}
-  //       });
+  test('lowercases the default value if forceLowerCase = true', () => {
+    const getDataElementValue = createGetDataElementValue({
+      forceLowerCase: true,
+      defaultValue: 'bAr',
+      settings: {}
+    });
 
-  //       const getDataElementValue = createGetDataElementValue(
-  //         createModuleProvider(() => dataElementValue),
-  //         getDataElementDefinition,
-  //         replaceTokens
-  //       ).bind(this, this);
+    return getDataElementValue('testDataElement', {}).then((dataElementValue) =>
+      expect(dataElementValue).toBe('bar')
+    );
+  });
 
-  //       t.is(getDataElementValue('testDataElement'), 'defaultValue');
-  //     });
+  test('throws an error when calling data element module exports fails', () => {
+    const moduleProvider = {
+      getModuleExports: () => () => {
+        throw new Error('noob tried to divide by zero');
+      }
+    };
 
-  //     test(`${d} returns an empty string if value is ${dataElementValue}
-  //           and default is undefined`, (t) => {
-  //       const getDataElementDefinition = createGetDataElementDefinition({
-  //         settings: {}
-  //       });
+    const getDataElementValue = createGetDataElementValue(
+      {
+        modulePath: 'hello-world/foo.js',
+        settings: {}
+      },
+      { moduleProvider }
+    );
 
-  //       const getDataElementValue = createGetDataElementValue(
-  //         createModuleProvider(() => dataElementValue),
-  //         getDataElementDefinition,
-  //         replaceTokens
-  //       ).bind(null, null);
+    return getDataElementValue('testDataElement', {}).catch((e) => {
+      expect(e.message).toMatch(
+        'Failed to execute module for data element "testDataElement". noob tried to divide by zero'
+      );
+    });
+  });
 
-  //       t.is(getDataElementValue('testDataElement'), '');
-  //     });
-  //   });
+  test('throws an error when calling data element module exports fails', () => {
+    const moduleProvider = {
+      getModuleExports: () => () => {
+        throw new Error('noob tried to divide by zero');
+      }
+    };
 
-  //   ['', 0, false, NaN].forEach((dataElementValue) => {
-  //     test(`${d} does not return a default value if value is ${dataElementValue}`, (t) => {
-  //       const getDataElementDefinition = createGetDataElementDefinition({
-  //         defaultValue: 'defaultValue',
-  //         settings: {}
-  //       });
+    const getDataElementValue = createGetDataElementValue(
+      {
+        settings: {}
+      },
+      { moduleProvider }
+    );
 
-  //       const getDataElementValue = createGetDataElementValue(
-  //         createModuleProvider(() => dataElementValue),
-  //         getDataElementDefinition,
-  //         replaceTokens
-  //       ).bind(this, this);
+    return getDataElementValue('testDataElement', {})
+      .then(() => {
+        throw new Error('This section should not have been called.');
+      })
+      .catch((e) => {
+        expect(e.message).toMatch(
+          'Failed to execute module for data element "testDataElement". \
+noob tried to divide by zero'
+        );
+      });
+  });
 
-  //       t.is(getDataElementValue('testDataElement'), dataElementValue);
-  //     });
-  //   });
+  test('throws an error when data element definition is not found', () => {
+    const getDataElementValue = createGetDataElementValue(
+      {
+        settings: {}
+      },
+      { createGetDataElementDefinition: () => () => {} }
+    );
 
-  //   test(`${d} lowercases the value if forceLowerCase = true`, (t) => {
-  //     const getDataElementDefinition = createGetDataElementDefinition({
-  //       forceLowerCase: true,
-  //       settings: {
-  //         foo: 'bAr'
-  //       }
-  //     });
+    return getDataElementValue('testDataElement', {})
+      .then(() => {
+        throw new Error('This section should not have been called.');
+      })
+      .catch((e) => {
+        expect(e.message).toMatch(
+          'Data element definition for "testDataElement" was not found.'
+        );
+      });
+  });
 
-  //     const getDataElementValue = createGetDataElementValue(
-  //       createModuleProvider((settings) => settings.foo),
-  //       getDataElementDefinition,
-  //       replaceTokens
-  //     ).bind(this, this);
+  test('throws an error when data element circular reference is detected', () => {
+    const getDataElementValue = createGetDataElementValue({
+      settings: {
+        foo: 'bar'
+      }
+    });
 
-  //     t.is(getDataElementValue('testDataElement'), 'bar');
-  //   });
-
-  //   test(`${d} lowercases the default value if forceLowerCase = true`, (t) => {
-  //     const getDataElementDefinition = createGetDataElementDefinition({
-  //       forceLowerCase: true,
-  //       defaultValue: 'bAr',
-  //       settings: {}
-  //     });
-
-  //     const getDataElementValue = createGetDataElementValue(
-  //       createModuleProvider(() => {}),
-  //       getDataElementDefinition,
-  //       replaceTokens
-  //     ).bind(this, this);
-
-  //     t.is(getDataElementValue('testDataElement'), 'bar');
-  //   });
-
-  //   test(`${d} replaces tokens in settings object`, (t) => {
-  //     const getDataElementDefinition = createGetDataElementDefinition({
-  //       settings: {
-  //         foo: '%bar%'
-  //       }
-  //     });
-
-  //     const getDataElementValue = createGetDataElementValue(
-  //       createModuleProvider((settings) => settings.foo),
-  //       getDataElementDefinition,
-  //       () => ({
-  //         foo: 'valueOfBar'
-  //       })
-  //     ).bind(null, null);
-
-  //     t.is(getDataElementValue('testDataElement'), 'valueOfBar');
-  //   });
-
-  //   test(`${d} throws an error when retrieving data element module exports fails`, (t) => {
-  //     const moduleProvider = {
-  //       getModuleExports: () => {
-  //         throw new Error('noob tried to divide by zero');
-  //       }
-  //     };
-
-  //     const getDataElementDefinition = createGetDataElementDefinition({
-  //       modulePath: 'hello-world/foo.js',
-  //       settings: {}
-  //     });
-
-  //     const getDataElementValue = createGetDataElementValue(
-  //       moduleProvider,
-  //       getDataElementDefinition,
-  //       replaceTokens
-  //     ).bind(this, this);
-
-  //     t.throws(() => getDataElementValue('testDataElement'), {
-  //       instanceOf: Error,
-  //       message: new RegExp(
-  //         '^Failed to execute data element module hello-world/foo.js \
-  //       for data element testDataElement. noob tried to divide by zero'
-  //       )
-  //     });
-  //   });
-
-  //   test(`${d} throws an error when executing data element module exports fails`, (t) => {
-  //     const getDataElementDefinition = createGetDataElementDefinition({
-  //       modulePath: 'hello-world/foo.js',
-  //       settings: {}
-  //     });
-
-  //     const getDataElementValue = createGetDataElementValue(
-  //       createModuleProvider(() => {
-  //         throw new Error('noob tried to divide by zero');
-  //       }),
-  //       getDataElementDefinition,
-  //       replaceTokens
-  //     ).bind(this, this);
-
-  //     t.throws(() => getDataElementValue('testDataElement'), {
-  //       instanceOf: Error,
-  //       message: new RegExp(
-  //         '^Failed to execute data element module hello-world/foo.js \
-  //       for data element testDataElement. noob tried to divide by zero'
-  //       )
-  //     });
-  //   });
-
-  //   test(`${d} throws an error when the data element module does not export a function`, (t) => {
-  //     const getDataElementDefinition = createGetDataElementDefinition({
-  //       modulePath: 'hello-world/foo.js',
-  //       settings: {}
-  //     });
-
-  //     const getDataElementValue = createGetDataElementValue(
-  //       createModuleProvider({}),
-  //       getDataElementDefinition,
-  //       replaceTokens
-  //     ).bind(this, this);
-
-  //     t.throws(() => getDataElementValue('testDataElement'), {
-  //       instanceOf: Error,
-  //       message: new RegExp(
-  //         '^Failed to execute data element module hello-world/foo.js \
-  //       for data element testDataElement. Module did not export a function.'
-  //       )
-  //     });
-  //   });
+    return getDataElementValue('testDataElement', {
+      dataElementCallStack: ['testDataElement']
+    })
+      .then(() => {
+        throw new Error('This section should not have been called.');
+      })
+      .catch((e) => {
+        expect(e.message).toMatch(
+          'Data element circular reference detected: testDataElement -> testDataElement'
+        );
+      });
+  });
 });

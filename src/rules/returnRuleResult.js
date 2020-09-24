@@ -9,10 +9,19 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-/**
- * "Cleans" text by trimming the string and removing spaces and newlines.
- * @param {string} str The string to clean.
- * @returns {string}
- */
-module.exports = (str) =>
-  typeof str === 'string' ? str.replace(/\s+/g, ' ').trim() : str;
+module.exports = (lastPromiseInQueue, { id: ruleId }, logger) =>
+  lastPromiseInQueue
+    .then(() => ({
+      ruleId,
+      status: 'success'
+    }))
+    .catch(() => ({
+      ruleId,
+      status: 'failed'
+    }))
+    .then((baseRuleResult) => {
+      const ruleResult = baseRuleResult;
+      ruleResult.logs = logger.getJsonLogs();
+
+      return ruleResult;
+    });
