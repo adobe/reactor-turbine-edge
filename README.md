@@ -1,8 +1,8 @@
-# Launch Turbine Server
+# Launch Turbine Edge
 
-Launch SSF, is a next-generation solution that allows running JS code on server.
+Adobe Experience Platform Launch Server Side (Launch Server Side), is a next-generation solution that allows running JS code on server.
 
-Turbine Server is the orchestrator within a Launch SSF runtime library (the library deployed on a client website) which processes previously configured rules and delegates logic to extensions.
+Turbine Edge is the orchestrator within a Launch Server Side runtime library (the library deployed on the server) which processes previously configured rules and delegates logic to extensions.
 
 This project is not intended to be used directly by consumers; it is used by the Launch build system and incorporated into emitted runtime libraries.
 
@@ -13,8 +13,8 @@ Contributions are welcomed! Read the [Contributing Guide](CONTRIBUTING.md) for m
 To get started:
 
 1. Install [node.js](https://nodejs.org/).
-3. Clone the repository.
-4. After navigating into the project directory, install project dependencies by running `npm install`.
+2. Clone the repository.
+3. After navigating into the project directory, install project dependencies by running `npm install`.
 
 ### Scripts
 
