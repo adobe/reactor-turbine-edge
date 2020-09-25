@@ -9,14 +9,21 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const logDelegateModuleCall = require('./logDelegateModuleCall');
-const logDelegateModuleOutput = require('./logDelegateModuleOutput');
-const getExtensionSettingsByRuleComponent = require('./getExtensionSettingsByRuleComponent');
-const executeDelegateModule = require('./executeDelegateModule');
+const normalizeError = require('../normalizeError');
 
-module.exports = (context) =>
-  Promise.resolve(context)
-    .then(logDelegateModuleCall)
-    .then(getExtensionSettingsByRuleComponent)
-    .then(executeDelegateModule)
-    .then(logDelegateModuleOutput);
+describe('normalizeError', () => {
+  test('returns the same error if receives one', () => {
+    const e = new Error('some error');
+    expect(normalizeError(e)).toBe(e);
+  });
+
+  test('returns a generic error if no error is receieved', () => {
+    expect(normalizeError().message).toBe(
+      'The extension triggered an error, but no error information was provided.'
+    );
+  });
+
+  test('returns a error if receives a string', () => {
+    expect(normalizeError('some error').message).toBe('some error');
+  });
+});

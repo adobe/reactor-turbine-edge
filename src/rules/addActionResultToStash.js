@@ -22,7 +22,8 @@ module.exports = ({
     // If the module result is undefined, the module result will not
     // be logged correctly. Key with undefined won't be stringified
     // and then they won't appear in the response.
-    ruleStash[extensionName] = actionResult || null;
+    // eslint-disable-next-line eqeqeq
+    ruleStash[extensionName] = actionResult != undefined ? actionResult : null;
   }
 
   return contextData;

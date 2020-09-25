@@ -9,13 +9,17 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = (ruleComponent, moduleProvider) => {
-  const moduleDefinition = moduleProvider.getModuleDefinition(
-    ruleComponent.modulePath
-  );
+const getTimeoutPromise = require('../getTimeoutPromise');
 
-  return (
-    (moduleDefinition && moduleDefinition.displayName) ||
-    ruleComponent.modulePath
-  );
-};
+describe('getTimeoutPromise', () => {
+  test('returns a promise that will get rejected when the timeout is hit', () =>
+    getTimeoutPromise(100)
+      .then(() => {
+        throw new Error('This section should not have been called.');
+      })
+      .catch((e) =>
+        expect(e.message).toBe(
+          'A timeout occurred because the module took longer than 0.1 seconds to complete.'
+        )
+      ));
+});

@@ -9,29 +9,18 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-/**
- * Log levels.
- * @readonly
- * @enum {string}
- * @private
- */
-const levels = {
-  LOG: 'log',
-  ERROR: 'error'
-};
-
-const process = (logLevel, context, logsBucket, args) => {
+const process = (logsBucket, args) => {
   logsBucket.push(
     args.map((m) => (typeof m !== 'string' ? JSON.stringify(m) : m))
   );
 };
 
-module.exports = (context) => {
+module.exports = () => {
   const logsBucket = [];
 
   return {
-    log: (...args) => process(levels.LOG, context, logsBucket, args),
-    error: (...args) => process(levels.ERROR, context, logsBucket, args),
+    log: (...args) => process(logsBucket, args),
+    error: (...args) => process(logsBucket, args),
     getJsonLogs: () => logsBucket
   };
 };

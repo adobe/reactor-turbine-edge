@@ -14,9 +14,9 @@ module.exports = (timeout) =>
     setTimeout(() => {
       reject(
         new Error(
-          `A timeout occurred because the condition took longer than ${
+          `A timeout occurred because the module took longer than ${
             timeout / 1000
-          } seconds to complete. `
+          } seconds to complete.`
         )
       );
     }, timeout);

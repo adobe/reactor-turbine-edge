@@ -16,7 +16,7 @@ const logModuleErrorAndRethrow = require('./logModuleErrorAndRethrow');
 
 module.exports = (
   lastPromiseInQueue,
-  processModuleResult,
+  processModuleResultFn,
   delegateConfig,
   utils
 ) =>
@@ -30,5 +30,5 @@ module.exports = (
     )
     .then(transformToTimeBoundedPromise(getExecuteModulePromise))
     .catch(enhanceExecutionErrorMessageAndRethrow({ delegateConfig }))
-    .then(processModuleResult)
+    .then(processModuleResultFn)
     .catch(logModuleErrorAndRethrow({ utils }));

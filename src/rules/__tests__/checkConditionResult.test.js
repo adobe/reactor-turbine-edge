@@ -1,0 +1,88 @@
+/*
+Copyright 2020 Adobe. All rights reserved.
+This file is licensed to you under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License. You may obtain a copy
+of the License at http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software distributed under
+the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+OF ANY KIND, either express or implied. See the License for the specific language
+governing permissions and limitations under the License.
+*/
+
+const checkConditionResult = require('../checkConditionResult');
+
+describe('checkConditionResult', () => {
+  test('returns a resolved promise in chain when condition result is true', () => {
+    const contextData = { a: 1, rule: {} };
+
+    return checkConditionResult({
+      moduleOutput: true,
+      contextData,
+      delegateConfig: {}
+    }).then((c) => {
+      expect(c).toStrictEqual({
+        a: 1,
+        rule: {}
+      });
+    });
+  });
+
+  test(
+    'returns a resolved promise when condition result is false ' +
+      'and negate is true',
+    () => {
+      const contextData = { a: 1, rule: {} };
+
+      return checkConditionResult({
+        moduleOutput: false,
+        contextData,
+        delegateConfig: {
+          negate: true
+        }
+      }).then((c) => {
+        expect(c).toStrictEqual({
+          a: 1,
+          rule: {}
+        });
+      });
+    }
+  );
+
+  test('returns a rejected promise if condition result is not boolean', () => {
+    const contextData = { a: 1, rule: { name: 'R' } };
+
+    checkConditionResult({
+      moduleOutput: 5,
+      contextData,
+      delegateConfig: {
+        displayName: 'A'
+      }
+    })
+      .then(() => {
+        throw new Error('This section should not have been called.');
+      })
+      .catch((e) => {
+        expect(e.message).toBe(
+          'Condition "A" from rule "R" did not return a boolean result.'
+        );
+      });
+  });
+
+  test('returns a rejected promise if condition is not met', () => {
+    const contextData = { a: 1, rule: { name: 'R' } };
+
+    checkConditionResult({
+      moduleOutput: false,
+      contextData,
+      delegateConfig: {
+        displayName: 'A'
+      }
+    })
+      .then(() => {
+        throw new Error('This section should not have been called.');
+      })
+      .catch((e) => {
+        expect(e.message).toBe('Condition "A" from rule "R" not met.');
+      });
+  });
+});

@@ -19,9 +19,11 @@ describe('function returned by createGetDataElementValues', () => {
       getDataElementValue
     );
 
-    getDataElementValues(['de1'], {}).then((getResolvedDataElementValue) => {
-      expect(getResolvedDataElementValue('de1')).toBe('resolved:de1');
-    });
+    return getDataElementValues(['de1'], {}).then(
+      (getResolvedDataElementValue) => {
+        expect(getResolvedDataElementValue('de1')).toBe('resolved:de1');
+      }
+    );
   });
 
   test('adds a dataElementCallStack to the context if it does not exist', () => {
@@ -30,7 +32,7 @@ describe('function returned by createGetDataElementValues', () => {
     );
 
     const context = {};
-    getDataElementValues(['de1'], context).then(() => {
+    return getDataElementValues(['de1'], context).then(() => {
       expect(context.dataElementCallStack).toStrictEqual([]);
     });
   });
@@ -41,7 +43,7 @@ describe('function returned by createGetDataElementValues', () => {
     );
 
     const context = { a: 1, dataElementCallStack: [1] };
-    getDataElementValues(['de1'], context).then(() => {
+    return getDataElementValues(['de1'], context).then(() => {
       expect(getDataElementValue).toHaveBeenCalledWith('de1', context);
     });
   });

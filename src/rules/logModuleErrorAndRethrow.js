@@ -10,7 +10,7 @@ governing permissions and limitations under the License.
 */
 
 module.exports = ({ utils: { logger } }) => (error) => {
-  logger.error(`${error.message} ${error.stack ? `\n ${error.stack}` : ''}`);
+  logger.error(`${error.message}${error.stack ? ` \n ${error.stack}` : ''}`);
 
   return Promise.reject();
 };

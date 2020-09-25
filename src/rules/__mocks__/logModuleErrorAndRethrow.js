@@ -9,14 +9,4 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const logDelegateModuleCall = require('./logDelegateModuleCall');
-const logDelegateModuleOutput = require('./logDelegateModuleOutput');
-const getExtensionSettingsByRuleComponent = require('./getExtensionSettingsByRuleComponent');
-const executeDelegateModule = require('./executeDelegateModule');
-
-module.exports = (context) =>
-  Promise.resolve(context)
-    .then(logDelegateModuleCall)
-    .then(getExtensionSettingsByRuleComponent)
-    .then(executeDelegateModule)
-    .then(logDelegateModuleOutput);
+module.exports = () => (e) => Promise.reject(e);

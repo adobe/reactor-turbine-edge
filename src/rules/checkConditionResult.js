@@ -16,7 +16,7 @@ const isConditionMet = (result, negate) => {
 module.exports = ({
   moduleOutput: conditionResult,
   contextData,
-  delegateConfig: { displayName: conditionDisplayName }
+  delegateConfig: { displayName: conditionDisplayName, negate = false }
 }) => {
   const {
     rule: { name }
@@ -30,7 +30,7 @@ module.exports = ({
     );
   }
 
-  if (!isConditionMet(conditionResult)) {
+  if (!isConditionMet(conditionResult, negate)) {
     return Promise.reject(
       new Error(
         `Condition "${conditionDisplayName}" from rule "${name}" not met.`
@@ -38,5 +38,5 @@ module.exports = ({
     );
   }
 
-  return contextData;
+  return Promise.resolve(contextData);
 };

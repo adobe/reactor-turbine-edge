@@ -9,14 +9,22 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const logDelegateModuleCall = require('./logDelegateModuleCall');
-const logDelegateModuleOutput = require('./logDelegateModuleOutput');
-const getExtensionSettingsByRuleComponent = require('./getExtensionSettingsByRuleComponent');
-const executeDelegateModule = require('./executeDelegateModule');
+const logRuleStarting = require('../logRuleStarting');
+const createNewLogger = require('../../__mocks__/createNewLogger');
 
-module.exports = (context) =>
-  Promise.resolve(context)
-    .then(logDelegateModuleCall)
-    .then(getExtensionSettingsByRuleComponent)
-    .then(executeDelegateModule)
-    .then(logDelegateModuleOutput);
+describe('logRuleStarting', () => {
+  test('logs the call to and returns the contextData', () => {
+    const logger = createNewLogger();
+
+    const contextData = {
+      c: 1,
+      rule: { name: 'rule name' }
+    };
+
+    const result = logRuleStarting(logger)(contextData);
+    expect(logger.getJsonLogs()).toStrictEqual([
+      ['Rule "rule name" is being executed.']
+    ]);
+    expect(result).toBe(contextData);
+  });
+});
