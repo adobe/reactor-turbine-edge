@@ -3,4 +3,4 @@ node_js:
   - 'node'
 after_script:
   - 'npm install -g coveralls'
-  - 'cat coverage/lcov.dat | coveralls'
+  - 'cat coverage/lcov.info | coveralls'
