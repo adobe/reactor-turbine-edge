@@ -1,5 +1,8 @@
 # Launch Turbine Edge
 
+[![Build Status](https://travis-ci.com/adobe/reactor-turbine-edge.svg?branch=master)](https://travis-ci.com/github/adobe/reactor-turbine-edge)
+[![Coverage Status](https://coveralls.io/repos/github/adobe/reactor-turbine-edge/badge.svg?branch=master)](https://coveralls.io/github/adobe/reactor-turbine-edge?branch=master)
+
 Adobe Experience Platform Launch Server Side (Launch Server Side), is a next-generation solution that allows running JS code on server.
 
 Turbine Edge is the orchestrator within a Launch Server Side runtime library (the library deployed on the server) which processes previously configured rules and delegates logic to extensions.
