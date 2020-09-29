@@ -13,6 +13,8 @@ This project is not intended to be used directly by consumers; it is used by the
 
 Contributions are welcomed! Read the [Contributing Guide](./.github/CONTRIBUTING.md) for more information.
 
+## Get started
+
 To get started:
 
 1. Install [node.js](https://nodejs.org/).
