@@ -32,7 +32,6 @@
 <!--- If you're unsure about any of these, don't hesitate to ask. We're here to help! -->
 
 - [ ] I have signed the [Adobe Open Source CLA](https://opensource.adobe.com/cla.html) or I'm an Adobe employee.
-- [] My code follows the code style of this project.
+- [ ] My code follows the code style of this project.
 - [ ] My change requires a change to the documentation.
 - [ ] I have made any necessary test changes and all tests pass.
-- [ ] I have run the Sandbox successfully.
