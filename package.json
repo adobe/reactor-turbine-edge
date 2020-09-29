@@ -1,9 +1,9 @@
 {
   "name": "reactor-turbine-edge",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Launch rule engine which processes rules on client websites and delegates logic to extensions.",
   "license": "Apache-2.0",
-  "main": "src/index.js",
+  "main": "dist/engine-server.min.js",
   "scripts": {
     "build": "rollup -c && terser dist/engine-server.js -c -m -o dist/engine-server.min.js",
     "build:watch": "touch ./dist/engine-server.js & rollup --watch -c & watch -f ./dist/engine-server.js -r './node_modules/.bin/terser ./dist/engine-server.js -c -m -o ./dist/engine-server.min.js'",
@@ -39,11 +39,11 @@
     "@testing-library/jest-dom": "^5.11.4",
     "camelize": "1.0.0",
     "cli-watch": "^1.0.7",
-    "eslint": "^7.9.0",
+    "eslint": "^7.10.0",
     "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-jest-dom": "^3.2.3",
-    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-testing-library": "^3.9.0",
     "inject-loader": "^4.0.1",
@@ -56,6 +56,6 @@
     "pretty-quick": "^3.0.2",
     "proxyquire": "^2.1.3",
     "rollup": "^2.28.2",
-    "terser": "^5.3.2"
+    "terser": "^5.3.3"
   }
 }

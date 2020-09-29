@@ -1,4 +1,4 @@
 node_modules
 /coverage
 /dist
-reactor-turbine-server-*.tgz
+reactor-turbine-edge-*.tgz
