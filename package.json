@@ -1,5 +1,5 @@
 {
-  "name": "reactor-turbine-edge",
+  "name": "@adobe/reactor-turbine-edge",
   "version": "1.0.0",
   "description": "Launch rule engine which processes rules on client websites and delegates logic to extensions.",
   "license": "Apache-2.0",
