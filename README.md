@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.com/adobe/reactor-turbine-edge.svg?branch=master)](https://travis-ci.com/github/adobe/reactor-turbine-edge)
 [![Coverage Status](https://coveralls.io/repos/github/adobe/reactor-turbine-edge/badge.svg?branch=master)](https://coveralls.io/github/adobe/reactor-turbine-edge?branch=master)
+[![npm (scoped with tag)](https://img.shields.io/npm/v/@adobe/reactor-turbine-edge.svg?style=flat)](https://www.npmjs.com/package/@adobe/reactor-turbine-edge)
 
 Adobe Experience Platform Launch Server Side (Launch Server Side), is a next-generation solution that allows running JS code on server.
 
