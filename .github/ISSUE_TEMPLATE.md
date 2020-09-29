@@ -9,8 +9,4 @@
 
 #### Steps to Reproduce
 
-#### Platform and Version
-
 #### Sample Code that illustrates the problem
-
-#### Logs taken while reproducing problem

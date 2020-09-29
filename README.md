@@ -11,7 +11,7 @@ This project is not intended to be used directly by consumers; it is used by the
 
 ## Contributing
 
-Contributions are welcomed! Read the [Contributing Guide](CONTRIBUTING.md) for more information.
+Contributions are welcomed! Read the [Contributing Guide](./.github/CONTRIBUTING.md) for more information.
 
 To get started:
 
