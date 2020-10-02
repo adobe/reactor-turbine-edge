@@ -31,11 +31,7 @@ module.exports = (
 ) => {
   const rulePromises = [];
 
-  const {
-    rules,
-    buildInfo,
-    property: { settings: propertySettings }
-  } = container;
+  const { rules, buildInfo } = container;
 
   const freezedInitialCallData = JSON.stringify(callData);
 
@@ -53,7 +49,6 @@ module.exports = (
 
     const initialRuleContextData = {
       buildInfo,
-      propertySettings,
       rule,
       ruleStash: {},
       ...JSON.parse(freezedInitialCallData)
