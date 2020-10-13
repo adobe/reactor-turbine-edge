@@ -35,6 +35,11 @@ module.exports = (globalFetch, headersForSubrequests, logger) => {
 
     return globalFetch(resource, init).then(
       (r) => {
+        // Below we will read the body of the response. The body can be read only once.
+        // We are cloning the response and sending it down to the actions so in case
+        // they also need to read the response, they can do it.
+        const clonedResponse = r.clone();
+
         // We read r.text() in order to get rid of the potential CF warning:
         // A stalled HTTP response was canceled to prevent deadlock. This can happen when a
         // Worker calls fetch() or cache.match() several times without reading the bodies
@@ -61,7 +66,7 @@ module.exports = (globalFetch, headersForSubrequests, logger) => {
             body || 'empty'
           );
 
-          return r;
+          return clonedResponse;
         });
       },
       (e) => {

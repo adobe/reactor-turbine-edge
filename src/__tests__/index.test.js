@@ -14,6 +14,10 @@ const containerInitFunction = require('../__mocks__/containerInitFunction');
 
 const globalFetch = (resource) =>
   Promise.resolve({
+    clone: () => ({
+      arrayBuffer: () => Promise.resolve(`${resource}:arrayBuffer`),
+      status: 200
+    }),
     arrayBuffer: () => Promise.resolve(`${resource}:arrayBuffer`),
     status: 200
   });

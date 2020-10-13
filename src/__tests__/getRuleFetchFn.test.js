@@ -14,6 +14,10 @@ const createNewLogger = require('../createNewLogger');
 
 const createFakeFetch = (returnStatus = 200) => (resource) =>
   Promise.resolve({
+    clone: () => ({
+      arrayBuffer: () => Promise.resolve(`${resource}:arrayBuffer`),
+      status: returnStatus
+    }),
     arrayBuffer: () => Promise.resolve(`${resource}:arrayBuffer`),
     status: returnStatus
   });
