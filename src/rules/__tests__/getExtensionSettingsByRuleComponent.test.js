@@ -19,7 +19,7 @@ describe('getExtensionSettingsByRuleComponent', () => {
     return getExtensionSettingsByRuleComponent({
       delegateConfig: {
         extension: {
-          getExtensionSetting: () => Promise.resolve(extensionSettings)
+          getExtensionSettings: () => Promise.resolve(extensionSettings)
         }
       },
       contextData

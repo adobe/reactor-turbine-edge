@@ -12,15 +12,15 @@ governing permissions and limitations under the License.
 module.exports = (context) => {
   let {
     delegateConfig: {
-      extension: { getExtensionSetting }
+      extension: { getExtensionSettings }
     }
   } = context;
 
-  if (!getExtensionSetting) {
-    getExtensionSetting = () => Promise.resolve({});
+  if (!getExtensionSettings) {
+    getExtensionSettings = () => Promise.resolve({});
   }
 
-  return getExtensionSetting(context).then((extensionSettings) => ({
+  return getExtensionSettings(context).then((extensionSettings) => ({
     ...context,
     contextData: {
       ...context.contextData,
