@@ -17,16 +17,15 @@ describe('logDelegateModuleOutput', () => {
     const logger = createNewLogger();
     const context = {
       moduleOutput: 'module output',
-      contextData: { c: 1 },
+      arcAndUtils: { arc: { c: 1 }, utils: { logger } },
       delegateConfig: {
         displayName: 'module display name',
         extension: { displayName: 'extension display name' }
-      },
-      utils: { logger }
+      }
     };
 
     const result = logDelegateModuleOutput(context);
-    expect(result.utils.logger.getJsonLogs()).toStrictEqual([
+    expect(result.arcAndUtils.utils.logger.getJsonLogs()).toStrictEqual([
       [
         '"module display name" module from the "extension display name" extension returned.',
         'Output:',

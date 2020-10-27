@@ -26,7 +26,10 @@ jest.mock('../createNewLogger.js');
 
 describe('index', () => {
   test('executes rules conditions and actions and returns a JSON result', () => {
-    const callData = { header: {}, body: { xdm: {} } };
+    const callData = {
+      event: { xdm: {}, data: {} },
+      request: { header: {}, body: { xdm: {}, data: {} } }
+    };
 
     const execute = index.initialize(containerInitFunction, {
       fetch: globalFetch
@@ -44,11 +47,10 @@ describe('index', () => {
             ['Rule "Rule 1" is being executed.'],
             [
               'Calling "Custom Code Condition" module from the "Core" extension.',
-              'Input: ',
-              '{"buildInfo":{},"rule":{"id":"RLbb1d94c79fee4733a510564a86ba3c59","name":"Rule 1",\
-"conditions":[{"modulePath":"core/src/lib/conditions/customCode.js","timeout":100}],\
-"actions":[{"modulePath":"adobe-cloud-connector/src/lib/actions/sendData.js","timeout":100}]\
-},"ruleStash":{},"header":{},"body":{"xdm":{}}}'
+              'Event: ',
+              '{"xdm":{},"data":{}}',
+              'Rule Stash: ',
+              '{}'
             ],
             [
               '"Custom Code Condition" module from the "Core" extension returned.',
@@ -57,11 +59,10 @@ describe('index', () => {
             ],
             [
               'Calling "Send Beacon" module from the "Adobe Cloud Connector" extension.',
-              'Input: ',
-              '{"buildInfo":{},"rule":{"id":"RLbb1d94c79fee4733a510564a86ba3c59","name":"Rule 1",\
-"conditions":[{"modulePath":"core/src/lib/conditions/customCode.js","timeout":100}],\
-"actions":[{"modulePath":"adobe-cloud-connector/src/lib/actions/sendData.js","timeout":100}]\
-},"ruleStash":{},"header":{},"body":{"xdm":{}},"extensionSettings":{}}'
+              'Event: ',
+              '{"xdm":{},"data":{}}',
+              'Rule Stash: ',
+              '{}'
             ],
             [
               'FETCH',
@@ -88,10 +89,10 @@ describe('index', () => {
             ['Rule "Rule 2" is being executed.'],
             [
               'Calling "Send Beacon" module from the "Adobe Cloud Connector" extension.',
-              'Input: ',
-              '{"buildInfo":{},"rule":{"id":"RLbb1d94c79fee4733a510564a86ba3c60","name":"Rule 2",\
-"actions":[{"modulePath":"adobe-cloud-connector/src/lib/actions/sendData.js","timeout":100}]\
-},"ruleStash":{},"header":{},"body":{"xdm":{}}}'
+              'Event: ',
+              '{"xdm":{},"data":{}}',
+              'Rule Stash: ',
+              '{}'
             ],
             [
               'FETCH',

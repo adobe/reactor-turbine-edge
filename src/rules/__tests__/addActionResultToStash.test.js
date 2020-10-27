@@ -13,7 +13,7 @@ const addActionResultToStash = require('../addActionResultToStash');
 
 const generateContext = (obj) => ({
   moduleOutput: 'actionResult',
-  contextData: { ruleStash: {} },
+  arcAndUtils: { arc: { ruleStash: {} } },
   delegateConfig: {
     extension: { name: 'extensionName' }
   },
@@ -23,7 +23,9 @@ const generateContext = (obj) => ({
 describe('addActionResultToStash', () => {
   test('adds the action result to the  rule stash', () => {
     const ruleStash = {};
-    addActionResultToStash(generateContext({ contextData: { ruleStash } }));
+    addActionResultToStash(
+      generateContext({ arcAndUtils: { arc: { ruleStash } } })
+    );
     expect(ruleStash.extensionName).toBe('actionResult');
   });
 
@@ -32,7 +34,7 @@ describe('addActionResultToStash', () => {
     addActionResultToStash(
       generateContext({
         moduleOutput: undefined,
-        contextData: { ruleStash }
+        arcAndUtils: { arc: { ruleStash } }
       })
     );
 
@@ -45,7 +47,7 @@ describe('addActionResultToStash', () => {
     addActionResultToStash(
       generateContext({
         moduleOutput: '',
-        contextData: { ruleStash }
+        arcAndUtils: { arc: { ruleStash } }
       })
     );
 
@@ -57,7 +59,7 @@ describe('addActionResultToStash', () => {
     addActionResultToStash(
       generateContext({
         moduleOutput: '',
-        contextData: { ruleStash },
+        arcAndUtils: { arc: { ruleStash } },
         delegateConfig: {
           extension: {}
         }

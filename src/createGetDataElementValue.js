@@ -19,7 +19,8 @@ module.exports = (moduleProvider, getDataElementDefinition) => (
   name,
   context
 ) => {
-  const { dataElementCallStack = [], utils, contextData } = context;
+  const { dataElementCallStack = [], arcAndUtils } = context;
+  const { utils } = arcAndUtils;
 
   const dataDef = getDataElementDefinition(name);
   if (!dataDef) {
@@ -45,7 +46,10 @@ module.exports = (moduleProvider, getDataElementDefinition) => (
 
   const valuePromise = dataDef.getSettings(context).then((settings) => {
     try {
-      return moduleExports(settings, contextData, utils);
+      return moduleExports({
+        ...arcAndUtils,
+        utils: { ...utils, getSettings: () => settings }
+      });
     } catch (e) {
       enhanceErrorMessage(name, e);
       throw e;

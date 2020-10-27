@@ -11,18 +11,22 @@ governing permissions and limitations under the License.
 
 module.exports = (context) => {
   const {
-    contextData,
+    arcAndUtils: {
+      arc: { event, ruleStash },
+      utils: { logger }
+    },
     delegateConfig: {
       displayName: moduleDisplayName,
       extension: { displayName: extensionDisplayName }
-    },
-    utils: { logger }
+    }
   } = context;
 
   logger.log(
     `Calling "${moduleDisplayName}" module from the "${extensionDisplayName}" extension.`,
-    'Input: ',
-    contextData
+    'Event: ',
+    event,
+    'Rule Stash: ',
+    ruleStash
   );
 
   return context;

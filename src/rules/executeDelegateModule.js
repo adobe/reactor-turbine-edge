@@ -10,14 +10,20 @@ governing permissions and limitations under the License.
 */
 
 module.exports = (context) => {
-  const {
-    contextData,
-    utils,
-    delegateConfig: { getSettings, moduleExports }
-  } = context;
+  const { arcAndUtils, delegateConfig } = context;
+  const { utils } = arcAndUtils;
+  const { getSettings, moduleExports } = delegateConfig;
 
   return getSettings(context)
-    .then((settings) => moduleExports(settings, contextData, utils))
+    .then((settings) =>
+      moduleExports({
+        ...arcAndUtils,
+        utils: {
+          ...utils,
+          getSettings: () => settings
+        }
+      })
+    )
     .then((moduleOutput) => ({
       ...context,
       moduleOutput

@@ -14,7 +14,7 @@ const getExtensionSettingsByRuleComponent = require('../getExtensionSettingsByRu
 describe('getExtensionSettingsByRuleComponent', () => {
   test('adds the extension settings to the context data', () => {
     const extensionSettings = { setting1: 1 };
-    const contextData = { contextData1: 2 };
+    const arcAndUtils = { arc: { contextData1: 2 }, utils: {} };
 
     return getExtensionSettingsByRuleComponent({
       delegateConfig: {
@@ -22,11 +22,18 @@ describe('getExtensionSettingsByRuleComponent', () => {
           getExtensionSettings: () => Promise.resolve(extensionSettings)
         }
       },
-      contextData
+      arcAndUtils
     }).then((context) => {
-      expect(context.contextData).toStrictEqual({
-        contextData1: 2,
-        extensionSettings: { setting1: 1 }
+      const {
+        arcAndUtils: {
+          arc,
+          utils: { getExtensionSettings }
+        }
+      } = context;
+
+      expect(arc).toStrictEqual({ contextData1: 2 });
+      expect(getExtensionSettings()).toStrictEqual({
+        setting1: 1
       });
     });
   });
@@ -35,18 +42,23 @@ describe('getExtensionSettingsByRuleComponent', () => {
     'adds and empty object as the extension settings to the context data if ' +
       'getExtensionSetting is not provided',
     () => {
-      const contextData = { contextData1: 2 };
+      const arcAndUtils = { arc: { contextData1: 2 }, utils: {} };
 
       return getExtensionSettingsByRuleComponent({
         delegateConfig: {
           extension: {}
         },
-        contextData
+        arcAndUtils
       }).then((context) => {
-        expect(context.contextData).toStrictEqual({
-          contextData1: 2,
-          extensionSettings: {}
-        });
+        const {
+          arcAndUtils: {
+            arc,
+            utils: { getExtensionSettings }
+          }
+        } = context;
+
+        expect(arc).toStrictEqual({ contextData1: 2 });
+        expect(getExtensionSettings()).toStrictEqual({});
       });
     }
   );

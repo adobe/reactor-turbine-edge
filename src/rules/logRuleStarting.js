@@ -9,12 +9,15 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = (logger) => (contextData) => {
+module.exports = (context) => {
   const {
-    rule: { name: ruleName }
-  } = contextData;
+    arcAndUtils: {
+      utils: { getRule, logger }
+    }
+  } = context;
+  const { name } = getRule();
 
-  logger.log(`Rule "${ruleName}" is being executed.`);
+  logger.log(`Rule "${name}" is being executed.`);
 
-  return contextData;
+  return context;
 };

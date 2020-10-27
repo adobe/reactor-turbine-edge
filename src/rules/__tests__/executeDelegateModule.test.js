@@ -16,21 +16,19 @@ describe('executeDelegateModule', () => {
     const delegateConfig = {
       getSettings: (context) =>
         Promise.resolve({
-          returnValue: context.contextData.someValue
+          returnValue: context.arcAndUtils.arc.someValue
         }),
-      moduleExports: (settings) => settings.returnValue
+      moduleExports: ({ utils: { getSettings } }) => getSettings().returnValue
     };
 
     return executeDelegateModule({
-      contextData: { someValue: 1 },
-      utils: {},
+      arcAndUtils: { arc: { someValue: 1 }, utils: {} },
       delegateConfig
     }).then((context) => {
       expect(context).toStrictEqual({
         moduleOutput: 1,
-        utils: {},
         delegateConfig,
-        contextData: { someValue: 1 }
+        arcAndUtils: { arc: { someValue: 1 }, utils: {} }
       });
     });
   });

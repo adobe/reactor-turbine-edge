@@ -43,20 +43,25 @@ module.exports = (
     const fetch = getRuleFetchFn(globalFetch, headersForSubrequests, logger);
 
     const utils = {
+      getRule: () => rule,
+      getBuildInfo: () => buildInfo,
       logger,
       fetch
     };
 
-    const initialRuleContextData = {
-      buildInfo,
-      rule,
-      ruleStash: {},
-      ...JSON.parse(freezedInitialCallData)
+    const initialContext = {
+      arcAndUtils: {
+        utils,
+        arc: {
+          ruleStash: {},
+          ...JSON.parse(freezedInitialCallData)
+        }
+      }
     };
 
-    let lastPromiseInQueue = Promise.resolve(initialRuleContextData);
+    let lastPromiseInQueue = Promise.resolve(initialContext);
 
-    lastPromiseInQueue = lastPromiseInQueue.then(logRuleStarting(logger));
+    lastPromiseInQueue = lastPromiseInQueue.then(logRuleStarting);
 
     if (rule.conditions) {
       rule.conditions.forEach((condition) => {

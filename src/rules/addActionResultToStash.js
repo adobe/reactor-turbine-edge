@@ -11,12 +11,14 @@ governing permissions and limitations under the License.
 
 module.exports = ({
   moduleOutput: actionResult,
-  contextData,
+  arcAndUtils,
   delegateConfig: {
     extension: { name: extensionName }
   }
 }) => {
-  const { ruleStash } = contextData;
+  const {
+    arc: { ruleStash }
+  } = arcAndUtils;
 
   if (extensionName) {
     // If the module result is undefined, the module result will not
@@ -26,5 +28,5 @@ module.exports = ({
     ruleStash[extensionName] = actionResult != undefined ? actionResult : null;
   }
 
-  return contextData;
+  return { arcAndUtils };
 };

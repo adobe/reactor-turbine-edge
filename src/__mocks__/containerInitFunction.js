@@ -15,18 +15,18 @@ module.exports = (getDataElementValues) => ({
     'adobe-cloud-connector/src/lib/actions/sendData.js': {
       extensionName: 'adobe-cloud-connector',
       displayName: 'Send Beacon',
-      script: (settings, _, { fetch }) =>
-        fetch(settings.url).then(() => 'send data done')
+      script: ({ utils: { getSettings, fetch } }) =>
+        fetch(getSettings().url).then(() => 'send data done')
     },
     'core/src/lib/dataElements/customCode.js': {
       extensionName: 'core',
       displayName: 'Custom Code Data Element',
-      script: (settings) => settings.source()
+      script: ({ utils: { getSettings } }) => getSettings().source()
     },
     'core/src/lib/conditions/customCode.js': {
       extensionName: 'core',
       displayName: 'Custom Code Condition',
-      script: (settings) => settings.source()
+      script: ({ utils: { getSettings } }) => getSettings().source()
     }
   },
   dataElements: {

@@ -21,10 +21,9 @@ module.exports = (
   utils
 ) =>
   lastPromiseInQueue
-    .then((contextData) =>
+    .then((context) =>
       Promise.resolve({
-        contextData,
-        utils,
+        ...context,
         delegateConfig
       })
     )

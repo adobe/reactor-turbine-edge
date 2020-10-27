@@ -16,20 +16,24 @@ describe('logDelegateModuleCall', () => {
   test('logs the call to and returns the context', () => {
     const logger = createNewLogger();
     const context = {
-      contextData: { c: 1 },
+      arcAndUtils: {
+        arc: { event: { c: 1 }, ruleStash: { d: 2 } },
+        utils: { logger }
+      },
       delegateConfig: {
         displayName: 'module display name',
         extension: { displayName: 'extension display name' }
-      },
-      utils: { logger }
+      }
     };
 
     const result = logDelegateModuleCall(context);
-    expect(result.utils.logger.getJsonLogs()).toStrictEqual([
+    expect(result.arcAndUtils.utils.logger.getJsonLogs()).toStrictEqual([
       [
         'Calling "module display name" module from the "extension display name" extension.',
-        'Input: ',
-        '{"c":1}'
+        'Event: ',
+        '{"c":1}',
+        'Rule Stash: ',
+        '{"d":2}'
       ]
     ]);
     expect(result).toBe(context);

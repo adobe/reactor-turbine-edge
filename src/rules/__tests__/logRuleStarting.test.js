@@ -16,15 +16,20 @@ describe('logRuleStarting', () => {
   test('logs the call to and returns the contextData', () => {
     const logger = createNewLogger();
 
-    const contextData = {
-      c: 1,
-      rule: { name: 'rule name' }
+    const context = {
+      arcAndUtils: {
+        arc: { c: 1 },
+        utils: {
+          getRule: () => ({ name: 'rule name' }),
+          logger
+        }
+      }
     };
 
-    const result = logRuleStarting(logger)(contextData);
+    const result = logRuleStarting(context);
     expect(logger.getJsonLogs()).toStrictEqual([
       ['Rule "rule name" is being executed.']
     ]);
-    expect(result).toBe(contextData);
+    expect(result).toBe(context);
   });
 });

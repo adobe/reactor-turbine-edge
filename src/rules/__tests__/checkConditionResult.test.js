@@ -13,16 +13,20 @@ const checkConditionResult = require('../checkConditionResult');
 
 describe('checkConditionResult', () => {
   test('returns a resolved promise in chain when condition result is true', () => {
-    const contextData = { a: 1, rule: {} };
+    const arcAndUtils = { arc: { a: 1 }, utils: { getRule: () => ({}) } };
 
     return checkConditionResult({
       moduleOutput: true,
-      contextData,
+      arcAndUtils,
       delegateConfig: {}
     }).then((c) => {
       expect(c).toStrictEqual({
-        a: 1,
-        rule: {}
+        arcAndUtils: {
+          arc: { a: 1 },
+          utils: {
+            getRule: expect.any(Function)
+          }
+        }
       });
     });
   });
@@ -31,29 +35,36 @@ describe('checkConditionResult', () => {
     'returns a resolved promise when condition result is false ' +
       'and negate is true',
     () => {
-      const contextData = { a: 1, rule: {} };
+      const arcAndUtils = { arc: { a: 1 }, utils: { getRule: () => ({}) } };
 
       return checkConditionResult({
         moduleOutput: false,
-        contextData,
+        arcAndUtils,
         delegateConfig: {
           negate: true
         }
       }).then((c) => {
         expect(c).toStrictEqual({
-          a: 1,
-          rule: {}
+          arcAndUtils: {
+            arc: { a: 1 },
+            utils: {
+              getRule: expect.any(Function)
+            }
+          }
         });
       });
     }
   );
 
   test('returns a rejected promise if condition result is not boolean', () => {
-    const contextData = { a: 1, rule: { name: 'R' } };
+    const arcAndUtils = {
+      arc: { a: 1 },
+      utils: { getRule: () => ({ name: 'R' }) }
+    };
 
     checkConditionResult({
       moduleOutput: 5,
-      contextData,
+      arcAndUtils,
       delegateConfig: {
         displayName: 'A'
       }
@@ -69,11 +80,14 @@ describe('checkConditionResult', () => {
   });
 
   test('returns a rejected promise if condition is not met', () => {
-    const contextData = { a: 1, rule: { name: 'R' } };
+    const arcAndUtils = {
+      arc: { a: 1 },
+      utils: { getRule: () => ({ name: 'R' }) }
+    };
 
     checkConditionResult({
       moduleOutput: false,
-      contextData,
+      arcAndUtils,
       delegateConfig: {
         displayName: 'A'
       }

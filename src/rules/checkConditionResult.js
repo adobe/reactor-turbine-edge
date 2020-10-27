@@ -15,12 +15,13 @@ const isConditionMet = (result, negate) => {
 
 module.exports = ({
   moduleOutput: conditionResult,
-  contextData,
+  arcAndUtils,
   delegateConfig: { displayName: conditionDisplayName, negate = false }
 }) => {
   const {
-    rule: { name }
-  } = contextData;
+    utils: { getRule }
+  } = arcAndUtils;
+  const { name } = getRule();
 
   if (typeof conditionResult !== 'boolean') {
     return Promise.reject(
@@ -38,5 +39,5 @@ module.exports = ({
     );
   }
 
-  return Promise.resolve(contextData);
+  return Promise.resolve({ arcAndUtils });
 };

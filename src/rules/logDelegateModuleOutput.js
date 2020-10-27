@@ -12,11 +12,13 @@ governing permissions and limitations under the License.
 module.exports = (context) => {
   const {
     moduleOutput,
+    arcAndUtils: {
+      utils: { logger }
+    },
     delegateConfig: {
       displayName: moduleDisplayName,
       extension: { displayName: extensionDisplayName }
-    },
-    utils: { logger }
+    }
   } = context;
 
   logger.log(
