@@ -31,7 +31,7 @@ module.exports = (
 ) => {
   const rulePromises = [];
 
-  const { rules, buildInfo } = container;
+  const { rules = [], buildInfo } = container;
 
   const freezedInitialCallData = JSON.stringify(callData);
 
