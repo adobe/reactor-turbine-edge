@@ -31,7 +31,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@git.corp.adobe.com:reactor/reactor-turbine-server.git"
+    "url": "git@github.com:adobe/reactor-turbine-edge.git"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^15.1.0",
