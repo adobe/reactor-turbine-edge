@@ -9,7 +9,8 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = ({ arcAndUtils, delegateConfig }) => {
+module.exports = (context) => {
+  const { arcAndUtils, delegateConfig } = context;
   const { utils } = arcAndUtils;
   let {
     extension: { getExtensionSettings }
@@ -19,7 +20,7 @@ module.exports = ({ arcAndUtils, delegateConfig }) => {
     getExtensionSettings = () => Promise.resolve({});
   }
 
-  return getExtensionSettings(arcAndUtils).then((extensionSettings) => ({
+  return getExtensionSettings(context).then((extensionSettings) => ({
     arcAndUtils: {
       ...arcAndUtils,
       utils: {
