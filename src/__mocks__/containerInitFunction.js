@@ -18,6 +18,12 @@ module.exports = (getDataElementValues) => ({
       script: ({ utils: { getSettings, fetch } }) =>
         fetch(getSettings().url).then(() => 'send data done')
     },
+    'extension-with-settings/src/lib/actions/sendData.js': {
+      extensionName: 'extension-with-settings',
+      displayName: 'Send Beacon',
+      script: ({ utils: { getExtensionSettings } }) =>
+        getExtensionSettings().uid
+    },
     'core/src/lib/dataElements/customCode.js': {
       extensionName: 'core',
       displayName: 'Custom Code Data Element',
@@ -36,9 +42,27 @@ module.exports = (getDataElementValues) => ({
         Promise.resolve({
           source: () => 'precious'
         })
+    },
+
+    UID: {
+      modulePath: 'core/src/lib/conditions/customCode.js',
+      getSettings: () =>
+        Promise.resolve({
+          source: () => 'UA-X-123'
+        })
     }
   },
   extensions: {
+    'extension-with-settings': {
+      displayName: 'Demo Extensions With Settings',
+      getSettings: (context) => {
+        return getDataElementValues(['UID'], context).then(
+          (getDataElementValue) => ({
+            uid: `${getDataElementValue('UID')}`
+          })
+        );
+      }
+    },
     'adobe-cloud-connector': {
       displayName: 'Adobe Cloud Connector'
     },
@@ -76,6 +100,13 @@ module.exports = (getDataElementValues) => ({
                 )}`
               })
             )
+        },
+        {
+          modulePath: 'extension-with-settings/src/lib/actions/sendData.js',
+          timeout: 100,
+          getSettings: (context) => {
+            return getDataElementValues([], context).then(() => ({}));
+          }
         }
       ]
     },

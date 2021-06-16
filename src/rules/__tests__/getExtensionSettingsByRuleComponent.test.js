@@ -12,25 +12,6 @@ governing permissions and limitations under the License.
 const getExtensionSettingsByRuleComponent = require('../getExtensionSettingsByRuleComponent');
 
 describe('getExtensionSettingsByRuleComponent', () => {
-  test('calls getExtensionSettings with the full context data', () => {
-    const arcAndUtils = { arc: { contextData1: 2 }, utils: {} };
-    const extensionSettingsMockFn = jest.fn(() => Promise.resolve());
-
-    return getExtensionSettingsByRuleComponent({
-      delegateConfig: {
-        extension: {
-          getExtensionSettings: extensionSettingsMockFn
-        }
-      },
-      arcAndUtils
-    }).then(() => {
-      expect(extensionSettingsMockFn).toHaveBeenCalledWith({
-        arcAndUtils: { arc: { contextData1: 2 }, utils: {} },
-        delegateConfig: { extension: expect.any(Object) }
-      });
-    });
-  });
-
   test('adds the extension settings to the context data', () => {
     const extensionSettings = { setting1: 1 };
     const arcAndUtils = { arc: { contextData1: 2 }, utils: {} };

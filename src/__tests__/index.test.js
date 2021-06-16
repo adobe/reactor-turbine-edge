@@ -79,6 +79,18 @@ describe('index', () => {
               '"Send Beacon" module from the "Adobe Cloud Connector" extension returned.',
               'Output:',
               'send data done'
+            ],
+            [
+              'Calling "Send Beacon" module from the "Demo Extensions With Settings" extension.',
+              'Event: ',
+              '{"xdm":{},"data":{}}',
+              'Rule Stash: ',
+              '{"adobe-cloud-connector":"send data done"}'
+            ],
+            [
+              '"Send Beacon" module from the "Demo Extensions With Settings" extension returned.',
+              'Output:',
+              'UA-X-123'
             ]
           ]
         },
