@@ -9,15 +9,17 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+const ConditionNotMetError = require('./conditionNotMetError');
+
 module.exports = (lastPromiseInQueue, { id: ruleId }, logger) =>
   lastPromiseInQueue
     .then(() => ({
       ruleId,
       status: 'success'
     }))
-    .catch(() => ({
+    .catch((e) => ({
       ruleId,
-      status: 'failed'
+      status: e instanceof ConditionNotMetError ? 'condition_not_met' : 'failed'
     }))
     .then((baseRuleResult) => {
       const ruleResult = baseRuleResult;

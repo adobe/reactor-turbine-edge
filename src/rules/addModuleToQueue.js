@@ -12,22 +12,14 @@ governing permissions and limitations under the License.
 const transformToTimeBoundedPromise = require('./transformToTimeBoundedPromise');
 const getExecuteModulePromise = require('./getExecuteModulePromise');
 const enhanceExecutionErrorMessageAndRethrow = require('./enhanceExecutionErrorMessageAndRethrow');
-const logModuleErrorAndRethrow = require('./logModuleErrorAndRethrow');
 
-module.exports = (
-  lastPromiseInQueue,
-  processModuleResultFn,
-  delegateConfig,
-  utils
-) =>
-  lastPromiseInQueue
-    .then((context) =>
-      Promise.resolve({
-        ...context,
-        delegateConfig
-      })
-    )
-    .then(transformToTimeBoundedPromise(getExecuteModulePromise))
-    .catch(enhanceExecutionErrorMessageAndRethrow({ delegateConfig }))
-    .then(processModuleResultFn)
-    .catch(logModuleErrorAndRethrow({ utils }));
+module.exports = (lastPromiseInQueue, processModuleResultFn, delegateConfig) =>
+  lastPromiseInQueue.then((context) =>
+    Promise.resolve({
+      ...context,
+      delegateConfig
+    })
+      .then(transformToTimeBoundedPromise(getExecuteModulePromise))
+      .then(processModuleResultFn)
+      .catch(enhanceExecutionErrorMessageAndRethrow({ delegateConfig }))
+  );

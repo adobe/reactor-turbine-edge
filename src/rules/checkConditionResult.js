@@ -9,6 +9,8 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+const ConditionNotMetError = require('./conditionNotMetError');
+
 const isConditionMet = (result, negate) => {
   return (result === true && !negate) || (result === false && negate);
 };
@@ -33,7 +35,7 @@ module.exports = ({
 
   if (!isConditionMet(conditionResult, negate)) {
     return Promise.reject(
-      new Error(
+      new ConditionNotMetError(
         `Condition "${conditionDisplayName}" from rule "${name}" not met.`
       )
     );

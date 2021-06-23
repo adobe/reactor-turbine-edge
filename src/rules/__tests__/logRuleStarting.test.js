@@ -28,7 +28,7 @@ describe('logRuleStarting', () => {
 
     const result = logRuleStarting(context);
     expect(logger.getJsonLogs()).toStrictEqual([
-      ['Rule "rule name" is being executed.']
+      ['Execution of rule "rule name" is starting.', 'log']
     ]);
     expect(result).toBe(context);
   });

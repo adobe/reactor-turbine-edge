@@ -1,5 +1,5 @@
 /*
-Copyright 2020 Adobe. All rights reserved.
+Copyright 2021 Adobe. All rights reserved.
 This file is licensed to you under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License. You may obtain a copy
 of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -9,20 +9,19 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const process = (logsBucket, type, args) => {
-  logsBucket.push(
-    args
-      .map((m) => (typeof m !== 'string' ? JSON.stringify(m) : m))
-      .concat(type)
-  );
-};
+class ConditionNotMetError extends Error {
+  constructor(...params) {
+    // Pass remaining arguments (including vendor specific ones) to parent constructor
+    super(...params);
 
-module.exports = () => {
-  const logsBucket = [];
+    // Maintains proper stack trace for where our error was thrown (only available on V8)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, ConditionNotMetError);
+    }
 
-  return {
-    log: (...args) => process(logsBucket, 'log', args),
-    error: (...args) => process(logsBucket, 'error', args),
-    getJsonLogs: () => logsBucket
-  };
-};
+    this.name = 'ConditionNotMetError';
+    this.logMethod = 'log';
+  }
+}
+
+module.exports = ConditionNotMetError;

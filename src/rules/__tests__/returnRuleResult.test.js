@@ -10,6 +10,7 @@ governing permissions and limitations under the License.
 */
 
 const returnRuleResult = require('../returnRuleResult');
+const ConditionNotMetError = require('../conditionNotMetError');
 
 describe('returnRuleResult', () => {
   test('returns the result for a successful rule', () => {
@@ -35,6 +36,22 @@ describe('returnRuleResult', () => {
         expect(ruleResult).toStrictEqual({
           ruleId: 123,
           status: 'failed',
+          logs: [{ a: 1 }, { b: 2 }]
+        })
+    );
+  });
+
+  test('returns the result for a rule with a condition that is not met', () => {
+    const lastPromiseInQueue = Promise.reject(
+      new ConditionNotMetError('Condition not met')
+    );
+    const logger = { getJsonLogs: () => [{ a: 1 }, { b: 2 }] };
+
+    return returnRuleResult(lastPromiseInQueue, { id: 123 }, logger).then(
+      (ruleResult) =>
+        expect(ruleResult).toStrictEqual({
+          ruleId: 123,
+          status: 'condition_not_met',
           logs: [{ a: 1 }, { b: 2 }]
         })
     );

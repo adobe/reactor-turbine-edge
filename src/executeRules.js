@@ -15,12 +15,10 @@ const fakeLogger = require('./getFakeLogger');
 const getRuleFetchFn = require('./getRuleFetchFn');
 const checkConditionResult = require('./rules/checkConditionResult');
 const addActionResultToStash = require('./rules/addActionResultToStash');
-const addModuleToQueue = require('./rules/addModuleToQueue');
-const normalizeDelegate = require('./rules/normalizeDelegate');
 const logRuleStarting = require('./rules/logRuleStarting');
+const logRuleEnding = require('./rules/logRuleEnding');
 const returnRuleResult = require('./rules/returnRuleResult');
-
-const PROMISE_TIMEOUT = 30000;
+const createPromiseChain = require('./rules/createPromiseChain');
 
 module.exports = (
   moduleProvider,
@@ -61,35 +59,29 @@ module.exports = (
 
     let lastPromiseInQueue = Promise.resolve(initialContext);
 
-    lastPromiseInQueue = lastPromiseInQueue.then(logRuleStarting);
-
-    if (rule.conditions) {
-      rule.conditions.forEach((condition) => {
-        lastPromiseInQueue = addModuleToQueue(
-          lastPromiseInQueue,
-          checkConditionResult,
-          {
-            timeout: PROMISE_TIMEOUT,
-            ...normalizeDelegate(condition, moduleProvider)
-          },
+    lastPromiseInQueue = lastPromiseInQueue
+      .then(logRuleStarting)
+      .then(
+        createPromiseChain({
+          modules: rule.conditions,
+          resultFn: checkConditionResult,
+          moduleProvider,
           utils
-        );
-      });
-    }
-
-    if (rule.actions) {
-      rule.actions.forEach((action) => {
-        lastPromiseInQueue = addModuleToQueue(
-          lastPromiseInQueue,
-          addActionResultToStash,
-          {
-            timeout: PROMISE_TIMEOUT,
-            ...normalizeDelegate(action, moduleProvider)
-          },
+        })
+      )
+      .then(
+        createPromiseChain({
+          modules: rule.actions,
+          resultFn: addActionResultToStash,
+          moduleProvider,
           utils
-        );
+        })
+      )
+      .then(logRuleEnding)
+      .catch((e) => {
+        logRuleEnding({ arcAndUtils: { utils } });
+        throw e;
       });
-    }
 
     lastPromiseInQueue = returnRuleResult(lastPromiseInQueue, rule, logger);
 

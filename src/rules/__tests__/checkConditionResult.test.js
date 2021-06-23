@@ -10,6 +10,7 @@ governing permissions and limitations under the License.
 */
 
 const checkConditionResult = require('../checkConditionResult');
+const ConditionNotMetError = require('../conditionNotMetError');
 
 describe('checkConditionResult', () => {
   test('returns a resolved promise in chain when condition result is true', () => {
@@ -96,6 +97,7 @@ describe('checkConditionResult', () => {
         throw new Error('This section should not have been called.');
       })
       .catch((e) => {
+        expect(e).toBeInstanceOf(ConditionNotMetError);
         expect(e.message).toBe('Condition "A" from rule "R" not met.');
       });
   });

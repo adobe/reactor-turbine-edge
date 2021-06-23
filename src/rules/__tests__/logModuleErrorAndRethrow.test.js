@@ -11,9 +11,10 @@ governing permissions and limitations under the License.
 
 const logModuleErrorAndRethrow = require('../logModuleErrorAndRethrow');
 const createNewLogger = require('../../__mocks__/createNewLogger');
+const ConditionNotMetError = require('../conditionNotMetError');
 
 describe('logModuleErrorAndRethrow', () => {
-  test('logs the error with a stack when available and returs a rejected promise', () => {
+  test('logs the error message with a stack when available and returs a rejected promise', () => {
     const logger = createNewLogger();
     const e = new Error('some error');
 
@@ -21,8 +22,19 @@ describe('logModuleErrorAndRethrow', () => {
       .then(() => {})
       .catch(() => {
         expect(logger.getJsonLogs()).toStrictEqual([
-          [`some error \n ${e.stack}`]
+          [`some error \n ${e.stack}`, 'error']
         ]);
+      });
+  });
+
+  test('logs the log message for a ConditionNotMetError and returs a rejected promise', () => {
+    const logger = createNewLogger();
+    const e = new ConditionNotMetError('some error');
+
+    logModuleErrorAndRethrow({ utils: { logger } })(e)
+      .then(() => {})
+      .catch(() => {
+        expect(logger.getJsonLogs()).toStrictEqual([['some error', 'log']]);
       });
   });
 
@@ -33,7 +45,7 @@ describe('logModuleErrorAndRethrow', () => {
     logModuleErrorAndRethrow({ utils: { logger } })(e)
       .then(() => {})
       .catch(() => {
-        expect(logger.getJsonLogs()).toStrictEqual([['some error']]);
+        expect(logger.getJsonLogs()).toStrictEqual([['some error', 'error']]);
       });
   });
 });
