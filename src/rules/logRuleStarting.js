@@ -17,7 +17,7 @@ module.exports = (context) => {
   } = context;
   const { name } = getRule();
 
-  logger.log(`Rule "${name}" is being executed.`);
+  logger.log(`Execution of rule "${name}" is starting.`);
 
   return context;
 };

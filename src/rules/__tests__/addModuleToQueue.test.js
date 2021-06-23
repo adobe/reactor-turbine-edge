@@ -14,10 +14,8 @@ const getExecuteModulePromise = require('../getExecuteModulePromise.js');
 
 jest.mock('../getExecuteModulePromise.js');
 jest.mock('../enhanceExecutionErrorMessageAndRethrow.js');
-jest.mock('../logModuleErrorAndRethrow.js');
 jest.mock('../transformToTimeBoundedPromise.js');
 
-const utils = {};
 const delegateConfig = {};
 
 describe('addModuleToQueue', () => {
@@ -29,8 +27,7 @@ describe('addModuleToQueue', () => {
     return addModuleToQueue(
       Promise.resolve(),
       processResultFn,
-      delegateConfig,
-      utils
+      delegateConfig
     ).then(() => {
       expect(processResultFn).toHaveBeenCalledWith('module result');
     });
@@ -43,12 +40,7 @@ describe('addModuleToQueue', () => {
       throw new Error('error from inside the module');
     });
 
-    return addModuleToQueue(
-      Promise.resolve(),
-      processResultFn,
-      delegateConfig,
-      utils
-    )
+    return addModuleToQueue(Promise.resolve(), processResultFn, delegateConfig)
       .then(() => {
         throw new Error('This section should not have been called.');
       })
@@ -64,12 +56,7 @@ describe('addModuleToQueue', () => {
 
     getExecuteModulePromise.mockResolvedValue('module result');
 
-    return addModuleToQueue(
-      Promise.resolve(),
-      processResultFn,
-      delegateConfig,
-      utils
-    )
+    return addModuleToQueue(Promise.resolve(), processResultFn, delegateConfig)
       .then(() => {
         throw new Error('This section should not have been called.');
       })

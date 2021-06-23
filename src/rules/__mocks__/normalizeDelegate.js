@@ -9,20 +9,4 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const process = (logsBucket, type, args) => {
-  logsBucket.push(
-    args
-      .map((m) => (typeof m !== 'string' ? JSON.stringify(m) : m))
-      .concat(type)
-  );
-};
-
-module.exports = () => {
-  const logsBucket = [];
-
-  return {
-    log: (...args) => process(logsBucket, 'log', args),
-    error: (...args) => process(logsBucket, 'error', args),
-    getJsonLogs: () => logsBucket
-  };
-};
+module.exports = (e) => e;

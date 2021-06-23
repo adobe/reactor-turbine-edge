@@ -44,25 +44,31 @@ describe('index', () => {
           ruleId: 'RLbb1d94c79fee4733a510564a86ba3c59',
           status: 'success',
           logs: [
-            ['Rule "Rule 1" is being executed.'],
+            [
+              'Execution of rule "Rule with one condition and two actions" is starting.',
+              'log'
+            ],
             [
               'Calling "Custom Code Condition" module from the "Core" extension.',
               'Event: ',
               '{"xdm":{},"data":{}}',
               'Rule Stash: ',
-              '{}'
+              '{}',
+              'log'
             ],
             [
               '"Custom Code Condition" module from the "Core" extension returned.',
               'Output:',
-              'true'
+              'true',
+              'log'
             ],
             [
               'Calling "Send Beacon" module from the "Adobe Cloud Connector" extension.',
               'Event: ',
               '{"xdm":{},"data":{}}',
               'Rule Stash: ',
-              '{}'
+              '{}',
+              'log'
             ],
             [
               'FETCH',
@@ -73,24 +79,32 @@ describe('index', () => {
               'Response Status',
               '200',
               'Response Body',
-              'empty'
+              'empty',
+              'log'
             ],
             [
               '"Send Beacon" module from the "Adobe Cloud Connector" extension returned.',
               'Output:',
-              'send data done'
+              'send data done',
+              'log'
             ],
             [
               'Calling "Send Beacon" module from the "Demo Extensions With Settings" extension.',
               'Event: ',
               '{"xdm":{},"data":{}}',
               'Rule Stash: ',
-              '{"adobe-cloud-connector":"send data done"}'
+              '{"adobe-cloud-connector":"send data done"}',
+              'log'
             ],
             [
               '"Send Beacon" module from the "Demo Extensions With Settings" extension returned.',
               'Output:',
-              'UA-X-123'
+              'UA-X-123',
+              'log'
+            ],
+            [
+              'Execution of rule "Rule with one condition and two actions" is complete.',
+              'log'
             ]
           ]
         },
@@ -98,13 +112,14 @@ describe('index', () => {
           ruleId: 'RLbb1d94c79fee4733a510564a86ba3c60',
           status: 'success',
           logs: [
-            ['Rule "Rule 2" is being executed.'],
+            ['Execution of rule "Rule with one action" is starting.', 'log'],
             [
               'Calling "Send Beacon" module from the "Adobe Cloud Connector" extension.',
               'Event: ',
               '{"xdm":{},"data":{}}',
               'Rule Stash: ',
-              '{}'
+              '{}',
+              'log'
             ],
             [
               'FETCH',
@@ -115,14 +130,50 @@ describe('index', () => {
               'Response Status',
               '200',
               'Response Body',
-              'empty'
+              'empty',
+              'log'
             ],
             [
               '"Send Beacon" module from the "Adobe Cloud Connector" extension returned.',
               'Output:',
-              'send data done'
-            ]
+              'send data done',
+              'log'
+            ],
+            ['Execution of rule "Rule with one action" is complete.', 'log']
           ]
+        },
+        {
+          logs: [
+            [
+              'Execution of rule "Rule with one false condition and two actions" is starting.',
+              'log'
+            ],
+            [
+              'Calling "Custom Code Condition" module from the "Core" extension.',
+              'Event: ',
+              '{"xdm":{},"data":{}}',
+              'Rule Stash: ',
+              '{}',
+              'log'
+            ],
+            [
+              '"Custom Code Condition" module from the "Core" extension returned.',
+              'Output:',
+              'false',
+              'log'
+            ],
+            [
+              'Failed to execute "Custom Code Condition". Condition "Custom Code Condition" ' +
+                'from rule "Rule with one false condition and two actions" not met.',
+              'log'
+            ],
+            [
+              'Execution of rule "Rule with one false condition and two actions" is complete.',
+              'log'
+            ]
+          ],
+          ruleId: 'RLbb1d94c79fee4733a510564a86ba3c99',
+          status: 'condition_not_met'
         }
       ]);
     });

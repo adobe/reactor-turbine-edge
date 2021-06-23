@@ -33,7 +33,8 @@ describe('logDelegateModuleCall', () => {
         'Event: ',
         '{"c":1}',
         'Rule Stash: ',
-        '{"d":2}'
+        '{"d":2}',
+        'log'
       ]
     ]);
     expect(result).toBe(context);

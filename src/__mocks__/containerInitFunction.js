@@ -75,9 +75,11 @@ module.exports = (getDataElementValues) => ({
   rules: [
     {
       id: 'RLbb1d94c79fee4733a510564a86ba3c59',
-      name: 'Rule 1',
+      name: 'Rule with one condition and two actions',
       conditions: [
         {
+          id: 'RCbb1d94c79fee4733a510564a86ba3c99',
+          name: 'Custom Code',
           modulePath: 'core/src/lib/conditions/customCode.js',
           timeout: 100,
           getSettings: () =>
@@ -88,6 +90,8 @@ module.exports = (getDataElementValues) => ({
       ],
       actions: [
         {
+          id: 'RCbb1d94c79fee4733a510564a86ba3a99',
+          name: 'Send Data',
           modulePath: 'adobe-cloud-connector/src/lib/actions/sendData.js',
           timeout: 100,
           getSettings: (context) =>
@@ -102,6 +106,8 @@ module.exports = (getDataElementValues) => ({
             )
         },
         {
+          id: 'RCbb1d94c79fee4733a510564a86ba3a99',
+          name: 'Send Data',
           modulePath: 'extension-with-settings/src/lib/actions/sendData.js',
           timeout: 100,
           getSettings: (context) => {
@@ -112,9 +118,11 @@ module.exports = (getDataElementValues) => ({
     },
     {
       id: 'RLbb1d94c79fee4733a510564a86ba3c60',
-      name: 'Rule 2',
+      name: 'Rule with one action',
       actions: [
         {
+          id: 'RCbb1d94c79fee4733a510564a86ba3a99',
+          name: 'Send Data',
           modulePath: 'adobe-cloud-connector/src/lib/actions/sendData.js',
           timeout: 100,
           getSettings: () =>
@@ -122,6 +130,49 @@ module.exports = (getDataElementValues) => ({
               method: 'GET',
               url: 'https://webhook.site/160e3622-264a-4d9b-aeb4-875d9a3f3a5a'
             })
+        }
+      ]
+    },
+    {
+      id: 'RLbb1d94c79fee4733a510564a86ba3c99',
+      name: 'Rule with one false condition and two actions',
+      conditions: [
+        {
+          id: 'RCbb1d94c79fee4733a510564a86ba3c99',
+          name: 'Custom Code',
+          modulePath: 'core/src/lib/conditions/customCode.js',
+          timeout: 100,
+          getSettings: () =>
+            Promise.resolve({
+              source: () => false
+            })
+        }
+      ],
+      actions: [
+        {
+          id: 'RCbb1d94c79fee4733a510564a86ba3a99',
+          name: 'Send Data',
+          modulePath: 'adobe-cloud-connector/src/lib/actions/sendData.js',
+          timeout: 100,
+          getSettings: (context) =>
+            getDataElementValues(['myPrecious'], context).then(
+              (getDataElementValue) => ({
+                method: 'POST',
+                body: '',
+                url: `https://webhook.site/160e3622-264a-4d9b-aeb4-875d9a3f3a5a?z=${getDataElementValue(
+                  'myPrecious'
+                )}`
+              })
+            )
+        },
+        {
+          id: 'RCbb1d94c79fee4733a510764a86ba3c99',
+          name: 'Send Data',
+          modulePath: 'extension-with-settings/src/lib/actions/sendData.js',
+          timeout: 100,
+          getSettings: (context) => {
+            return getDataElementValues([], context).then(() => ({}));
+          }
         }
       ]
     }
