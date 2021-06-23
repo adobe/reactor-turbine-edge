@@ -10,7 +10,7 @@ governing permissions and limitations under the License.
 */
 
 const addModuleToQueue = require('../addModuleToQueue');
-const getExecuteModulePromise = require('../getExecuteModulePromise.js');
+const getExecuteModulePromise = require('../getExecuteModulePromise');
 
 jest.mock('../getExecuteModulePromise.js');
 jest.mock('../enhanceExecutionErrorMessageAndRethrow.js');

@@ -14,23 +14,23 @@ const normalizeDelegate = require('./normalizeDelegate');
 const addModuleToQueue = require('./addModuleToQueue');
 const logModuleErrorAndRethrow = require('./logModuleErrorAndRethrow');
 
-module.exports = ({ modules, resultFn, moduleProvider, utils }) => (
-  context
-) => {
-  let lastPromiseInChain = Promise.resolve(context);
+module.exports =
+  ({ modules, resultFn, moduleProvider, utils }) =>
+  (context) => {
+    let lastPromiseInChain = Promise.resolve(context);
 
-  if (modules) {
-    modules.forEach((condition) => {
-      lastPromiseInChain = addModuleToQueue(lastPromiseInChain, resultFn, {
-        timeout: PROMISE_TIMEOUT,
-        ...normalizeDelegate(condition, moduleProvider)
+    if (modules) {
+      modules.forEach((condition) => {
+        lastPromiseInChain = addModuleToQueue(lastPromiseInChain, resultFn, {
+          timeout: PROMISE_TIMEOUT,
+          ...normalizeDelegate(condition, moduleProvider)
+        });
       });
-    });
-  }
+    }
 
-  lastPromiseInChain = lastPromiseInChain.catch(
-    logModuleErrorAndRethrow({ utils })
-  );
+    lastPromiseInChain = lastPromiseInChain.catch(
+      logModuleErrorAndRethrow({ utils })
+    );
 
-  return lastPromiseInChain;
-};
+    return lastPromiseInChain;
+  };

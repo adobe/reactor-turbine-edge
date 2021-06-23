@@ -15,64 +15,62 @@ const enhanceErrorMessage = (dataElementName, e) => {
   e.message = `Failed to execute module for data element "${dataElementName}". ${e.message}`;
 };
 
-module.exports = (moduleProvider, getDataElementDefinition) => (
-  name,
-  context
-) => {
-  const { dataElementCallStack = [], arcAndUtils } = context;
-  const { utils } = arcAndUtils;
+module.exports =
+  (moduleProvider, getDataElementDefinition) => (name, context) => {
+    const { dataElementCallStack = [], arcAndUtils } = context;
+    const { utils } = arcAndUtils;
 
-  const dataDef = getDataElementDefinition(name);
-  if (!dataDef) {
-    return Promise.reject(
-      new Error(`Data element definition for "${name}" was not found.`)
-    );
-  }
+    const dataDef = getDataElementDefinition(name);
+    if (!dataDef) {
+      return Promise.reject(
+        new Error(`Data element definition for "${name}" was not found.`)
+      );
+    }
 
-  if (dataElementCallStack.includes(name)) {
+    if (dataElementCallStack.includes(name)) {
+      dataElementCallStack.push(name);
+
+      return Promise.reject(
+        new Error(
+          `Data element circular reference detected: ${dataElementCallStack.join(
+            ' -> '
+          )}`
+        )
+      );
+    }
     dataElementCallStack.push(name);
 
-    return Promise.reject(
-      new Error(
-        `Data element circular reference detected: ${dataElementCallStack.join(
-          ' -> '
-        )}`
-      )
-    );
-  }
-  dataElementCallStack.push(name);
+    const moduleExports = moduleProvider.getModuleExports(dataDef.modulePath);
 
-  const moduleExports = moduleProvider.getModuleExports(dataDef.modulePath);
+    const valuePromise = dataDef.getSettings(context).then((settings) => {
+      try {
+        return moduleExports({
+          ...arcAndUtils,
+          utils: { ...utils, getSettings: () => settings }
+        });
+      } catch (e) {
+        enhanceErrorMessage(name, e);
+        throw e;
+      }
+    });
 
-  const valuePromise = dataDef.getSettings(context).then((settings) => {
-    try {
-      return moduleExports({
-        ...arcAndUtils,
-        utils: { ...utils, getSettings: () => settings }
-      });
-    } catch (e) {
-      enhanceErrorMessage(name, e);
-      throw e;
-    }
-  });
+    return valuePromise.then((resolvedValue) => {
+      let value = resolvedValue;
 
-  return valuePromise.then((resolvedValue) => {
-    let value = resolvedValue;
-
-    if (value == null && dataDef.defaultValue != null) {
-      value = dataDef.defaultValue;
-    }
-
-    if (typeof value === 'string') {
-      if (dataDef.cleanText) {
-        value = cleanText(value);
+      if (value == null && dataDef.defaultValue != null) {
+        value = dataDef.defaultValue;
       }
 
-      if (dataDef.forceLowerCase) {
-        value = value.toLowerCase();
-      }
-    }
+      if (typeof value === 'string') {
+        if (dataDef.cleanText) {
+          value = cleanText(value);
+        }
 
-    return value;
-  });
-};
+        if (dataDef.forceLowerCase) {
+          value = value.toLowerCase();
+        }
+      }
+
+      return value;
+    });
+  };

@@ -15,9 +15,8 @@ const getDataElementValue = jest.fn((v) => `resolved:${v}`);
 
 describe('function returned by createGetDataElementValues', () => {
   test('returns another function that will return data element values when it is called', () => {
-    const getDataElementValues = createGetDataElementValues(
-      getDataElementValue
-    );
+    const getDataElementValues =
+      createGetDataElementValues(getDataElementValue);
 
     return getDataElementValues(['de1'], {}).then(
       (getResolvedDataElementValue) => {
@@ -27,9 +26,8 @@ describe('function returned by createGetDataElementValues', () => {
   });
 
   test('adds a dataElementCallStack to the context if it does not exist', () => {
-    const getDataElementValues = createGetDataElementValues(
-      getDataElementValue
-    );
+    const getDataElementValues =
+      createGetDataElementValues(getDataElementValue);
 
     const context = {};
     return getDataElementValues(['de1'], context).then(() => {
@@ -38,9 +36,8 @@ describe('function returned by createGetDataElementValues', () => {
   });
 
   test('sends context to getDataElementValue', () => {
-    const getDataElementValues = createGetDataElementValues(
-      getDataElementValue
-    );
+    const getDataElementValues =
+      createGetDataElementValues(getDataElementValue);
 
     const context = { a: 1, dataElementCallStack: [1] };
     return getDataElementValues(['de1'], context).then(() => {

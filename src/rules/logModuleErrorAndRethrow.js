@@ -9,14 +9,16 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = ({ utils: { logger } }) => (error) => {
-  const logMethod = error.logMethod || 'error';
+module.exports =
+  ({ utils: { logger } }) =>
+  (error) => {
+    const logMethod = error.logMethod || 'error';
 
-  logger[logMethod](
-    `${error.message}${
-      logMethod === 'error' && error.stack ? ` \n ${error.stack}` : ''
-    }`
-  );
+    logger[logMethod](
+      `${error.message}${
+        logMethod === 'error' && error.stack ? ` \n ${error.stack}` : ''
+      }`
+    );
 
-  return Promise.reject(error);
-};
+    return Promise.reject(error);
+  };

@@ -77,8 +77,8 @@ describe('createModuleProvider', () => {
       );
     }).toThrowError(
       new Error(
-        'Failed to access module "anotherExtension/src/lib/dataElements/path.js". \
-Cannot read property \'script\' of undefined'
+        'Failed to access module "anotherExtension/src/lib/dataElements/path.js". ' +
+          "Cannot read property 'script' of undefined"
       )
     );
   });

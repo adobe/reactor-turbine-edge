@@ -12,15 +12,17 @@ governing permissions and limitations under the License.
 const getRuleFetchFn = require('../getRuleFetchFn');
 const createNewLogger = require('../createNewLogger');
 
-const createFakeFetch = (returnStatus = 200) => (resource) =>
-  Promise.resolve({
-    clone: () => ({
+const createFakeFetch =
+  (returnStatus = 200) =>
+  (resource) =>
+    Promise.resolve({
+      clone: () => ({
+        arrayBuffer: () => Promise.resolve(`${resource}:arrayBuffer`),
+        status: returnStatus
+      }),
       arrayBuffer: () => Promise.resolve(`${resource}:arrayBuffer`),
       status: returnStatus
-    }),
-    arrayBuffer: () => Promise.resolve(`${resource}:arrayBuffer`),
-    status: returnStatus
-  });
+    });
 
 describe('getRuleFetchFn', () => {
   test('returns a function that will make a successful fetch and returns the response', () => {

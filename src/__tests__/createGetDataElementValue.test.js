@@ -36,9 +36,8 @@ const createGetDataElementValue = (
     createGetDataElementDefinition = createGetDataElementDefinitionDefault
   } = {}
 ) => {
-  const getDataElementDefinition = createGetDataElementDefinition(
-    delegateDefinition
-  );
+  const getDataElementDefinition =
+    createGetDataElementDefinition(delegateDefinition);
 
   return createGetDataElementValueModule(
     moduleProvider,
@@ -54,10 +53,9 @@ describe('function returned by createGetDataElementValue', () => {
       }
     });
 
-    return getDataElementValue(
-      'testDataElement',
-      defaultContext
-    ).then((dataElementValue) => expect(dataElementValue).toBe('bar'));
+    return getDataElementValue('testDataElement', defaultContext).then(
+      (dataElementValue) => expect(dataElementValue).toBe('bar')
+    );
   });
 
   test('returns a value from the contextData object as value', () => {
@@ -78,10 +76,9 @@ describe('function returned by createGetDataElementValue', () => {
       { moduleProvider }
     );
 
-    return getDataElementValue(
-      'testDataElement',
-      context
-    ).then((dataElementValue) => expect(dataElementValue).toBe('bar'));
+    return getDataElementValue('testDataElement', context).then(
+      (dataElementValue) => expect(dataElementValue).toBe('bar')
+    );
   });
 
   test('cleans the value when cleanText = true', () => {
@@ -90,10 +87,9 @@ describe('function returned by createGetDataElementValue', () => {
       settings: { foo: 'bar' }
     });
 
-    return getDataElementValue(
-      'testDataElement',
-      defaultContext
-    ).then((dataElementValue) => expect(dataElementValue).toBe('cleaned:bar'));
+    return getDataElementValue('testDataElement', defaultContext).then(
+      (dataElementValue) => expect(dataElementValue).toBe('cleaned:bar')
+    );
   });
 
   [undefined, null].forEach((testDataElementValue) => {
@@ -110,11 +106,8 @@ describe('function returned by createGetDataElementValue', () => {
         moduleProvider
       );
 
-      return getDataElementValue(
-        'testDataElement',
-        defaultContext
-      ).then((dataElementValue) =>
-        expect(dataElementValue).toBe('defaultValue')
+      return getDataElementValue('testDataElement', defaultContext).then(
+        (dataElementValue) => expect(dataElementValue).toBe('defaultValue')
       );
     });
 
@@ -127,11 +120,9 @@ describe('function returned by createGetDataElementValue', () => {
         { moduleProvider }
       );
 
-      return getDataElementValue(
-        'testDataElement',
-        defaultContext
-      ).then((dataElementValue) =>
-        expect(dataElementValue).toBe(testDataElementValue)
+      return getDataElementValue('testDataElement', defaultContext).then(
+        (dataElementValue) =>
+          expect(dataElementValue).toBe(testDataElementValue)
       );
     });
   });
@@ -150,11 +141,9 @@ describe('function returned by createGetDataElementValue', () => {
         { moduleProvider }
       );
 
-      return getDataElementValue(
-        'testDataElement',
-        defaultContext
-      ).then((dataElementValue) =>
-        expect(dataElementValue).toBe(testDataElementValue)
+      return getDataElementValue('testDataElement', defaultContext).then(
+        (dataElementValue) =>
+          expect(dataElementValue).toBe(testDataElementValue)
       );
     });
   });
@@ -167,10 +156,9 @@ describe('function returned by createGetDataElementValue', () => {
       }
     });
 
-    return getDataElementValue(
-      'testDataElement',
-      defaultContext
-    ).then((dataElementValue) => expect(dataElementValue).toBe('bar'));
+    return getDataElementValue('testDataElement', defaultContext).then(
+      (dataElementValue) => expect(dataElementValue).toBe('bar')
+    );
   });
 
   test('lowercases the default value if forceLowerCase = true', () => {
@@ -180,10 +168,9 @@ describe('function returned by createGetDataElementValue', () => {
       settings: {}
     });
 
-    return getDataElementValue(
-      'testDataElement',
-      defaultContext
-    ).then((dataElementValue) => expect(dataElementValue).toBe('bar'));
+    return getDataElementValue('testDataElement', defaultContext).then(
+      (dataElementValue) => expect(dataElementValue).toBe('bar')
+    );
   });
 
   test('throws an error when calling data element module exports fails', () => {
@@ -228,8 +215,8 @@ describe('function returned by createGetDataElementValue', () => {
       })
       .catch((e) => {
         expect(e.message).toMatch(
-          'Failed to execute module for data element "testDataElement". \
-noob tried to divide by zero'
+          'Failed to execute module for data element "testDataElement". ' +
+            'noob tried to divide by zero'
         );
       });
   });

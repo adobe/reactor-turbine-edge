@@ -11,11 +11,11 @@ governing permissions and limitations under the License.
 
 const normalizeError = require('./normalizeError');
 
-module.exports = ({ delegateConfig: { displayName: moduleDisplayName } }) => (
-  error
-) => {
-  const normalizedError = normalizeError(error);
-  normalizedError.message = `Failed to execute "${moduleDisplayName}". ${normalizedError.message}`;
+module.exports =
+  ({ delegateConfig: { displayName } }) =>
+  (error) => {
+    const normalizedError = normalizeError(error);
+    normalizedError.message = `Failed to execute "${displayName}". ${normalizedError.message}`;
 
-  return Promise.reject(normalizedError);
-};
+    return Promise.reject(normalizedError);
+  };
