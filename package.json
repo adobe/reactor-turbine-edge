@@ -11,18 +11,13 @@
     "lint": "eslint 'src/**'",
     "format": "pretty-quick",
     "test": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "prepare": "husky install"
   },
   "author": {
     "name": "Adobe Systems",
     "url": "http://adobe.com",
     "email": "reactor@adobe.com"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged && lint-staged",
-      "pre-push": "npm test"
-    }
   },
   "lint-staged": {
     "*.js": [
