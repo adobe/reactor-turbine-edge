@@ -9,26 +9,29 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const cleanText = require('./cleanText');
+const cleanTextFn = require('./cleanText');
 
 const enhanceErrorMessage = (dataElementName, e) => {
   e.message = `Failed to execute module for data element "${dataElementName}". ${e.message}`;
 };
 
 module.exports =
-  (moduleProvider, getDataElementDefinition) => (name, context) => {
+  (moduleProvider, getDataElementDefinition) => (dataElementName, context) => {
     const { dataElementCallStack = [], arcAndUtils } = context;
     const { utils } = arcAndUtils;
 
-    const dataDef = getDataElementDefinition(name);
+    const dataDef = getDataElementDefinition(dataElementName);
+
     if (!dataDef) {
       return Promise.reject(
-        new Error(`Data element definition for "${name}" was not found.`)
+        new Error(
+          `Data element definition for "${dataElementName}" was not found.`
+        )
       );
     }
 
-    if (dataElementCallStack.includes(name)) {
-      dataElementCallStack.push(name);
+    if (dataElementCallStack.includes(dataElementName)) {
+      dataElementCallStack.push(dataElementName);
 
       return Promise.reject(
         new Error(
@@ -38,18 +41,31 @@ module.exports =
         )
       );
     }
-    dataElementCallStack.push(name);
+    dataElementCallStack.push(dataElementName);
 
-    const moduleExports = moduleProvider.getModuleExports(dataDef.modulePath);
+    const {
+      modulePath,
+      getSettings,
+      id,
+      name,
+      defaultValue,
+      cleanText,
+      forceLowerCase
+    } = dataDef;
 
-    const valuePromise = dataDef.getSettings(context).then((settings) => {
+    const moduleExports = moduleProvider.getModuleExports(modulePath);
+    const valuePromise = getSettings(context).then((settings) => {
       try {
         return moduleExports({
           ...arcAndUtils,
-          utils: { ...utils, getSettings: () => settings }
+          utils: {
+            ...utils,
+            getSettings: () => settings,
+            getComponent: () => ({ id, name })
+          }
         });
       } catch (e) {
-        enhanceErrorMessage(name, e);
+        enhanceErrorMessage(dataElementName, e);
         throw e;
       }
     });
@@ -57,16 +73,16 @@ module.exports =
     return valuePromise.then((resolvedValue) => {
       let value = resolvedValue;
 
-      if (value == null && dataDef.defaultValue != null) {
-        value = dataDef.defaultValue;
+      if (value == null && defaultValue != null) {
+        value = defaultValue;
       }
 
       if (typeof value === 'string') {
-        if (dataDef.cleanText) {
-          value = cleanText(value);
+        if (cleanText) {
+          value = cleanTextFn(value);
         }
 
-        if (dataDef.forceLowerCase) {
+        if (forceLowerCase) {
           value = value.toLowerCase();
         }
       }

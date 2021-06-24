@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 module.exports = (context) => {
   const { arcAndUtils, delegateConfig } = context;
   const { utils } = arcAndUtils;
-  const { getSettings, moduleExports } = delegateConfig;
+  const { getSettings, moduleExports, id, name } = delegateConfig;
 
   return getSettings(context)
     .then((settings) =>
@@ -20,7 +20,8 @@ module.exports = (context) => {
         ...arcAndUtils,
         utils: {
           ...utils,
-          getSettings: () => settings
+          getSettings: () => settings,
+          getComponent: () => ({ id, name })
         }
       })
     )

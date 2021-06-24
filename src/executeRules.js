@@ -34,6 +34,8 @@ module.exports = (
   const freezedInitialCallData = JSON.stringify(callData);
 
   rules.forEach((rule) => {
+    const { id, name } = rule;
+
     const logger = isDebugEnabled
       ? createNewLogger({ ruleId: rule.id })
       : fakeLogger;
@@ -41,7 +43,7 @@ module.exports = (
     const fetch = getRuleFetchFn(globalFetch, headersForSubrequests, logger);
 
     const utils = {
-      getRule: () => rule,
+      getRule: () => ({ id, name }),
       getBuildInfo: () => buildInfo,
       logger,
       fetch
