@@ -260,4 +260,30 @@ describe('function returned by createGetDataElementValue', () => {
         );
       });
   });
+
+  test('provides access to getComponent method when it calls the data element module ', () => {
+    const moduleProvider = {
+      getModuleExports:
+        () =>
+        ({ utils: { getComponent } }) =>
+          getComponent()
+    };
+
+    const getDataElementValue = createGetDataElementValue(
+      {
+        settings: {},
+        id: 'DE123',
+        name: 'data element name'
+      },
+      { moduleProvider }
+    );
+
+    return getDataElementValue('testDataElement', defaultContext).then(
+      (dataElementValue) =>
+        expect(dataElementValue).toEqual({
+          id: 'DE123',
+          name: 'data element name'
+        })
+    );
+  });
 });

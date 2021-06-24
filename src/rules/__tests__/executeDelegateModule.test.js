@@ -14,6 +14,24 @@ const executeDelegateModule = require('../executeDelegateModule');
 describe('executeDelegateModule', () => {
   test('executes the delegate module and adds the module output to the context', () => {
     const delegateConfig = {
+      getSettings: () => Promise.resolve(),
+      moduleExports: () => 'result'
+    };
+
+    return executeDelegateModule({
+      arcAndUtils: { arc: { someValue: 1 }, utils: {} },
+      delegateConfig
+    }).then((context) => {
+      expect(context).toStrictEqual({
+        moduleOutput: 'result',
+        delegateConfig,
+        arcAndUtils: { arc: { someValue: 1 }, utils: {} }
+      });
+    });
+  });
+
+  test('sends getSettings method when the delegate module is executed', () => {
+    const delegateConfig = {
       getSettings: (context) =>
         Promise.resolve({
           returnValue: context.arcAndUtils.arc.someValue
@@ -29,6 +47,26 @@ describe('executeDelegateModule', () => {
         moduleOutput: 1,
         delegateConfig,
         arcAndUtils: { arc: { someValue: 1 }, utils: {} }
+      });
+    });
+  });
+
+  test('sends getComponent method when the delegate module is executed', () => {
+    const delegateConfig = {
+      id: 'RC123',
+      name: 'Delegate name',
+      getSettings: () => Promise.resolve(1),
+      moduleExports: ({ utils: { getComponent } }) => getComponent()
+    };
+
+    return executeDelegateModule({
+      arcAndUtils: {},
+      delegateConfig
+    }).then((context) => {
+      expect(context).toStrictEqual({
+        moduleOutput: { id: 'RC123', name: 'Delegate name' },
+        delegateConfig,
+        arcAndUtils: {}
       });
     });
   });
