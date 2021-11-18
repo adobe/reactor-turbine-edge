@@ -10,6 +10,7 @@ governing permissions and limitations under the License.
 */
 
 const createNewLogger = require('./createNewLogger');
+const createAddToResponse = require('./createAddToResponse');
 const fakeLogger = require('./getFakeLogger');
 
 const getRuleFetchFn = require('./getRuleFetchFn');
@@ -28,6 +29,8 @@ module.exports = (
   { isDebugEnabled, headersForSubrequests } = {}
 ) => {
   const rulePromises = [];
+  const { getResponsePromise, addToResponse, sendResponse } =
+    createAddToResponse();
 
   const { rules = [], buildInfo } = container;
 
@@ -46,7 +49,8 @@ module.exports = (
       getRule: () => ({ id, name }),
       getBuildInfo: () => buildInfo,
       logger,
-      fetch
+      fetch,
+      addToResponse
     };
 
     const initialContext = {
@@ -90,5 +94,13 @@ module.exports = (
     rulePromises.push(lastPromiseInQueue);
   });
 
-  return Promise.all(rulePromises);
+  const executeRulesPromise = Promise.all(rulePromises);
+  executeRulesPromise.then(() => {
+    sendResponse();
+  });
+
+  return {
+    executeRulesPromise,
+    responsePromise: getResponsePromise()
+  };
 };
