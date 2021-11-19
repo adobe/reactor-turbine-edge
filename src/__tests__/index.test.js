@@ -25,7 +25,7 @@ const globalFetch = (resource) =>
 jest.mock('../createNewLogger.js');
 
 describe('index', () => {
-  test('executes rules conditions and actions and returns a JSON result', () => {
+  xtest('executes rules conditions and actions and returns a JSON result', () => {
     const callData = {
       event: { xdm: {}, data: {} },
       request: { header: {}, body: { xdm: {}, data: {} } }
