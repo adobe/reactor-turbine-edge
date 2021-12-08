@@ -16,8 +16,8 @@ const enhanceExecutionErrorMessageAndRethrow = require('./enhanceExecutionErrorM
 module.exports = (
   lastPromiseInQueue,
   processModuleResultFn,
-  returnResponseComplete,
-  delegateConfig
+  delegateConfig,
+  returnResponseComplete
 ) =>
   lastPromiseInQueue.then((context) =>
     Promise.resolve({
@@ -30,7 +30,6 @@ module.exports = (
         const { shouldReturnResponse } = delegateConfig;
 
         if (shouldReturnResponse && returnResponseComplete) {
-          console.log('aaa');
           returnResponseComplete();
         }
 

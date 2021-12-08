@@ -24,11 +24,11 @@ module.exports =
         lastPromiseInChain = addModuleToQueue(
           lastPromiseInChain,
           resultFn,
-          returnResponseComplete,
           {
             timeout: PROMISE_TIMEOUT,
             ...normalizeDelegate(condition, moduleProvider)
-          }
+          },
+          returnResponseComplete
         );
       });
     }
