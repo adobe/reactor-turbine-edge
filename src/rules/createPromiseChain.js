@@ -15,16 +15,21 @@ const addModuleToQueue = require('./addModuleToQueue');
 const logModuleErrorAndRethrow = require('./logModuleErrorAndRethrow');
 
 module.exports =
-  ({ modules, resultFn, moduleProvider, utils }) =>
+  ({ modules, resultFn, moduleProvider, returnResponseComplete, utils }) =>
   (context) => {
     let lastPromiseInChain = Promise.resolve(context);
 
     if (modules) {
       modules.forEach((condition) => {
-        lastPromiseInChain = addModuleToQueue(lastPromiseInChain, resultFn, {
-          timeout: PROMISE_TIMEOUT,
-          ...normalizeDelegate(condition, moduleProvider)
-        });
+        lastPromiseInChain = addModuleToQueue(
+          lastPromiseInChain,
+          resultFn,
+          returnResponseComplete,
+          {
+            timeout: PROMISE_TIMEOUT,
+            ...normalizeDelegate(condition, moduleProvider)
+          }
+        );
       });
     }
 

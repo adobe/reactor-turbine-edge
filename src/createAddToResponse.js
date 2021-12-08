@@ -11,14 +11,24 @@ governing permissions and limitations under the License.
 
 module.exports = () => {
   const response = {};
-  let r = null;
-  const promise = new Promise((resolve) => {
-    r = resolve;
-  });
+  const promises = [];
 
   return {
-    getResponsePromise: () => promise,
-    sendResponse: () => r(response),
+    generatePromiseResolve: () => {
+      let r = null;
+      const promise = new Promise((resolve) => {
+        r = resolve;
+      });
+
+      promises.push(promise);
+
+      return r;
+    },
+
+    getResponsePromises: () => Promise.all(promises),
+
+    getResponse: () => (promises.length ? response : {}),
+
     addToResponse: (key, value) => {
       response[key] = value;
     }

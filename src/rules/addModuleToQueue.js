@@ -13,7 +13,12 @@ const transformToTimeBoundedPromise = require('./transformToTimeBoundedPromise')
 const getExecuteModulePromise = require('./getExecuteModulePromise');
 const enhanceExecutionErrorMessageAndRethrow = require('./enhanceExecutionErrorMessageAndRethrow');
 
-module.exports = (lastPromiseInQueue, processModuleResultFn, delegateConfig) =>
+module.exports = (
+  lastPromiseInQueue,
+  processModuleResultFn,
+  returnResponseComplete,
+  delegateConfig
+) =>
   lastPromiseInQueue.then((context) =>
     Promise.resolve({
       ...context,
@@ -21,5 +26,15 @@ module.exports = (lastPromiseInQueue, processModuleResultFn, delegateConfig) =>
     })
       .then(transformToTimeBoundedPromise(getExecuteModulePromise))
       .then(processModuleResultFn)
+      .then((arcAndUtils) => {
+        const { shouldReturnResponse } = delegateConfig;
+
+        if (shouldReturnResponse && returnResponseComplete) {
+          console.log('aaa');
+          returnResponseComplete();
+        }
+
+        return arcAndUtils;
+      })
       .catch(enhanceExecutionErrorMessageAndRethrow({ delegateConfig }))
   );

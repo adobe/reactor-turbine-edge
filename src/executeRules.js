@@ -29,15 +29,24 @@ module.exports = (
   { isDebugEnabled, headersForSubrequests } = {}
 ) => {
   const rulePromises = [];
-  const { getResponsePromise, addToResponse, sendResponse } =
-    createAddToResponse();
+  const {
+    getResponsePromises,
+    addToResponse,
+    generatePromiseResolve,
+    getResponse
+  } = createAddToResponse();
 
   const { rules = [], buildInfo } = container;
 
   const freezedInitialCallData = JSON.stringify(callData);
 
   rules.forEach((rule) => {
-    const { id, name } = rule;
+    const { id, name, isRuleReturningResponse } = rule;
+
+    let returnResponseComplete;
+    if (isRuleReturningResponse) {
+      returnResponseComplete = generatePromiseResolve();
+    }
 
     const logger = isDebugEnabled
       ? createNewLogger({ ruleId: rule.id })
@@ -71,6 +80,7 @@ module.exports = (
         createPromiseChain({
           modules: rule.conditions,
           resultFn: checkConditionResult,
+          returnResponseComplete,
           moduleProvider,
           utils
         })
@@ -79,6 +89,7 @@ module.exports = (
         createPromiseChain({
           modules: rule.actions,
           resultFn: addActionResultToStash,
+          returnResponseComplete,
           moduleProvider,
           utils
         })
@@ -95,12 +106,11 @@ module.exports = (
   });
 
   const executeRulesPromise = Promise.all(rulePromises);
-  executeRulesPromise.then(() => {
-    sendResponse();
-  });
 
   return {
     executeRulesPromise,
-    responsePromise: getResponsePromise()
+    responsePromise: getResponsePromises().then(() => {
+      return getResponse();
+    })
   };
 };
