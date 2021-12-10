@@ -36,4 +36,11 @@ module.exports = (
         return arcAndUtils;
       })
       .catch(enhanceExecutionErrorMessageAndRethrow({ delegateConfig }))
+      .finally(() => {
+        const { shouldReturnResponse } = delegateConfig;
+
+        if (shouldReturnResponse && returnResponseComplete) {
+          returnResponseComplete();
+        }
+      })
   );
