@@ -36,7 +36,9 @@ module.exports = (
         return arcAndUtils;
       })
       .catch((e) => {
-        returnResponseComplete();
+        if (returnResponseComplete) {
+          returnResponseComplete();
+        }
         throw e;
       })
       .catch(enhanceExecutionErrorMessageAndRethrow({ delegateConfig }))
