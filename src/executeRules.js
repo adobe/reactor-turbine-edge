@@ -10,7 +10,6 @@ governing permissions and limitations under the License.
 */
 
 const createNewLogger = require('./createNewLogger');
-const fakeLogger = require('./getFakeLogger');
 
 const getRuleFetchFn = require('./getRuleFetchFn');
 const checkConditionResult = require('./rules/checkConditionResult');
@@ -25,7 +24,7 @@ module.exports = (
   container,
   globalFetch,
   callData,
-  { isDebugEnabled, headersForSubrequests } = {}
+  { headersForSubrequests } = {}
 ) => {
   const rulePromises = [];
 
@@ -36,9 +35,7 @@ module.exports = (
   rules.forEach((rule) => {
     const { id, name } = rule;
 
-    const logger = isDebugEnabled
-      ? createNewLogger({ ruleId: rule.id })
-      : fakeLogger;
+    const logger = createNewLogger({ ruleId: rule.id });
 
     const fetch = getRuleFetchFn(globalFetch, headersForSubrequests, logger);
 
