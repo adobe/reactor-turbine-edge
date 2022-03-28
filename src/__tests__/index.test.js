@@ -36,7 +36,6 @@ describe('index', () => {
     });
 
     return execute(callData, {
-      isDebugEnabled: true,
       headersForSubrequests: {}
     }).then((result) => {
       expect(result).toStrictEqual([
