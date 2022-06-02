@@ -28,7 +28,7 @@ module.exports = (
 ) => {
   const rulePromises = [];
 
-  const { rules = [], buildInfo } = container;
+  const { rules = [], headerOverrides = [], buildInfo } = container;
 
   const freezedInitialCallData = JSON.stringify(callData);
 
@@ -37,7 +37,12 @@ module.exports = (
 
     const logger = createNewLogger({ ruleId: rule.id });
 
-    const fetch = getRuleFetchFn(globalFetch, headersForSubrequests, logger);
+    const fetch = getRuleFetchFn(
+      globalFetch,
+      headerOverrides,
+      headersForSubrequests,
+      logger
+    );
 
     const utils = {
       getRule: () => ({ id, name }),

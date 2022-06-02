@@ -12,9 +12,8 @@ governing permissions and limitations under the License.
 const getRuleFetchFn = require('../getRuleFetchFn');
 const createNewLogger = require('../createNewLogger');
 
-const createFakeFetch =
-  (returnStatus = 200) =>
-  (resource) =>
+const createFakeFetch = (returnStatus = 200) =>
+  jest.fn((resource) =>
     Promise.resolve({
       clone: () => ({
         arrayBuffer: () => Promise.resolve(`${resource}:arrayBuffer`),
@@ -22,12 +21,13 @@ const createFakeFetch =
       }),
       arrayBuffer: () => Promise.resolve(`${resource}:arrayBuffer`),
       status: returnStatus
-    });
+    })
+  );
 
 describe('getRuleFetchFn', () => {
   test('returns a function that will make a successful fetch and returns the response', () => {
     const logger = createNewLogger();
-    const ruleFetchFn = getRuleFetchFn(createFakeFetch(), {}, logger);
+    const ruleFetchFn = getRuleFetchFn(createFakeFetch(), [], {}, logger);
 
     return ruleFetchFn('http://www.google.com').then((r) => {
       expect(r.status).toBe(200);
@@ -39,7 +39,7 @@ describe('getRuleFetchFn', () => {
 
   test('returns a function that logs a successful fetch', () => {
     const logger = createNewLogger({ ruleId: 1 });
-    const ruleFetchFn = getRuleFetchFn(createFakeFetch(), {}, logger);
+    const ruleFetchFn = getRuleFetchFn(createFakeFetch(), [], {}, logger);
 
     return ruleFetchFn('http://www.google.com').then(() => {
       expect(logger.getJsonLogs()).toStrictEqual([
@@ -67,7 +67,7 @@ describe('getRuleFetchFn', () => {
 
   test('returns a function that makes a fetch using the headers provided in init', () => {
     const logger = createNewLogger({ ruleId: 1 });
-    const ruleFetchFn = getRuleFetchFn(createFakeFetch(), {}, logger);
+    const ruleFetchFn = getRuleFetchFn(createFakeFetch(), [], {}, logger);
 
     return ruleFetchFn('http://www.google.com', {
       headers: { 'X-Id': 112 }
@@ -102,6 +102,7 @@ describe('getRuleFetchFn', () => {
       const logger = createNewLogger({ ruleId: 1 });
       const ruleFetchFn = getRuleFetchFn(
         createFakeFetch(),
+        [],
         { 'X-Id-SubRequest': 123 },
         logger
       );
@@ -133,7 +134,7 @@ describe('getRuleFetchFn', () => {
 
   test('returns a function that will make a successful fetch using a Request object', () => {
     const logger = createNewLogger({ ruleId: 1 });
-    const ruleFetchFn = getRuleFetchFn(createFakeFetch(), {}, logger);
+    const ruleFetchFn = getRuleFetchFn(createFakeFetch(), [], {}, logger);
 
     return ruleFetchFn({
       headers: { entries: () => [['X-Id-Resource', 123]] }
@@ -165,7 +166,7 @@ describe('getRuleFetchFn', () => {
     const fetchWithError = () => Promise.reject(new Error('some error'));
 
     const logger = createNewLogger({ ruleId: 1 });
-    const ruleFetchFn = getRuleFetchFn(fetchWithError, {}, logger);
+    const ruleFetchFn = getRuleFetchFn(fetchWithError, [], {}, logger);
 
     return ruleFetchFn('http://www.google.com')
       .then(() => {
@@ -191,5 +192,100 @@ describe('getRuleFetchFn', () => {
           }
         ]);
       });
+  });
+
+  test('returns a function that will make a successful fetch with headers overriden', () => {
+    const logger = createNewLogger();
+    const fakeFetch = createFakeFetch();
+    const ruleFetchFn = getRuleFetchFn(
+      fakeFetch,
+      [
+        {
+          key: 'DEVELOPER_TOKEN',
+          urlPattern: '^http://www.google.com/',
+          value: 'ABCD'
+        }
+      ],
+      {},
+      logger
+    );
+
+    return ruleFetchFn('http://www.google.com/1234', {
+      headers: {
+        developer_token: '[[DEVELOPER_TOKEN]]',
+        developer_token2: 'abcd [[DEVELOPER_TOKEN]]',
+        developer_token3: '[[developer_token]] abcd'
+      }
+    }).then(() => {
+      const replacedHeaders = fakeFetch.mock.calls[0][1].headers;
+      expect(replacedHeaders).toMatchObject({
+        developer_token: 'ABCD',
+        developer_token2: 'abcd ABCD',
+        developer_token3: 'ABCD abcd'
+      });
+    });
+  });
+
+  test('returns a function that will make a successful fetch with headers overriden using a Request object', () => {
+    const logger = createNewLogger();
+    const fakeFetch = createFakeFetch();
+    const ruleFetchFn = getRuleFetchFn(
+      fakeFetch,
+      [
+        {
+          key: 'DEVELOPER_TOKEN',
+          urlPattern: '^http://www.google.com/',
+          value: 'ABCD'
+        }
+      ],
+      {},
+      logger
+    );
+
+    return ruleFetchFn({
+      url: 'http://www.google.com/1234',
+      headers: {
+        entries: () => [
+          ['developer_token', '[[DEVELOPER_TOKEN]]'],
+          ['developer_token2', 'abcd [[DEVELOPER_TOKEN]]'],
+          ['developer_token3', '[[developer_token]] abcd']
+        ]
+      }
+    }).then(() => {
+      const replacedHeaders = fakeFetch.mock.calls[0][1].headers;
+      expect(replacedHeaders).toMatchObject({
+        developer_token: 'ABCD',
+        developer_token2: 'abcd ABCD',
+        developer_token3: 'ABCD abcd'
+      });
+    });
+  });
+
+  test('returns a function that will make a successful fetch with headers unchanged when the pattern is not matched', () => {
+    const logger = createNewLogger();
+    const fakeFetch = createFakeFetch();
+    const ruleFetchFn = getRuleFetchFn(
+      fakeFetch,
+      [
+        {
+          key: 'DEVELOPER_TOKEN',
+          urlPattern: '^http://www.google2.com/',
+          value: 'ABCD'
+        }
+      ],
+      {},
+      logger
+    );
+
+    return ruleFetchFn('http://www.google.com/1234', {
+      headers: {
+        developer_token: '[[DEVELOPER_TOKEN]]'
+      }
+    }).then(() => {
+      const replacedHeaders = fakeFetch.mock.calls[0][1].headers;
+      expect(replacedHeaders).toMatchObject({
+        developer_token: '[[DEVELOPER_TOKEN]]'
+      });
+    });
   });
 });

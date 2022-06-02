@@ -14,7 +14,12 @@ governing permissions and limitations under the License.
 const byteArrayToString = (buf) =>
   String.fromCharCode.apply(null, new Uint8Array(buf));
 
-module.exports = (globalFetch, headersForSubrequests, logger) => {
+module.exports = (
+  globalFetch,
+  headerOverrides,
+  headersForSubrequests,
+  logger
+) => {
   return (resource, init = {}) => {
     // If resource is not a string then it must be a Request object and we
     // need to read it's headers. Otherwise the Request headers will be
@@ -32,6 +37,20 @@ module.exports = (globalFetch, headersForSubrequests, logger) => {
       ...init.headers,
       ...headersForSubrequests
     };
+
+    const url = resource.url || resource;
+    headerOverrides.forEach(({ key, value, urlPattern }) => {
+      const urlRegex = new RegExp(urlPattern);
+      const headerValueRegex = new RegExp(`\\[\\[${key}]]`, 'ig');
+      if (url.match(urlRegex)) {
+        Object.keys(init.headers).forEach((headerKey) => {
+          init.headers[headerKey] = init.headers[headerKey].replaceAll(
+            headerValueRegex,
+            value
+          );
+        });
+      }
+    });
 
     return globalFetch(resource, init).then(
       (r) => {
