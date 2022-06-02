@@ -64,4 +64,50 @@ describe('createNewLogger', () => {
       }
     ]);
   });
+
+  test.only('returns an object which allows anonymizing tokens in logs', () => {
+    const context = { ruleId: 1234 };
+    const logger = createNewLogger(context, [
+      'TOKENIZED_DATA',
+      'ANOTHER_TOKEN'
+    ]);
+
+    // Log all log types.
+    logger.log('some log TOKENIZED_DATA');
+    logger.info('multiple logs', { a: 'TOKENIZED_DATA' });
+    logger.debug('another log', 5, 'TOKENIZED_DATA');
+    logger.warn('yet another log', ['TOKENIZED_DATA', 'ANOTHER_TOKEN']);
+
+    // Get all JSON logs.
+    expect(logger.getJsonLogs()).toStrictEqual([
+      {
+        attributes: { logLevel: 'log' },
+        context: { ruleId: 1234 },
+        messages: ['🚀', 'some log *****DATA'],
+        name: 'evaluatingRule',
+        timestampMs: 1111
+      },
+      {
+        attributes: { logLevel: 'info' },
+        context: { ruleId: 1234 },
+        messages: ['🚀', 'multiple logs', '{"a":"*****DATA"}'],
+        name: 'evaluatingRule',
+        timestampMs: 1111
+      },
+      {
+        attributes: { logLevel: 'debug' },
+        context: { ruleId: 1234 },
+        messages: ['🚀', 'another log', '5', '*****DATA'],
+        name: 'evaluatingRule',
+        timestampMs: 1111
+      },
+      {
+        attributes: { logLevel: 'warn' },
+        context: { ruleId: 1234 },
+        messages: ['🚀', 'yet another log', '["*****DATA","*****OKEN"]'],
+        name: 'evaluatingRule',
+        timestampMs: 1111
+      }
+    ]);
+  });
 });

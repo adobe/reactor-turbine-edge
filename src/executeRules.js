@@ -28,14 +28,19 @@ module.exports = (
 ) => {
   const rulePromises = [];
 
-  const { rules = [], headerOverrides = [], buildInfo } = container;
+  const {
+    rules = [],
+    headerOverrides = [],
+    logSensitiveTokens = [],
+    buildInfo
+  } = container;
 
   const freezedInitialCallData = JSON.stringify(callData);
 
   rules.forEach((rule) => {
     const { id, name } = rule;
 
-    const logger = createNewLogger({ ruleId: rule.id });
+    const logger = createNewLogger({ ruleId: rule.id }, logSensitiveTokens);
 
     const fetch = getRuleFetchFn(
       globalFetch,

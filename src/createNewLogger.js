@@ -9,6 +9,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+const anonymizeString = require('./anonymizeString');
 const getCurrentTimestamp = require('./getCurrentTimestamp');
 
 /**
@@ -42,30 +43,41 @@ const launchPrefix = ROCKET;
  * @param {string} logLevel The level of message to log.
  * @param {object} meta Meta information related to the log (eg. ruleId, requestId).
  * @param {array} logsBucket Queue where the log should be pushed.
+ * @param {logSensitiveTokens} logSensitiveTokens An array of tokens that need to be anonymized.
  * @param {...*} arg Any argument to be logged.
  * @private
  */
-const process = (logLevel, context, logsBucket, args) => {
+const process = (logLevel, context, logsBucket, logSensitiveTokens, args) => {
   args.unshift(launchPrefix);
+  const sensitiveTokensRegexp = new RegExp(logSensitiveTokens.join('|'), 'g');
 
   logsBucket.push({
     name: 'evaluatingRule',
     timestampMs: getCurrentTimestamp(),
     attributes: { logLevel },
-    messages: args.map((m) => (typeof m !== 'string' ? JSON.stringify(m) : m)),
+    messages: args.map((m) =>
+      typeof m !== 'string'
+        ? JSON.stringify(m).replaceAll(sensitiveTokensRegexp, anonymizeString)
+        : m.replaceAll(sensitiveTokensRegexp, anonymizeString)
+    ),
     context
   });
 };
 
-module.exports = (context) => {
+module.exports = (context, logSensitiveTokens = []) => {
   const logsBucket = [];
 
   return {
-    log: (...args) => process(levels.LOG, context, logsBucket, args),
-    info: (...args) => process(levels.INFO, context, logsBucket, args),
-    debug: (...args) => process(levels.DEBUG, context, logsBucket, args),
-    warn: (...args) => process(levels.WARN, context, logsBucket, args),
-    error: (...args) => process(levels.ERROR, context, logsBucket, args),
+    log: (...args) =>
+      process(levels.LOG, context, logsBucket, logSensitiveTokens, args),
+    info: (...args) =>
+      process(levels.INFO, context, logsBucket, logSensitiveTokens, args),
+    debug: (...args) =>
+      process(levels.DEBUG, context, logsBucket, logSensitiveTokens, args),
+    warn: (...args) =>
+      process(levels.WARN, context, logsBucket, logSensitiveTokens, args),
+    error: (...args) =>
+      process(levels.ERROR, context, logsBucket, logSensitiveTokens, args),
 
     getJsonLogs: () => logsBucket
   };
