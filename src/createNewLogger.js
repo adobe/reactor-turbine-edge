@@ -57,7 +57,7 @@ const process = (logLevel, context, logsBucket, logSensitiveTokens, args) => {
     attributes: { logLevel },
     messages: args.map((m) =>
       typeof m !== 'string'
-        ? JSON.stringify(m).replaceAll(sensitiveTokensRegexp, anonymizeString)
+        ? JSON.stringify(m)?.replaceAll(sensitiveTokensRegexp, anonymizeString)
         : m.replaceAll(sensitiveTokensRegexp, anonymizeString)
     ),
     context

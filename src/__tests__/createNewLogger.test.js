@@ -24,6 +24,8 @@ describe('createNewLogger', () => {
     logger.debug('another log', 5, 4);
     logger.warn('yet another log', true);
     logger.error('and one error');
+    logger.error([1, 2, 3, undefined]);
+    logger.log('Output', undefined);
 
     // Get all JSON logs.
     expect(logger.getJsonLogs()).toStrictEqual([
@@ -61,11 +63,25 @@ describe('createNewLogger', () => {
         messages: ['🚀', 'and one error'],
         name: 'evaluatingRule',
         timestampMs: 1111
+      },
+      {
+        attributes: { logLevel: 'error' },
+        context: { ruleId: 1234 },
+        messages: ['🚀', '[1,2,3,null]'],
+        name: 'evaluatingRule',
+        timestampMs: 1111
+      },
+      {
+        attributes: { logLevel: 'log' },
+        context: { ruleId: 1234 },
+        messages: ['🚀', 'Output', undefined],
+        name: 'evaluatingRule',
+        timestampMs: 1111
       }
     ]);
   });
 
-  test.only('returns an object which allows anonymizing tokens in logs', () => {
+  test('returns an object which allows anonymizing tokens in logs', () => {
     const context = { ruleId: 1234 };
     const logger = createNewLogger(context, [
       'TOKENIZED_DATA',
