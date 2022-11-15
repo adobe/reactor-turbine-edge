@@ -1,7 +1,7 @@
 {
   "name": "@adobe/reactor-turbine-edge",
   "version": "2.3.1",
-  "description": "Launch rule engine which processes rules on client websites and delegates logic to extensions.",
+  "description": "Rule engine that processes rules on Adobe Experience Platform Edge Network and delegates logic to extensions.",
   "license": "Apache-2.0",
   "main": "dist/engine-server.min.js",
   "scripts": {
