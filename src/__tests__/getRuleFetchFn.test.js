@@ -11,18 +11,7 @@ governing permissions and limitations under the License.
 
 const getRuleFetchFn = require('../getRuleFetchFn');
 const createNewLogger = require('../createNewLogger');
-
-const createFakeFetch = (returnStatus = 200) =>
-  jest.fn((resource) =>
-    Promise.resolve({
-      clone: () => ({
-        arrayBuffer: () => Promise.resolve(`${resource}:arrayBuffer`),
-        status: returnStatus
-      }),
-      arrayBuffer: () => Promise.resolve(`${resource}:arrayBuffer`),
-      status: returnStatus
-    })
-  );
+const createFakeFetch = require('../__tests_helpers__/createFakeFetchResponse');
 
 describe('getRuleFetchFn', () => {
   test('returns a function that will make a successful fetch and returns the response', () => {
@@ -32,9 +21,25 @@ describe('getRuleFetchFn', () => {
     return ruleFetchFn('http://www.google.com').then((r) => {
       expect(r.status).toBe(200);
       return r.arrayBuffer().then((b) => {
-        expect(b).toBe('http://www.google.com:arrayBuffer');
+        expect(new TextDecoder('utf-8').decode(b)).toBe(
+          'http://www.google.com:arrayBuffer'
+        );
       });
     });
+  });
+
+  test('returns a function that will make a successful fetch and handles large responses', async () => {
+    const logger = createNewLogger();
+    const ruleFetchFn = getRuleFetchFn(
+      createFakeFetch(200, true),
+      [],
+      {},
+      logger
+    );
+
+    await expect(
+      ruleFetchFn('http://www.google.com')
+    ).resolves.not.toThrowError();
   });
 
   test('returns a function that logs a successful fetch', () => {
@@ -56,7 +61,7 @@ describe('getRuleFetchFn', () => {
             'Response Status',
             '200',
             'Response Body',
-            'empty'
+            'http://www.google.com:arrayBuffer'
           ],
           name: 'evaluatingRule',
           timestampMs: expect.any(Number)
@@ -86,7 +91,7 @@ describe('getRuleFetchFn', () => {
             'Response Status',
             '200',
             'Response Body',
-            'empty'
+            'http://www.google.com:arrayBuffer'
           ],
           name: 'evaluatingRule',
           timestampMs: expect.any(Number)
@@ -122,7 +127,7 @@ describe('getRuleFetchFn', () => {
               'Response Status',
               '200',
               'Response Body',
-              'empty'
+              'http://www.google.com:arrayBuffer'
             ],
             name: 'evaluatingRule',
             timestampMs: expect.any(Number)
@@ -137,6 +142,8 @@ describe('getRuleFetchFn', () => {
     const ruleFetchFn = getRuleFetchFn(createFakeFetch(), [], {}, logger);
 
     return ruleFetchFn({
+      url: 'http://www.google.com',
+      method: 'POST',
       headers: { entries: () => [['X-Id-Resource', 123]] }
     }).then(() => {
       expect(logger.getJsonLogs()).toStrictEqual([
@@ -147,13 +154,13 @@ describe('getRuleFetchFn', () => {
             '🚀',
             'FETCH',
             'Resource',
-            '{"headers":{}}',
+            '{"url":"http://www.google.com","method":"POST","headers":{}}',
             'Options',
             '{"headers":{"X-Id-Resource":123}}',
             'Response Status',
             '200',
             'Response Body',
-            'empty'
+            'http://www.google.com:arrayBuffer'
           ],
           name: 'evaluatingRule',
           timestampMs: expect.any(Number)

@@ -19,11 +19,6 @@
     "url": "http://adobe.com",
     "email": "reactor@adobe.com"
   },
-  "lint-staged": {
-    "*.js": [
-      "npm run lint -- --fix"
-    ]
-  },
   "repository": {
     "type": "git",
     "url": "git@github.com:adobe/reactor-turbine-edge.git"

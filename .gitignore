@@ -2,3 +2,4 @@ node_modules
 /coverage
 /dist
 reactor-turbine-edge-*.tgz
+.eslintcache
