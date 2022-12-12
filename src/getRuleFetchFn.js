@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 /* eslint-disable no-param-reassign */
 
 const byteArrayToString = (buf) =>
-  String.fromCharCode.apply(null, new Uint8Array(buf));
+  new TextDecoder('utf-8').decode(new Uint8Array(buf));
 
 module.exports = (
   globalFetch,
