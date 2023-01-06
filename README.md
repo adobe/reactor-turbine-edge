@@ -1,6 +1,6 @@
 # Adobe Experience Platform event forwarding Turbine Edge
 
-[![Build Status](https://img.shields.io/github/workflow/status/adobe/reactor-turbine-edge/ci?style=flat)](https://github.com/adobe/reactor-turbine-edge/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/adobe/reactor-turbine-edge/node.js.yml?style=flat)](https://github.com/adobe/reactor-turbine-edge/actions)
 [![Coverage Status](https://coveralls.io/repos/github/adobe/reactor-turbine-edge/badge.svg?branch=master)](https://coveralls.io/github/adobe/reactor-turbine-edge?branch=master)
 [![npm (scoped with tag)](https://img.shields.io/npm/v/@adobe/reactor-turbine-edge.svg?style=flat)](https://www.npmjs.com/package/@adobe/reactor-turbine-edge)
 
