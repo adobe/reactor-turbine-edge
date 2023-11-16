@@ -1,6 +1,6 @@
 {
   "name": "@adobe/reactor-turbine-edge",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "description": "Rule engine that processes rules on Adobe Experience Platform Edge Network and delegates logic to extensions.",
   "license": "Apache-2.0",
   "main": "dist/engine-server.min.js",
