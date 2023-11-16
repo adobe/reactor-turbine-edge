@@ -9,10 +9,11 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = (getDataElementValue) => (tokenList, context) =>
-  Promise.all(
+module.exports = (getDataElementValue) => (tokenList, context) => {
+  const { dataElementCallStack = [] } = context;
+
+  return Promise.all(
     tokenList.map((t) => {
-      const { dataElementCallStack = [] } = context;
       context.dataElementCallStack = dataElementCallStack.slice();
 
       return getDataElementValue(t, context);
@@ -26,3 +27,4 @@ module.exports = (getDataElementValue) => (tokenList, context) =>
 
     return (name) => zipResults[name];
   });
+};

@@ -44,4 +44,17 @@ describe('function returned by createGetDataElementValues', () => {
       expect(getDataElementValue).toHaveBeenCalledWith('de1', context);
     });
   });
+
+  test('sends a cloned dataElementCallStack to getDataElementValue', () => {
+    const getDataElementValues = createGetDataElementValues(
+      (dataElementName, { dataElementCallStack }) => {
+        dataElementCallStack.push(dataElementName);
+
+        expect(dataElementCallStack).toStrictEqual([dataElementName]);
+      }
+    );
+
+    const context = {};
+    return getDataElementValues(['de1', 'de2'], context);
+  });
 });
