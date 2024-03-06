@@ -9,14 +9,14 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const getExtensionSettingsByRuleComponent = require('../getExtensionSettingsByRuleComponent');
+const getUtilsByRuleComponent = require('../getUtilsByRuleComponent');
 
-describe('getExtensionSettingsByRuleComponent', () => {
+describe('getUtilsByRuleComponent', () => {
   test('adds the extension settings to the context data', () => {
     const extensionSettings = { setting1: 1 };
     const arcAndUtils = { arc: { contextData1: 2 }, utils: {} };
 
-    return getExtensionSettingsByRuleComponent({
+    return getUtilsByRuleComponent({
       delegateConfig: {
         extension: {
           getExtensionSettings: () => Promise.resolve(extensionSettings)
@@ -38,13 +38,59 @@ describe('getExtensionSettingsByRuleComponent', () => {
     });
   });
 
+  test('adds the env to the context data of the core extension', () => {
+    const arcAndUtils = {};
+
+    return getUtilsByRuleComponent({
+      delegateConfig: {
+        extension: {
+          name: 'core'
+        }
+      },
+      arcAndUtils,
+      env: { foo: 'bar' }
+    }).then((context) => {
+      const {
+        arcAndUtils: {
+          utils: { getEnv }
+        }
+      } = context;
+
+      expect(getEnv()).toStrictEqual({
+        foo: 'bar'
+      });
+    });
+  });
+
+  test('does not add the env to the context data of the core extension', () => {
+    const arcAndUtils = {};
+
+    return getUtilsByRuleComponent({
+      delegateConfig: {
+        extension: {
+          name: 'another'
+        }
+      },
+      arcAndUtils,
+      env: { foo: 'bar' }
+    }).then((context) => {
+      const {
+        arcAndUtils: {
+          utils: { getEnv }
+        }
+      } = context;
+
+      expect(getEnv()).toStrictEqual({});
+    });
+  });
+
   test(
     'adds and empty object as the extension settings to the context data if ' +
       'getExtensionSetting is not provided',
     () => {
       const arcAndUtils = { arc: { contextData1: 2 }, utils: {} };
 
-      return getExtensionSettingsByRuleComponent({
+      return getUtilsByRuleComponent({
         delegateConfig: {
           extension: {}
         },

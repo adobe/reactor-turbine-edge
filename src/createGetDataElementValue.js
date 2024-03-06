@@ -10,6 +10,9 @@ governing permissions and limitations under the License.
 */
 
 const cleanTextFn = require('./cleanText');
+const constants = require('./constants');
+
+const { CORE } = constants;
 
 const enhanceErrorMessage = (dataElementName, e) => {
   e.message = `Failed to execute module for data element "${dataElementName}". ${e.message}`;
@@ -17,7 +20,7 @@ const enhanceErrorMessage = (dataElementName, e) => {
 
 module.exports =
   (moduleProvider, getDataElementDefinition) => (dataElementName, context) => {
-    const { dataElementCallStack = [], arcAndUtils } = context;
+    const { dataElementCallStack = [], arcAndUtils, env } = context;
     const { utils } = arcAndUtils;
 
     const dataDef = getDataElementDefinition(dataElementName);
@@ -54,14 +57,23 @@ module.exports =
     } = dataDef;
 
     const moduleExports = moduleProvider.getModuleExports(modulePath);
-    const valuePromise = getSettings(context).then((settings) => {
+    const moduleDefinition = moduleProvider.getModuleDefinition(modulePath);
+    const { getSettings: getExtensionSettings = () => Promise.resolve({}) } =
+      moduleProvider.getExtensionDefinition(modulePath);
+
+    const valuePromise = Promise.all([
+      getSettings(context),
+      getExtensionSettings(context)
+    ]).then(([settings, extensionSettings]) => {
       try {
         return moduleExports({
           ...arcAndUtils,
           utils: {
             ...utils,
             getSettings: () => settings,
-            getComponent: () => ({ id, name })
+            getExtensionSettings: () => extensionSettings,
+            getComponent: () => ({ id, name }),
+            getEnv: () => (moduleDefinition.extensionName === CORE ? env : {})
           }
         });
       } catch (e) {
