@@ -24,14 +24,16 @@ module.exports = (
   container,
   globalFetch,
   callData,
+  env,
   { headersForSubrequests } = {}
 ) => {
   const rulePromises = [];
 
   const {
     rules = [],
-    headerOverrides = [],
-    logSensitiveTokens = [],
+
+    getHeaderOverrides = () => [],
+    getLogSensitiveTokens = () => [],
     buildInfo
   } = container;
 
@@ -40,11 +42,14 @@ module.exports = (
   rules.forEach((rule) => {
     const { id, name } = rule;
 
-    const logger = createNewLogger({ ruleId: rule.id }, logSensitiveTokens);
+    const logger = createNewLogger(
+      { ruleId: rule.id },
+      getLogSensitiveTokens(env)
+    );
 
     const fetch = getRuleFetchFn(
       globalFetch,
-      headerOverrides,
+      getHeaderOverrides(env),
       headersForSubrequests,
       logger
     );
@@ -57,6 +62,7 @@ module.exports = (
     };
 
     const initialContext = {
+      env,
       arcAndUtils: {
         utils,
         arc: {

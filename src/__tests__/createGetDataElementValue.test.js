@@ -27,12 +27,23 @@ const createGetDataElementDefinitionDefault = (dataDef) =>
     return null;
   });
 
+const createGetModuleProvider = (o = {}) => {
+  return {
+    getModuleExports: () => (context) => context.utils.getSettings().foo,
+    getModuleDefinition: () => ({
+      extensionName: 'someextension'
+    }),
+    getExtensionDefinition: () => ({
+      getSettings: () => ({ data: 'extension settings' })
+    }),
+    ...o
+  };
+};
+
 const createGetDataElementValue = (
   delegateDefinition,
   {
-    moduleProvider = {
-      getModuleExports: () => (context) => context.utils.getSettings().foo
-    },
+    moduleProvider = createGetModuleProvider(),
     createGetDataElementDefinition = createGetDataElementDefinitionDefault
   } = {}
 ) => {
@@ -46,7 +57,7 @@ const createGetDataElementValue = (
 };
 
 describe('function returned by createGetDataElementValue', () => {
-  test('returns a value from the settings object as value', () => {
+  test('returns a value from the settings object as value', async () => {
     const getDataElementValue = createGetDataElementValue({
       settings: {
         foo: 'bar'
@@ -58,7 +69,7 @@ describe('function returned by createGetDataElementValue', () => {
     );
   });
 
-  test('returns a value from the contextData object as value', () => {
+  test('returns a value from the contextData object as value', async () => {
     const context = {
       arcAndUtils: {
         arc: {
@@ -67,9 +78,9 @@ describe('function returned by createGetDataElementValue', () => {
       }
     };
 
-    const moduleProvider = {
+    const moduleProvider = createGetModuleProvider({
       getModuleExports: () => (c) => c.arc.foo
-    };
+    });
 
     const getDataElementValue = createGetDataElementValue(
       {},
@@ -81,7 +92,79 @@ describe('function returned by createGetDataElementValue', () => {
     );
   });
 
-  test('cleans the value when cleanText = true', () => {
+  test('gives extension settings access to the data element module', async () => {
+    const moduleProvider = createGetModuleProvider({
+      getModuleExports:
+        () =>
+        ({ utils }) =>
+          utils.getExtensionSettings()
+    });
+
+    const getDataElementValue = createGetDataElementValue(
+      {},
+      { moduleProvider }
+    );
+
+    return getDataElementValue('testDataElement', defaultContext).then(
+      (dataElementValue) =>
+        expect(dataElementValue).toEqual({ data: 'extension settings' })
+    );
+  });
+
+  test('gives env access to the data element module called by the core extension', async () => {
+    const context = {
+      arcAndUtils: {},
+      env: {
+        foo: 'bar'
+      }
+    };
+
+    const moduleProvider = createGetModuleProvider({
+      getModuleDefinition: () => ({
+        extensionName: 'core'
+      }),
+      getModuleExports:
+        () =>
+        ({ utils }) =>
+          utils.getEnv()
+    });
+
+    const getDataElementValue = createGetDataElementValue(
+      {},
+      { moduleProvider }
+    );
+
+    return getDataElementValue('testDataElement', context).then(
+      (dataElementValue) => expect(dataElementValue).toEqual({ foo: 'bar' })
+    );
+  });
+
+  test('does not give env access to the data element module called by extensions that are not core', async () => {
+    const context = {
+      arcAndUtils: {},
+      env: {
+        foo: 'bar'
+      }
+    };
+
+    const moduleProvider = createGetModuleProvider({
+      getModuleExports:
+        () =>
+        ({ utils }) =>
+          utils.getEnv()
+    });
+
+    const getDataElementValue = createGetDataElementValue(
+      {},
+      { moduleProvider }
+    );
+
+    return getDataElementValue('testDataElement', context).then(
+      (dataElementValue) => expect(dataElementValue).toEqual({})
+    );
+  });
+
+  test('cleans the value when cleanText = true', async () => {
     const getDataElementValue = createGetDataElementValue({
       cleanText: true,
       settings: { foo: 'bar' }
@@ -93,11 +176,11 @@ describe('function returned by createGetDataElementValue', () => {
   });
 
   [undefined, null].forEach((testDataElementValue) => {
-    const moduleProvider = {
+    const moduleProvider = createGetModuleProvider({
       getModuleExports: () => () => testDataElementValue
-    };
+    });
 
-    test(`returns a default value if data element value is ${testDataElementValue}`, () => {
+    test(`returns a default value if data element value is ${testDataElementValue}`, async () => {
       const getDataElementValue = createGetDataElementValue(
         {
           defaultValue: 'defaultValue',
@@ -112,7 +195,7 @@ describe('function returned by createGetDataElementValue', () => {
     });
 
     test(`returns ${testDataElementValue} if data element value is ${testDataElementValue}
-            and default is undefined`, () => {
+            and default is undefined`, async () => {
       const getDataElementValue = createGetDataElementValue(
         {
           settings: {}
@@ -128,11 +211,11 @@ describe('function returned by createGetDataElementValue', () => {
   });
 
   ['', 0, false, NaN].forEach((testDataElementValue) => {
-    const moduleProvider = {
+    const moduleProvider = createGetModuleProvider({
       getModuleExports: () => () => testDataElementValue
-    };
+    });
 
-    test(`does not return a default value if value is ${testDataElementValue}`, () => {
+    test(`does not return a default value if value is ${testDataElementValue}`, async () => {
       const getDataElementValue = createGetDataElementValue(
         {
           defaultValue: 'defaultValue',
@@ -148,7 +231,7 @@ describe('function returned by createGetDataElementValue', () => {
     });
   });
 
-  test('lowercases the value if forceLowerCase = true', () => {
+  test('lowercases the value if forceLowerCase = true', async () => {
     const getDataElementValue = createGetDataElementValue({
       forceLowerCase: true,
       settings: {
@@ -161,7 +244,7 @@ describe('function returned by createGetDataElementValue', () => {
     );
   });
 
-  test('lowercases the default value if forceLowerCase = true', () => {
+  test('lowercases the default value if forceLowerCase = true', async () => {
     const getDataElementValue = createGetDataElementValue({
       forceLowerCase: true,
       defaultValue: 'bAr',
@@ -173,12 +256,12 @@ describe('function returned by createGetDataElementValue', () => {
     );
   });
 
-  test('throws an error when calling data element module exports fails', () => {
-    const moduleProvider = {
+  test('throws an error when calling data element module exports fails', async () => {
+    const moduleProvider = createGetModuleProvider({
       getModuleExports: () => () => {
         throw new Error('noob tried to divide by zero');
       }
-    };
+    });
 
     const getDataElementValue = createGetDataElementValue(
       {
@@ -195,12 +278,12 @@ describe('function returned by createGetDataElementValue', () => {
     });
   });
 
-  test('throws an error when calling data element module exports fails', () => {
-    const moduleProvider = {
+  test('throws an error when calling data element module exports fails', async () => {
+    const moduleProvider = createGetModuleProvider({
       getModuleExports: () => () => {
         throw new Error('noob tried to divide by zero');
       }
-    };
+    });
 
     const getDataElementValue = createGetDataElementValue(
       {
@@ -221,7 +304,7 @@ describe('function returned by createGetDataElementValue', () => {
       });
   });
 
-  test('throws an error when data element definition is not found', () => {
+  test('throws an error when data element definition is not found', async () => {
     const getDataElementValue = createGetDataElementValue(
       {
         settings: {}
@@ -240,7 +323,7 @@ describe('function returned by createGetDataElementValue', () => {
       });
   });
 
-  test('throws an error when data element circular reference is detected', () => {
+  test('throws an error when data element circular reference is detected', async () => {
     const getDataElementValue = createGetDataElementValue({
       settings: {
         foo: 'bar'
@@ -261,13 +344,13 @@ describe('function returned by createGetDataElementValue', () => {
       });
   });
 
-  test('provides access to getComponent method when it calls the data element module ', () => {
-    const moduleProvider = {
+  test('provides access to getComponent method when it calls the data element module ', async () => {
+    const moduleProvider = createGetModuleProvider({
       getModuleExports:
         () =>
         ({ utils: { getComponent } }) =>
           getComponent()
-    };
+    });
 
     const getDataElementValue = createGetDataElementValue(
       {

@@ -8,12 +8,19 @@ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTA
 OF ANY KIND, either express or implied. See the License for the specific language
 governing permissions and limitations under the License.
 */
+const constants = require('../constants');
+
+const { CORE } = constants;
 
 module.exports = (context) => {
-  const { arcAndUtils, delegateConfig } = context;
+  const { arcAndUtils, delegateConfig, env = {} } = context;
   const { utils } = arcAndUtils;
   let {
     extension: { getExtensionSettings }
+  } = delegateConfig;
+
+  const {
+    extension: { name: extensionName }
   } = delegateConfig;
 
   if (!getExtensionSettings) {
@@ -25,9 +32,11 @@ module.exports = (context) => {
       ...arcAndUtils,
       utils: {
         ...utils,
+        getEnv: extensionName === CORE ? () => env : () => ({}),
         getExtensionSettings: () => extensionSettings
       }
     },
-    delegateConfig
+    delegateConfig,
+    env
   }));
 };
