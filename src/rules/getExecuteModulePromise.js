@@ -11,12 +11,10 @@ governing permissions and limitations under the License.
 
 const logDelegateModuleCall = require('./logDelegateModuleCall');
 const logDelegateModuleOutput = require('./logDelegateModuleOutput');
-const getUtilsByRuleComponent = require('./getUtilsByRuleComponent');
 const executeDelegateModule = require('./executeDelegateModule');
 
 module.exports = (context) =>
   Promise.resolve(context)
     .then(logDelegateModuleCall)
-    .then(getUtilsByRuleComponent)
     .then(executeDelegateModule)
     .then(logDelegateModuleOutput);
