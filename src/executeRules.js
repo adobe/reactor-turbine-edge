@@ -23,7 +23,7 @@ module.exports = (
   moduleProvider,
   container,
   globalFetch,
-  callData,
+  requestData,
   env,
   { headersForSubrequests } = {}
 ) => {
@@ -37,7 +37,7 @@ module.exports = (
     buildInfo
   } = container;
 
-  const freezedInitialCallData = JSON.stringify(callData);
+  const freezedInitialCallData = JSON.stringify(requestData);
 
   rules.forEach((rule) => {
     const { id, name } = rule;
