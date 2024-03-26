@@ -18,7 +18,8 @@ const isConditionMet = (result, negate) => {
 module.exports = ({
   moduleOutput: conditionResult,
   arcAndUtils,
-  delegateConfig: { displayName: conditionDisplayName, negate = false }
+  delegateConfig: { displayName: conditionDisplayName, negate = false },
+  ...rest
 }) => {
   const {
     utils: { getRule }
@@ -41,5 +42,5 @@ module.exports = ({
     );
   }
 
-  return Promise.resolve({ arcAndUtils });
+  return Promise.resolve({ arcAndUtils, ...rest });
 };

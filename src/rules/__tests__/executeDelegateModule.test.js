@@ -14,6 +14,10 @@ const executeDelegateModule = require('../executeDelegateModule');
 describe('executeDelegateModule', () => {
   test('executes the delegate module and adds the module output to the context', () => {
     const delegateConfig = {
+      extension: {
+        name: 'extensionName',
+        getSettings: () => Promise.resolve()
+      },
       getSettings: () => Promise.resolve(),
       moduleExports: () => 'result'
     };
@@ -32,6 +36,10 @@ describe('executeDelegateModule', () => {
 
   test('sends getSettings method when the delegate module is executed', () => {
     const delegateConfig = {
+      extension: {
+        name: 'extensionName',
+        getSettings: () => Promise.resolve()
+      },
       getSettings: (context) =>
         Promise.resolve({
           returnValue: context.arcAndUtils.arc.someValue
@@ -56,7 +64,11 @@ describe('executeDelegateModule', () => {
       id: 'RC123',
       name: 'Delegate name',
       getSettings: () => Promise.resolve(1),
-      moduleExports: ({ utils: { getComponent } }) => getComponent()
+      moduleExports: ({ utils: { getComponent } }) => getComponent(),
+      extension: {
+        name: 'extensionName',
+        getSettings: () => Promise.resolve()
+      }
     };
 
     return executeDelegateModule({

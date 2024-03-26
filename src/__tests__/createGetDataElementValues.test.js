@@ -25,36 +25,16 @@ describe('function returned by createGetDataElementValues', () => {
     );
   });
 
-  test('adds a dataElementCallStack to the context if it does not exist', () => {
+  test('sends context to getDataElementValue', async () => {
     const getDataElementValues =
       createGetDataElementValues(getDataElementValue);
 
-    const context = {};
-    return getDataElementValues(['de1'], context).then(() => {
-      expect(context.dataElementCallStack).toStrictEqual([]);
+    const context = { a: 1 };
+    await getDataElementValues(['de1'], context);
+
+    expect(getDataElementValue).toHaveBeenCalledWith('de1', {
+      a: 1,
+      dataElementCallStack: []
     });
-  });
-
-  test('sends context to getDataElementValue', () => {
-    const getDataElementValues =
-      createGetDataElementValues(getDataElementValue);
-
-    const context = { a: 1, dataElementCallStack: [1] };
-    return getDataElementValues(['de1'], context).then(() => {
-      expect(getDataElementValue).toHaveBeenCalledWith('de1', context);
-    });
-  });
-
-  test('sends a cloned dataElementCallStack to getDataElementValue', () => {
-    const getDataElementValues = createGetDataElementValues(
-      (dataElementName, { dataElementCallStack }) => {
-        dataElementCallStack.push(dataElementName);
-
-        expect(dataElementCallStack).toStrictEqual([dataElementName]);
-      }
-    );
-
-    const context = {};
-    return getDataElementValues(['de1', 'de2'], context);
   });
 });

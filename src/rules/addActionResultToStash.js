@@ -14,7 +14,8 @@ module.exports = ({
   arcAndUtils,
   delegateConfig: {
     extension: { name: extensionName }
-  }
+  },
+  ...rest
 }) => {
   const {
     arc: { ruleStash }
@@ -27,6 +28,5 @@ module.exports = ({
     // eslint-disable-next-line eqeqeq
     ruleStash[extensionName] = actionResult != undefined ? actionResult : null;
   }
-
-  return { arcAndUtils };
+  return { arcAndUtils, ...rest };
 };

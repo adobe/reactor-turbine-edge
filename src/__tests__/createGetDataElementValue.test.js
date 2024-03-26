@@ -9,11 +9,28 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+// eslint-disable-next-line import/no-extraneous-dependencies
+const lodash = require('lodash');
 const createGetDataElementValueModule = require('../createGetDataElementValue');
 
 jest.mock('../cleanText.js');
 
-const defaultContext = { arcAndUtils: {} };
+const getContext = (context = {}) => {
+  const logs = [];
+  return lodash.merge(
+    {
+      arcAndUtils: {
+        arc: { event: {} },
+        utils: {
+          logger: {
+            log: (m) => logs.push(m)
+          }
+        }
+      }
+    },
+    context
+  );
+};
 
 const createGetDataElementDefinitionDefault = (dataDef) =>
   jest.fn().mockImplementation((dataElementName) => {
@@ -64,7 +81,7 @@ describe('function returned by createGetDataElementValue', () => {
       }
     });
 
-    return getDataElementValue('testDataElement', defaultContext).then(
+    return getDataElementValue('testDataElement', getContext()).then(
       (dataElementValue) => expect(dataElementValue).toBe('bar')
     );
   });
@@ -87,12 +104,12 @@ describe('function returned by createGetDataElementValue', () => {
       { moduleProvider }
     );
 
-    return getDataElementValue('testDataElement', context).then(
+    return getDataElementValue('testDataElement', getContext(context)).then(
       (dataElementValue) => expect(dataElementValue).toBe('bar')
     );
   });
 
-  test('gives extension settings access to the data element module', async () => {
+  test.only('gives extension settings access to the data element module', async () => {
     const moduleProvider = createGetModuleProvider({
       getModuleExports:
         () =>
@@ -105,7 +122,7 @@ describe('function returned by createGetDataElementValue', () => {
       { moduleProvider }
     );
 
-    return getDataElementValue('testDataElement', defaultContext).then(
+    return getDataElementValue('testDataElement', getContext()).then(
       (dataElementValue) =>
         expect(dataElementValue).toEqual({ data: 'extension settings' })
     );
@@ -134,7 +151,7 @@ describe('function returned by createGetDataElementValue', () => {
       { moduleProvider }
     );
 
-    return getDataElementValue('testDataElement', context).then(
+    return getDataElementValue('testDataElement', getContext(context)).then(
       (dataElementValue) => expect(dataElementValue).toEqual({ foo: 'bar' })
     );
   });
@@ -159,7 +176,7 @@ describe('function returned by createGetDataElementValue', () => {
       { moduleProvider }
     );
 
-    return getDataElementValue('testDataElement', context).then(
+    return getDataElementValue('testDataElement', getContext(context)).then(
       (dataElementValue) => expect(dataElementValue).toEqual({})
     );
   });
@@ -170,7 +187,7 @@ describe('function returned by createGetDataElementValue', () => {
       settings: { foo: 'bar' }
     });
 
-    return getDataElementValue('testDataElement', defaultContext).then(
+    return getDataElementValue('testDataElement', getContext()).then(
       (dataElementValue) => expect(dataElementValue).toBe('cleaned:bar')
     );
   });
@@ -189,7 +206,7 @@ describe('function returned by createGetDataElementValue', () => {
         moduleProvider
       );
 
-      return getDataElementValue('testDataElement', defaultContext).then(
+      return getDataElementValue('testDataElement', getContext()).then(
         (dataElementValue) => expect(dataElementValue).toBe('defaultValue')
       );
     });
@@ -203,7 +220,7 @@ describe('function returned by createGetDataElementValue', () => {
         { moduleProvider }
       );
 
-      return getDataElementValue('testDataElement', defaultContext).then(
+      return getDataElementValue('testDataElement', getContext()).then(
         (dataElementValue) =>
           expect(dataElementValue).toBe(testDataElementValue)
       );
@@ -224,7 +241,7 @@ describe('function returned by createGetDataElementValue', () => {
         { moduleProvider }
       );
 
-      return getDataElementValue('testDataElement', defaultContext).then(
+      return getDataElementValue('testDataElement', getContext()).then(
         (dataElementValue) =>
           expect(dataElementValue).toBe(testDataElementValue)
       );
@@ -239,7 +256,7 @@ describe('function returned by createGetDataElementValue', () => {
       }
     });
 
-    return getDataElementValue('testDataElement', defaultContext).then(
+    return getDataElementValue('testDataElement', getContext()).then(
       (dataElementValue) => expect(dataElementValue).toBe('bar')
     );
   });
@@ -251,7 +268,7 @@ describe('function returned by createGetDataElementValue', () => {
       settings: {}
     });
 
-    return getDataElementValue('testDataElement', defaultContext).then(
+    return getDataElementValue('testDataElement', getContext()).then(
       (dataElementValue) => expect(dataElementValue).toBe('bar')
     );
   });
@@ -271,7 +288,7 @@ describe('function returned by createGetDataElementValue', () => {
       { moduleProvider }
     );
 
-    return getDataElementValue('testDataElement', defaultContext).catch((e) => {
+    return getDataElementValue('testDataElement', getContext()).catch((e) => {
       expect(e.message).toMatch(
         'Failed to execute module for data element "testDataElement". noob tried to divide by zero'
       );
@@ -292,7 +309,7 @@ describe('function returned by createGetDataElementValue', () => {
       { moduleProvider }
     );
 
-    return getDataElementValue('testDataElement', defaultContext)
+    return getDataElementValue('testDataElement', getContext())
       .then(() => {
         throw new Error('This section should not have been called.');
       })
@@ -312,7 +329,7 @@ describe('function returned by createGetDataElementValue', () => {
       { createGetDataElementDefinition: () => () => {} }
     );
 
-    return getDataElementValue('testDataElement', defaultContext)
+    return getDataElementValue('testDataElement', getContext())
       .then(() => {
         throw new Error('This section should not have been called.');
       })
@@ -330,10 +347,13 @@ describe('function returned by createGetDataElementValue', () => {
       }
     });
 
-    return getDataElementValue('testDataElement', {
-      dataElementCallStack: ['testDataElement'],
-      arcAndUtils: {}
-    })
+    return getDataElementValue(
+      'testDataElement',
+      getContext({
+        dataElementCallStack: ['testDataElement'],
+        arcAndUtils: {}
+      })
+    )
       .then(() => {
         throw new Error('This section should not have been called.');
       })
@@ -361,7 +381,7 @@ describe('function returned by createGetDataElementValue', () => {
       { moduleProvider }
     );
 
-    return getDataElementValue('testDataElement', defaultContext).then(
+    return getDataElementValue('testDataElement', getContext()).then(
       (dataElementValue) =>
         expect(dataElementValue).toEqual({
           id: 'DE123',

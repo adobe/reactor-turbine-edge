@@ -10,9 +10,8 @@ governing permissions and limitations under the License.
 */
 
 const cleanTextFn = require('./cleanText');
-const constants = require('./constants');
-
-const { CORE } = constants;
+const normalizeDelegate = require('./rules/normalizeDelegate');
+const getExecuteModulePromise = require('./rules/getExecuteModulePromise');
 
 const enhanceErrorMessage = (dataElementName, e) => {
   e.message = `Failed to execute module for data element "${dataElementName}". ${e.message}`;
@@ -20,8 +19,12 @@ const enhanceErrorMessage = (dataElementName, e) => {
 
 module.exports =
   (moduleProvider, getDataElementDefinition) => (dataElementName, context) => {
-    const { dataElementCallStack = [], arcAndUtils, env } = context;
-    const { utils } = arcAndUtils;
+    const {
+      dataElementCallStack = [],
+      arcAndUtils: {
+        utils: { logger }
+      }
+    } = context;
 
     const dataDef = getDataElementDefinition(dataElementName);
 
@@ -46,59 +49,37 @@ module.exports =
     }
     dataElementCallStack.push(dataElementName);
 
-    const {
-      modulePath,
-      getSettings,
-      id,
-      name,
-      defaultValue,
-      cleanText,
-      forceLowerCase
-    } = dataDef;
+    const { defaultValue, cleanText, forceLowerCase } = dataDef;
 
-    const moduleExports = moduleProvider.getModuleExports(modulePath);
-    const moduleDefinition = moduleProvider.getModuleDefinition(modulePath);
-    const { getSettings: getExtensionSettings = () => Promise.resolve({}) } =
-      moduleProvider.getExtensionDefinition(modulePath);
+    logger.log(`Resolving the data element "${dataElementName}".`);
+    return getExecuteModulePromise({
+      ...context,
+      delegateConfig: normalizeDelegate(dataDef, moduleProvider)
+    })
+      .then((c) => {
+        let { moduleOutput: value } = c;
 
-    const valuePromise = Promise.all([
-      getSettings(context),
-      getExtensionSettings(context)
-    ]).then(([settings, extensionSettings]) => {
-      try {
-        return moduleExports({
-          ...arcAndUtils,
-          utils: {
-            ...utils,
-            getSettings: () => settings,
-            getExtensionSettings: () => extensionSettings,
-            getComponent: () => ({ id, name }),
-            getEnv: () => (moduleDefinition.extensionName === CORE ? env : {})
+        if (value == null && defaultValue != null) {
+          value = defaultValue;
+        }
+
+        if (typeof value === 'string') {
+          if (cleanText) {
+            value = cleanTextFn(value);
           }
-        });
-      } catch (e) {
+
+          if (forceLowerCase) {
+            value = value.toLowerCase();
+          }
+        }
+
+        logger.log(
+          `The "${dataElementName}" data element value is "${value}".`
+        );
+        return value;
+      })
+      .catch((e) => {
         enhanceErrorMessage(dataElementName, e);
         throw e;
-      }
-    });
-
-    return valuePromise.then((resolvedValue) => {
-      let value = resolvedValue;
-
-      if (value == null && defaultValue != null) {
-        value = defaultValue;
-      }
-
-      if (typeof value === 'string') {
-        if (cleanText) {
-          value = cleanTextFn(value);
-        }
-
-        if (forceLowerCase) {
-          value = value.toLowerCase();
-        }
-      }
-
-      return value;
-    });
+      });
   };

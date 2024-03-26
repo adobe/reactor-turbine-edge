@@ -37,7 +37,7 @@ module.exports = (getDataElementValues) => ({
   },
   dataElements: {
     myPrecious: {
-      modulePath: 'core/src/lib/conditions/customCode.js',
+      modulePath: 'core/src/lib/dataElements/customCode.js',
       getSettings: () =>
         Promise.resolve({
           source: () => 'precious'
@@ -45,7 +45,7 @@ module.exports = (getDataElementValues) => ({
     },
 
     UID: {
-      modulePath: 'core/src/lib/conditions/customCode.js',
+      modulePath: 'core/src/lib/dataElements/customCode.js',
       getSettings: () =>
         Promise.resolve({
           source: () => 'UA-X-123'

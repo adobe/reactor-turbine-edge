@@ -69,6 +69,22 @@ describe('index', () => {
               '{}',
               'log'
             ],
+            ['Resolving the data element "myPrecious".', 'log'],
+            [
+              'Calling "Custom Code Data Element" module from the "Core" extension.',
+              'Event: ',
+              '{"xdm":{},"data":{}}',
+              'Rule Stash: ',
+              '{}',
+              'log'
+            ],
+            [
+              '"Custom Code Data Element" module from the "Core" extension returned.',
+              'Output:',
+              'precious',
+              'log'
+            ],
+            ['The "myPrecious" data element value is "precious".', 'log'],
             [
               'FETCH',
               'Resource',
@@ -95,6 +111,22 @@ describe('index', () => {
               '{"adobe-cloud-connector":"send data done"}',
               'log'
             ],
+            ['Resolving the data element "UID".', 'log'],
+            [
+              'Calling "Custom Code Data Element" module from the "Core" extension.',
+              'Event: ',
+              '{"xdm":{},"data":{}}',
+              'Rule Stash: ',
+              '{"adobe-cloud-connector":"send data done"}',
+              'log'
+            ],
+            [
+              '"Custom Code Data Element" module from the "Core" extension returned.',
+              'Output:',
+              'UA-X-123',
+              'log'
+            ],
+            ['The "UID" data element value is "UA-X-123".', 'log'],
             [
               '"Send Beacon" module from the "Demo Extensions With Settings" extension returned.',
               'Output:',

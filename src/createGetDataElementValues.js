@@ -10,13 +10,11 @@ governing permissions and limitations under the License.
 */
 
 module.exports = (getDataElementValue) => (tokenList, context) => {
-  const { dataElementCallStack = [] } = context;
+  const dataElementContext = { ...context, dataElementCallStack: [] };
 
   return Promise.all(
     tokenList.map((t) => {
-      context.dataElementCallStack = dataElementCallStack.slice();
-
-      return getDataElementValue(t, context);
+      return getDataElementValue(t, dataElementContext);
     })
   ).then((resolvedValues) => {
     const zipResults = {};

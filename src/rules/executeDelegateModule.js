@@ -9,19 +9,34 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = (context) => {
-  const { arcAndUtils, delegateConfig } = context;
-  const { utils } = arcAndUtils;
-  const { getSettings, moduleExports, id, name } = delegateConfig;
+const constants = require('../constants');
 
-  return getSettings(context)
-    .then((settings) =>
+const { CORE } = constants;
+
+module.exports = (context) => {
+  const { arcAndUtils, delegateConfig, env } = context;
+  const { utils } = arcAndUtils;
+  const {
+    extension: {
+      getExtensionSettings = () => Promise.resolve({}),
+      name: extensionName
+    },
+    getSettings = () => Promise.resolve({}),
+    moduleExports,
+    id,
+    name
+  } = delegateConfig;
+
+  return Promise.all([getSettings(context), getExtensionSettings(context)])
+    .then(([settings, extensionSettings]) =>
       moduleExports({
         ...arcAndUtils,
         utils: {
           ...utils,
           getSettings: () => settings,
-          getComponent: () => ({ id, name })
+          getExtensionSettings: () => extensionSettings,
+          getComponent: () => ({ id, name }),
+          getEnv: extensionName === CORE ? () => env : () => ({})
         }
       })
     )
