@@ -9,11 +9,13 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const normalizeDelegate = require('../normalizeDelegate');
+import { describe, test, expect, vi } from 'vitest';
+
+import normalizeDelegate from '../normalizeDelegate';
 
 const getExtensionSettings = () => {};
 const moduleExports = () => {};
-const moduleProvider = jest.fn(() => ({
+const moduleProvider = vi.fn(() => ({
   getModuleDefinition: (path) => {
     if (path === 'a.js') {
       return {

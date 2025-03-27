@@ -14,5 +14,5 @@ governing permissions and limitations under the License.
  * @param {string} str The string to clean.
  * @returns {string}
  */
-module.exports = (str) =>
+export default (str) =>
   typeof str === 'string' ? str.replace(/\s+/g, ' ').trim() : str;

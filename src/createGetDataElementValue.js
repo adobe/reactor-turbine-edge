@@ -9,16 +9,16 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const cleanTextFn = require('./cleanText');
-const normalizeDelegate = require('./rules/normalizeDelegate');
-const getExecuteModulePromise = require('./rules/getExecuteModulePromise');
+import cleanTextFn from './cleanText';
+import normalizeDelegate from './rules/normalizeDelegate';
+import getExecuteModulePromise from './rules/getExecuteModulePromise';
 
 const enhanceErrorMessage = (dataElementName, e) => {
   e.message = `Failed to execute module for data element "${dataElementName}". ${e.message}`;
 };
 
-module.exports =
-  (moduleProvider, getDataElementDefinition) => (dataElementName, context) => {
+export default (moduleProvider, getDataElementDefinition) =>
+  (dataElementName, context) => {
     const {
       dataElementCallStack = [],
       arcAndUtils: {

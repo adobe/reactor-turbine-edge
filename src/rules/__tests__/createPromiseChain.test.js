@@ -9,11 +9,13 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const createPromiseChain = require('../createPromiseChain');
+import { describe, test, expect, vi } from 'vitest';
 
-jest.mock('../logModuleErrorAndRethrow.js');
-jest.mock('../normalizeDelegate.js');
-jest.mock('../addModuleToQueue.js');
+import createPromiseChain from '../createPromiseChain';
+
+vi.mock('../logModuleErrorAndRethrow.js');
+vi.mock('../normalizeDelegate.js');
+vi.mock('../addModuleToQueue.js');
 
 const context = { someProperty: 'some_value' };
 const modules = [

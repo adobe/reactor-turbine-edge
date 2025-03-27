@@ -9,13 +9,12 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const PROMISE_TIMEOUT = 30000;
-const normalizeDelegate = require('./normalizeDelegate');
-const addModuleToQueue = require('./addModuleToQueue');
-const logModuleErrorAndRethrow = require('./logModuleErrorAndRethrow');
+import normalizeDelegate from './normalizeDelegate';
+import addModuleToQueue from './addModuleToQueue';
+import logModuleErrorAndRethrow from './logModuleErrorAndRethrow';
+import { PROMISE_TIMEOUT } from '../constants';
 
-module.exports =
-  ({ modules, resultFn, moduleProvider, utils }) =>
+export default ({ modules, resultFn, moduleProvider, utils }) =>
   (context) => {
     let lastPromiseInChain = Promise.resolve(context);
 

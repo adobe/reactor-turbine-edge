@@ -24,4 +24,4 @@ class ConditionNotMetError extends Error {
   }
 }
 
-module.exports = ConditionNotMetError;
+export default ConditionNotMetError;

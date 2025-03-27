@@ -9,8 +9,10 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const logDelegateModuleOutput = require('../logDelegateModuleOutput');
-const createNewLogger = require('../../__mocks__/createNewLogger');
+import { describe, test, expect } from 'vitest';
+
+import logDelegateModuleOutput from '../logDelegateModuleOutput';
+import createNewLogger from '../../__mocks__/createNewLogger';
 
 describe('logDelegateModuleOutput', () => {
   test('logs the call to and returns the context', () => {

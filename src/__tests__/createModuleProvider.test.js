@@ -9,7 +9,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const createModuleProvider = require('../createModuleProvider');
+import { describe, test, expect } from 'vitest';
+
+import createModuleProvider from '../createModuleProvider';
 
 const defaultModules = {
   'core/src/lib/dataElements/path.js': {

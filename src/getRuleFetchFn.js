@@ -9,12 +9,10 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-/* eslint-disable no-param-reassign */
-
 const byteArrayToString = (buf) =>
   new TextDecoder('utf-8').decode(new Uint8Array(buf));
 
-module.exports = (
+export default (
   globalFetch,
   headerOverrides,
   headersForSubrequests,

@@ -9,8 +9,10 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const anonymizeString = require('./anonymizeString');
-const getCurrentTimestamp = require('./getCurrentTimestamp');
+import anonymizeString from './anonymizeString';
+import createGetCurrentTimestamp from './createGetCurrentTimestamp';
+
+const getCurrentTimestamp = createGetCurrentTimestamp();
 
 /**
  * Log levels.
@@ -64,7 +66,7 @@ const process = (logLevel, context, logsBucket, logSensitiveTokens, args) => {
   });
 };
 
-module.exports = (context, logSensitiveTokens = []) => {
+export default (context, logSensitiveTokens = []) => {
   const logsBucket = [];
 
   return {

@@ -9,10 +9,10 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const createGetDataElementValues = require('./createGetDataElementValues');
-const createGetDataElementValue = require('./createGetDataElementValue');
-const createModuleProvider = require('./createModuleProvider');
-const executeRules = require('./executeRules');
+import createGetDataElementValues from './createGetDataElementValues';
+import createGetDataElementValue from './createGetDataElementValue';
+import createModuleProvider from './createModuleProvider';
+import executeRules from './executeRules';
 
 let dataElements = {};
 
@@ -39,6 +39,6 @@ const initialize = (containerInitFunction, { fetch }) => {
   return executeRules.bind(null, moduleProvider, container, fetch);
 };
 
-module.exports = {
+export default {
   initialize
 };

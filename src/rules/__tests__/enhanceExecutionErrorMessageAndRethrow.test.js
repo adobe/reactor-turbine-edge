@@ -9,9 +9,11 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const enhanceExecutionErrorMessageAndRethrow = require('../enhanceExecutionErrorMessageAndRethrow');
+import { describe, test, expect, vi } from 'vitest';
 
-jest.mock('../normalizeError.js');
+import enhanceExecutionErrorMessageAndRethrow from '../enhanceExecutionErrorMessageAndRethrow';
+
+vi.mock('../normalizeError.js');
 
 describe('enhanceExecutionErrorMessageAndRethrow', () => {
   test(

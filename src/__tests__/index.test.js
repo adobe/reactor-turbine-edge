@@ -9,8 +9,10 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const index = require('../index');
-const containerInitFunction = require('../__mocks__/containerInitFunction');
+import { describe, test, expect, vi } from 'vitest';
+
+import index from '../index';
+import containerInitFunction from '../__mocks__/containerInitFunction';
 
 const globalFetch = (resource) =>
   Promise.resolve({
@@ -22,7 +24,7 @@ const globalFetch = (resource) =>
     status: 200
   });
 
-jest.mock('../createNewLogger.js');
+vi.mock('../createNewLogger.js');
 
 describe('index', () => {
   test('executes rules conditions and actions and returns a JSON result', () => {

@@ -9,17 +9,16 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const createNewLogger = require('./createNewLogger');
+import createNewLogger from './createNewLogger';
+import getRuleFetchFn from './getRuleFetchFn';
+import checkConditionResult from './rules/checkConditionResult';
+import addActionResultToStash from './rules/addActionResultToStash';
+import logRuleStarting from './rules/logRuleStarting';
+import logRuleEnding from './rules/logRuleEnding';
+import returnRuleResult from './rules/returnRuleResult';
+import createPromiseChain from './rules/createPromiseChain';
 
-const getRuleFetchFn = require('./getRuleFetchFn');
-const checkConditionResult = require('./rules/checkConditionResult');
-const addActionResultToStash = require('./rules/addActionResultToStash');
-const logRuleStarting = require('./rules/logRuleStarting');
-const logRuleEnding = require('./rules/logRuleEnding');
-const returnRuleResult = require('./rules/returnRuleResult');
-const createPromiseChain = require('./rules/createPromiseChain');
-
-module.exports = (
+export default (
   moduleProvider,
   container,
   globalFetch,

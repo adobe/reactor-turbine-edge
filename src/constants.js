@@ -9,4 +9,5 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = { CORE: 'core' };
+export const CORE = 'core';
+export const PROMISE_TIMEOUT = 30000;

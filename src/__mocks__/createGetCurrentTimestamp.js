@@ -9,4 +9,4 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = () => 1111;
+export default () => () => 1111;

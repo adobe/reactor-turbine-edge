@@ -9,8 +9,10 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const checkConditionResult = require('../checkConditionResult');
-const ConditionNotMetError = require('../conditionNotMetError');
+import { describe, test, expect } from 'vitest';
+
+import checkConditionResult from '../checkConditionResult';
+import ConditionNotMetError from '../conditionNotMetError';
 
 describe('checkConditionResult', () => {
   test('returns a resolved promise in chain when condition result is true', () => {

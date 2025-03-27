@@ -9,7 +9,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = (getDataElementValue) => (tokenList, context) => {
+export default (getDataElementValue) => (tokenList, context) => {
   const dataElementContext = { ...context, dataElementCallStack: [] };
 
   return Promise.all(

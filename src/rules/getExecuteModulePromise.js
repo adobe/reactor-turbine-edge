@@ -9,11 +9,11 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const logDelegateModuleCall = require('./logDelegateModuleCall');
-const logDelegateModuleOutput = require('./logDelegateModuleOutput');
-const executeDelegateModule = require('./executeDelegateModule');
+import logDelegateModuleCall from './logDelegateModuleCall';
+import logDelegateModuleOutput from './logDelegateModuleOutput';
+import executeDelegateModule from './executeDelegateModule';
 
-module.exports = (context) =>
+export default (context) =>
   Promise.resolve(context)
     .then(logDelegateModuleCall)
     .then(executeDelegateModule)

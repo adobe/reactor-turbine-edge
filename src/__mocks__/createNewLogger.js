@@ -17,7 +17,7 @@ const process = (logsBucket, type, args) => {
   );
 };
 
-module.exports = () => {
+export default () => {
   const logsBucket = [];
 
   return {

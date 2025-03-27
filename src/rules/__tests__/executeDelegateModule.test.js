@@ -9,7 +9,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const executeDelegateModule = require('../executeDelegateModule');
+import { describe, test, expect } from 'vitest';
+
+import executeDelegateModule from '../executeDelegateModule';
 
 describe('executeDelegateModule', () => {
   test('executes the delegate module and adds the module output to the context', () => {

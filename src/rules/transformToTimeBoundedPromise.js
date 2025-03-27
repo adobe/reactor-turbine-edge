@@ -9,9 +9,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const getTimeoutPromise = require('./getTimeoutPromise');
+import getTimeoutPromise from './getTimeoutPromise';
 
-module.exports = (otherPromiseFn) => (context) => {
+export default (otherPromiseFn) => (context) => {
   const {
     delegateConfig: { timeout }
   } = context;

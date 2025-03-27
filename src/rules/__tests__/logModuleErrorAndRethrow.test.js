@@ -9,9 +9,11 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const logModuleErrorAndRethrow = require('../logModuleErrorAndRethrow');
-const createNewLogger = require('../../__mocks__/createNewLogger');
-const ConditionNotMetError = require('../conditionNotMetError');
+import { describe, test, expect } from 'vitest';
+
+import logModuleErrorAndRethrow from '../logModuleErrorAndRethrow';
+import createNewLogger from '../../__mocks__/createNewLogger';
+import ConditionNotMetError from '../conditionNotMetError';
 
 describe('logModuleErrorAndRethrow', () => {
   test('logs the error message with a stack when available and returs a rejected promise', () => {

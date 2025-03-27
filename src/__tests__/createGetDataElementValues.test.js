@@ -9,9 +9,11 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const createGetDataElementValues = require('../createGetDataElementValues');
+import { describe, test, expect, vi } from 'vitest';
 
-const getDataElementValue = jest.fn((v) => `resolved:${v}`);
+import createGetDataElementValues from '../createGetDataElementValues';
+
+const getDataElementValue = vi.fn((v) => `resolved:${v}`);
 
 describe('function returned by createGetDataElementValues', () => {
   test('returns another function that will return data element values when it is called', () => {

@@ -9,7 +9,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const addActionResultToStash = require('../addActionResultToStash');
+import { describe, test, expect } from 'vitest';
+
+import addActionResultToStash from '../addActionResultToStash';
 
 const generateContext = (obj) => ({
   moduleOutput: 'actionResult',
