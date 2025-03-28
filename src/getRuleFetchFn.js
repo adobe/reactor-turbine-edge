@@ -12,12 +12,7 @@ governing permissions and limitations under the License.
 const byteArrayToString = (buf) =>
   new TextDecoder('utf-8').decode(new Uint8Array(buf));
 
-export default (
-  globalFetch,
-  headerOverrides,
-  headersForSubrequests,
-  logger
-) => {
+export default (fetch, headerOverrides, headersForSubrequests, logger) => {
   return (resource, init = {}) => {
     // If resource is not a string then it must be a Request object and we
     // need to read it's headers. Otherwise the Request headers will be
@@ -50,7 +45,7 @@ export default (
       }
     });
 
-    return globalFetch(resource, init).then(
+    return fetch(resource, init).then(
       (r) => {
         // Below we will read the body of the response. The body can be read only once.
         // We are cloning the response and sending it down to the actions so in case

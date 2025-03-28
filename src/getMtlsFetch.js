@@ -1,5 +1,5 @@
 /*
-Copyright 2024 Adobe. All rights reserved.
+Copyright 2025 Adobe. All rights reserved.
 This file is licensed to you under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License. You may obtain a copy
 of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -9,6 +9,14 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-export const CORE = 'core';
-export const PROMISE_TIMEOUT = 30000;
-export const MTLS_BINDING = 'ADOBE_MTLS_CERTIFICATE';
+import { MTLS_BINDING } from './constants.js';
+
+export default (env) => {
+  if (env && env[MTLS_BINDING]) {
+    return env[MTLS_BINDING].fetch;
+  }
+
+  return () => {
+    throw new Error('MTLS certificate not found on the worker');
+  };
+};
