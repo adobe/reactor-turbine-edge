@@ -11,9 +11,9 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect } from 'vitest';
 
-import getRuleFetchFn from '../getRuleFetchFn';
-import createNewLogger from '../createNewLogger';
-import createFakeFetch from '../__tests_helpers__/createFakeFetchResponse';
+import getRuleFetchFn from '../getRuleFetchFn.js';
+import createNewLogger from '../createNewLogger.js';
+import createFakeFetch from '../__tests_helpers__/createFakeFetchResponse.js';
 
 describe('getRuleFetchFn', () => {
   test('returns a function that will make a successful fetch and returns the response', () => {

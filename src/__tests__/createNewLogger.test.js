@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect, vi } from 'vitest';
 
-import createNewLogger from '../createNewLogger';
+import createNewLogger from '../createNewLogger.js';
 
 vi.mock('../createGetCurrentTimestamp.js');
 

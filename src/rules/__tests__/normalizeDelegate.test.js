@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect, vi } from 'vitest';
 
-import normalizeDelegate from '../normalizeDelegate';
+import normalizeDelegate from '../normalizeDelegate.js';
 
 const getExtensionSettings = () => {};
 const moduleExports = () => {};

@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect } from 'vitest';
 
-import textCleaner from '../cleanText';
+import textCleaner from '../cleanText.js';
 
 describe('cleanText', () => {
   test('removes extra spaces from a string', () => {

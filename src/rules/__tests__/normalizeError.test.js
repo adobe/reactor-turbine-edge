@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect } from 'vitest';
 
-import normalizeError from '../normalizeError';
+import normalizeError from '../normalizeError.js';
 
 describe('normalizeError', () => {
   test('returns the same error if receives one', () => {

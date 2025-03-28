@@ -9,10 +9,10 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import normalizeDelegate from './normalizeDelegate';
-import addModuleToQueue from './addModuleToQueue';
-import logModuleErrorAndRethrow from './logModuleErrorAndRethrow';
-import { PROMISE_TIMEOUT } from '../constants';
+import normalizeDelegate from './normalizeDelegate.js';
+import addModuleToQueue from './addModuleToQueue.js';
+import logModuleErrorAndRethrow from './logModuleErrorAndRethrow.js';
+import { PROMISE_TIMEOUT } from '../constants.js';
 
 export default ({ modules, resultFn, moduleProvider, utils }) =>
   (context) => {

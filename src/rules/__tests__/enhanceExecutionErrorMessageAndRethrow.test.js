@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect, vi } from 'vitest';
 
-import enhanceExecutionErrorMessageAndRethrow from '../enhanceExecutionErrorMessageAndRethrow';
+import enhanceExecutionErrorMessageAndRethrow from '../enhanceExecutionErrorMessageAndRethrow.js';
 
 vi.mock('../normalizeError.js');
 

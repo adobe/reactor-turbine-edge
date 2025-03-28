@@ -11,8 +11,8 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect } from 'vitest';
 
-import logRuleStarting from '../logRuleStarting';
-import createNewLogger from '../../__mocks__/createNewLogger';
+import logRuleStarting from '../logRuleStarting.js';
+import createNewLogger from '../../__mocks__/createNewLogger.js';
 
 describe('logRuleStarting', () => {
   test('logs the call to and returns the contextData', () => {

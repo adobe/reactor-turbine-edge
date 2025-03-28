@@ -9,9 +9,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import transformToTimeBoundedPromise from './transformToTimeBoundedPromise';
-import getExecuteModulePromise from './getExecuteModulePromise';
-import enhanceExecutionErrorMessageAndRethrow from './enhanceExecutionErrorMessageAndRethrow';
+import transformToTimeBoundedPromise from './transformToTimeBoundedPromise.js';
+import getExecuteModulePromise from './getExecuteModulePromise.js';
+import enhanceExecutionErrorMessageAndRethrow from './enhanceExecutionErrorMessageAndRethrow.js';
 
 export default (lastPromiseInQueue, processModuleResultFn, delegateConfig) =>
   lastPromiseInQueue.then((context) =>

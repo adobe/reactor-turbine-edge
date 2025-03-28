@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 import { describe, test, expect, vi } from 'vitest';
 
 import lodash from 'lodash';
-import createGetDataElementValueModule from '../createGetDataElementValue';
+import createGetDataElementValueModule from '../createGetDataElementValue.js';
 
 vi.mock('../cleanText.js');
 

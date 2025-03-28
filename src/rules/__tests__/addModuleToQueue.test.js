@@ -11,8 +11,8 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect, vi } from 'vitest';
 
-import addModuleToQueue from '../addModuleToQueue';
-import getExecuteModulePromise from '../getExecuteModulePromise';
+import addModuleToQueue from '../addModuleToQueue.js';
+import getExecuteModulePromise from '../getExecuteModulePromise.js';
 
 vi.mock('../getExecuteModulePromise.js');
 vi.mock('../enhanceExecutionErrorMessageAndRethrow.js');

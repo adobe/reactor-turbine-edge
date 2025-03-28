@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect } from 'vitest';
 
-import anonymizeString from '../anonymizeString';
+import anonymizeString from '../anonymizeString.js';
 
 describe('anonymizeString', () => {
   test('returns 5 asterisk for strings with length lower than 9 characters', () => {

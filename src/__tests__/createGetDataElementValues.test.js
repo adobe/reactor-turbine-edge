@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect, vi } from 'vitest';
 
-import createGetDataElementValues from '../createGetDataElementValues';
+import createGetDataElementValues from '../createGetDataElementValues.js';
 
 const getDataElementValue = vi.fn((v) => `resolved:${v}`);
 

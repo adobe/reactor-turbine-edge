@@ -11,8 +11,8 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect, vi } from 'vitest';
 
-import index from '../index';
-import containerInitFunction from '../__mocks__/containerInitFunction';
+import index from '../index.js';
+import containerInitFunction from '../__mocks__/containerInitFunction.js';
 
 const globalFetch = (resource) =>
   Promise.resolve({

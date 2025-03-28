@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect } from 'vitest';
 
-import createModuleProvider from '../createModuleProvider';
+import createModuleProvider from '../createModuleProvider.js';
 
 const defaultModules = {
   'core/src/lib/dataElements/path.js': {
@@ -78,7 +78,7 @@ describe('createModuleProvider', () => {
         'anotherExtension/src/lib/dataElements/path.js'
       );
     }).toThrowError(
-      /Failed to access module "anotherExtension\/src\/lib\/dataElements\/path\.js"/
+      /Failed to access module "anotherExtension\/src\/lib\/dataElements\/path.js"/
     );
   });
 

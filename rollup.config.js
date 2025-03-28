@@ -1,21 +1,28 @@
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
+import terser from '@rollup/plugin-terser';
 
 export default {
   input: 'src/index.js',
   external: ['container'],
-  output: {
-    file: 'dist/engine-server.js',
-    exports: 'auto',
-    format: 'cjs',
-    globals: {
-      container: 'container'
+  output: [
+    {
+      file: 'dist/engine-server.js',
+      format: 'es',
+      globals: {
+        container: 'container'
+      }
+    },
+    {
+      file: 'dist/engine-server.min.js',
+      format: 'es',
+      globals: {
+        container: 'container'
+      },
+      plugins: [
+        terser({
+          mangle: true,
+          compress: true
+        })
+      ]
     }
-  },
-  plugins: [
-    resolve({
-      preferBuiltins: false
-    }),
-    commonjs()
   ]
 };

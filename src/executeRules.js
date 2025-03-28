@@ -9,14 +9,14 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import createNewLogger from './createNewLogger';
-import getRuleFetchFn from './getRuleFetchFn';
-import checkConditionResult from './rules/checkConditionResult';
-import addActionResultToStash from './rules/addActionResultToStash';
-import logRuleStarting from './rules/logRuleStarting';
-import logRuleEnding from './rules/logRuleEnding';
-import returnRuleResult from './rules/returnRuleResult';
-import createPromiseChain from './rules/createPromiseChain';
+import createNewLogger from './createNewLogger.js';
+import getRuleFetchFn from './getRuleFetchFn.js';
+import checkConditionResult from './rules/checkConditionResult.js';
+import addActionResultToStash from './rules/addActionResultToStash.js';
+import logRuleStarting from './rules/logRuleStarting.js';
+import logRuleEnding from './rules/logRuleEnding.js';
+import returnRuleResult from './rules/returnRuleResult.js';
+import createPromiseChain from './rules/createPromiseChain.js';
 
 export default (
   moduleProvider,

@@ -9,10 +9,10 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import createGetDataElementValues from './createGetDataElementValues';
-import createGetDataElementValue from './createGetDataElementValue';
-import createModuleProvider from './createModuleProvider';
-import executeRules from './executeRules';
+import createGetDataElementValues from './createGetDataElementValues.js';
+import createGetDataElementValue from './createGetDataElementValue.js';
+import createModuleProvider from './createModuleProvider.js';
+import executeRules from './executeRules.js';
 
 let dataElements = {};
 

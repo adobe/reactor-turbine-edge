@@ -15,7 +15,6 @@ import { defineProject } from 'vitest/config';
 export default defineProject({
   test: {
     name: 'unit-tests',
-    isolate: false,
     coverage: {
       reporter: ['html', 'lcov', 'text', 'json']
     }

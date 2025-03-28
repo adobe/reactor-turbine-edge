@@ -11,8 +11,8 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect } from 'vitest';
 
-import logDelegateModuleCall from '../logDelegateModuleCall';
-import createNewLogger from '../../__mocks__/createNewLogger';
+import logDelegateModuleCall from '../logDelegateModuleCall.js';
+import createNewLogger from '../../__mocks__/createNewLogger.js';
 
 describe('logDelegateModuleCall', () => {
   test('logs the call to and returns the context', () => {
