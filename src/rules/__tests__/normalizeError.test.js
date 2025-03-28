@@ -9,7 +9,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const normalizeError = require('../normalizeError');
+import { describe, test, expect } from 'vitest';
+
+import normalizeError from '../normalizeError';
 
 describe('normalizeError', () => {
   test('returns the same error if receives one', () => {

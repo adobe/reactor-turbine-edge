@@ -9,11 +9,11 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const transformToTimeBoundedPromise = require('./transformToTimeBoundedPromise');
-const getExecuteModulePromise = require('./getExecuteModulePromise');
-const enhanceExecutionErrorMessageAndRethrow = require('./enhanceExecutionErrorMessageAndRethrow');
+import transformToTimeBoundedPromise from './transformToTimeBoundedPromise';
+import getExecuteModulePromise from './getExecuteModulePromise';
+import enhanceExecutionErrorMessageAndRethrow from './enhanceExecutionErrorMessageAndRethrow';
 
-module.exports = (lastPromiseInQueue, processModuleResultFn, delegateConfig) =>
+export default (lastPromiseInQueue, processModuleResultFn, delegateConfig) =>
   lastPromiseInQueue.then((context) =>
     Promise.resolve({
       ...context,

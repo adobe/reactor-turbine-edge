@@ -9,9 +9,11 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const getRuleFetchFn = require('../getRuleFetchFn');
-const createNewLogger = require('../createNewLogger');
-const createFakeFetch = require('../__tests_helpers__/createFakeFetchResponse');
+import { describe, test, expect } from 'vitest';
+
+import getRuleFetchFn from '../getRuleFetchFn';
+import createNewLogger from '../createNewLogger';
+import createFakeFetch from '../__tests_helpers__/createFakeFetchResponse';
 
 describe('getRuleFetchFn', () => {
   test('returns a function that will make a successful fetch and returns the response', () => {

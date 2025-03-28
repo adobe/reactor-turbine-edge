@@ -9,9 +9,11 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const createNewLogger = require('../createNewLogger');
+import { describe, test, expect, vi } from 'vitest';
 
-jest.mock('../getCurrentTimestamp.js');
+import createNewLogger from '../createNewLogger';
+
+vi.mock('../createGetCurrentTimestamp.js');
 
 describe('createNewLogger', () => {
   test('returns an object which allows logging and retrival of the logs in a JSON format', () => {

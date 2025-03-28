@@ -9,16 +9,4 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-let lastTimestamp = 0;
-
-module.exports = () => {
-  let currentTimestamp = Date.now();
-
-  if (currentTimestamp <= lastTimestamp) {
-    currentTimestamp = lastTimestamp + 1;
-  }
-
-  lastTimestamp = currentTimestamp;
-
-  return currentTimestamp;
-};
+export default () => () => 1111;

@@ -9,32 +9,35 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-let getCurrentTimestamp;
+import { describe, test, expect, afterAll, beforeAll, vi } from 'vitest';
+
+import createGetCurrentTimestamp from '../createGetCurrentTimestamp';
 
 describe('getCurrentTimestamp', () => {
-  const dateNow = Date.now;
-
   beforeAll(() => {
-    Date.now = jest.fn(() => 1111111111111);
+    vi.useFakeTimers();
   });
 
   afterAll(() => {
-    Date.now = dateNow;
-  });
-
-  beforeEach(() => {
-    jest.resetModules();
-
-    // eslint-disable-next-line global-require
-    getCurrentTimestamp = require('../getCurrentTimestamp');
+    vi.useRealTimers();
   });
 
   test('returns a timestamp', () => {
-    expect(getCurrentTimestamp()).toBe(1111111111111);
+    const date = new Date(Date.UTC(2000, 1, 1, 13));
+    vi.setSystemTime(date);
+
+    const getCurrentTimestamp = createGetCurrentTimestamp();
+
+    expect(getCurrentTimestamp()).toBe(949410000000);
   });
 
   test('returns an unique timestamp if the same timestamp is returned multiple times', () => {
-    expect(getCurrentTimestamp()).toBe(1111111111111);
-    expect(getCurrentTimestamp()).toBe(1111111111112);
+    const date = new Date(Date.UTC(2000, 1, 1, 13));
+    vi.setSystemTime(date);
+
+    const getCurrentTimestamp = createGetCurrentTimestamp();
+
+    expect(getCurrentTimestamp()).toBe(949410000000);
+    expect(getCurrentTimestamp()).toBe(949410000001);
   });
 });

@@ -9,23 +9,18 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-export default (context) => {
-  const {
-    moduleOutput,
-    arcAndUtils: {
-      utils: { logger }
-    },
-    delegateConfig: {
-      displayName: moduleDisplayName,
-      extension: { displayName: extensionDisplayName }
+export default () => {
+  let lastTimestamp = 0;
+
+  return () => {
+    let currentTimestamp = Date.now();
+
+    if (currentTimestamp <= lastTimestamp) {
+      currentTimestamp = lastTimestamp + 1;
     }
-  } = context;
 
-  logger.log(
-    `"${moduleDisplayName}" module from the "${extensionDisplayName}" extension returned.`,
-    'Output:',
-    moduleOutput
-  );
+    lastTimestamp = currentTimestamp;
 
-  return context;
+    return currentTimestamp;
+  };
 };

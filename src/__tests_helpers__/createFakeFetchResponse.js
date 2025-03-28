@@ -9,10 +9,13 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const largeJson = require('./largeJsonResponse.json');
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { vi } from 'vitest';
 
-module.exports = (returnStatus = 200, largeResponse = false) =>
-  jest.fn((resource) => {
+import largeJson from './largeJsonResponse.json';
+
+export default (returnStatus = 200, largeResponse = false) =>
+  vi.fn((resource) => {
     const response = largeResponse
       ? JSON.stringify(largeJson)
       : `${resource?.url || resource}:arrayBuffer`;

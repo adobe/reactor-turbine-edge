@@ -9,7 +9,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const getTimeoutPromise = require('../getTimeoutPromise');
+import { describe, test, expect } from 'vitest';
+
+import getTimeoutPromise from '../getTimeoutPromise';
 
 describe('getTimeoutPromise', () => {
   test('returns a promise that will get rejected when the timeout is hit', () =>

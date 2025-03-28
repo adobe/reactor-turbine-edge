@@ -9,13 +9,13 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const ConditionNotMetError = require('./conditionNotMetError');
+import ConditionNotMetError from './conditionNotMetError';
 
 const isConditionMet = (result, negate) => {
   return (result === true && !negate) || (result === false && negate);
 };
 
-module.exports = ({
+export default ({
   moduleOutput: conditionResult,
   arcAndUtils,
   delegateConfig: { displayName: conditionDisplayName, negate = false },

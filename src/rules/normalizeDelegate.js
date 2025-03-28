@@ -9,7 +9,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = ({ modulePath, ...otherDelegateProps }, moduleProvider) => {
+export default ({ modulePath, ...otherDelegateProps }, moduleProvider) => {
   const { extensionName, displayName: moduleDisplayName } =
     moduleProvider.getModuleDefinition(modulePath);
 

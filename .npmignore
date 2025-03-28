@@ -1,6 +1,7 @@
 coverage
 jest.config.js
 rollup.config.js
+eslint.config.js
 reactor-turbine-edge-*.tgz
 adobe-reactor-turbine-edge*.tgz
 __tests*

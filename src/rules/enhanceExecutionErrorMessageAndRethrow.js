@@ -9,10 +9,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const normalizeError = require('./normalizeError');
+import normalizeError from './normalizeError';
 
-module.exports =
-  ({ delegateConfig: { displayName } }) =>
+export default ({ delegateConfig: { displayName } }) =>
   (error) => {
     const normalizedError = normalizeError(error);
     normalizedError.message = `Failed to execute "${displayName}". ${normalizedError.message}`;

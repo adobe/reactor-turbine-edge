@@ -9,11 +9,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const constants = require('../constants');
+import { CORE } from '../constants';
 
-const { CORE } = constants;
-
-module.exports = (context) => {
+export default (context) => {
   const { arcAndUtils, delegateConfig, env } = context;
   const { utils } = arcAndUtils;
   const {

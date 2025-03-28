@@ -9,7 +9,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const anonymizeString = require('../anonymizeString');
+import { describe, test, expect } from 'vitest';
+
+import anonymizeString from '../anonymizeString';
 
 describe('anonymizeString', () => {
   test('returns 5 asterisk for strings with length lower than 9 characters', () => {

@@ -9,18 +9,20 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const addModuleToQueue = require('../addModuleToQueue');
-const getExecuteModulePromise = require('../getExecuteModulePromise');
+import { describe, test, expect, vi } from 'vitest';
 
-jest.mock('../getExecuteModulePromise.js');
-jest.mock('../enhanceExecutionErrorMessageAndRethrow.js');
-jest.mock('../transformToTimeBoundedPromise.js');
+import addModuleToQueue from '../addModuleToQueue';
+import getExecuteModulePromise from '../getExecuteModulePromise';
+
+vi.mock('../getExecuteModulePromise.js');
+vi.mock('../enhanceExecutionErrorMessageAndRethrow.js');
+vi.mock('../transformToTimeBoundedPromise.js');
 
 const delegateConfig = {};
 
 describe('addModuleToQueue', () => {
   test('callback function processes the module result', () => {
-    const processResultFn = jest.fn();
+    const processResultFn = vi.fn();
 
     getExecuteModulePromise.mockResolvedValue('module result');
 

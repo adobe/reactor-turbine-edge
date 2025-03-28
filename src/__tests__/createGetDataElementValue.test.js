@@ -9,11 +9,12 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-// eslint-disable-next-line import/no-extraneous-dependencies
-const lodash = require('lodash');
-const createGetDataElementValueModule = require('../createGetDataElementValue');
+import { describe, test, expect, vi } from 'vitest';
 
-jest.mock('../cleanText.js');
+import lodash from 'lodash';
+import createGetDataElementValueModule from '../createGetDataElementValue';
+
+vi.mock('../cleanText.js');
 
 const getContext = (context = {}) => {
   const logs = [];
@@ -33,7 +34,7 @@ const getContext = (context = {}) => {
 };
 
 const createGetDataElementDefinitionDefault = (dataDef) =>
-  jest.fn().mockImplementation((dataElementName) => {
+  vi.fn().mockImplementation((dataElementName) => {
     if (dataElementName === 'testDataElement') {
       return {
         ...dataDef,
@@ -109,7 +110,7 @@ describe('function returned by createGetDataElementValue', () => {
     );
   });
 
-  test.only('gives extension settings access to the data element module', async () => {
+  test('gives extension settings access to the data element module', async () => {
     const moduleProvider = createGetModuleProvider({
       getModuleExports:
         () =>

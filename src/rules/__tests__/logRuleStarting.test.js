@@ -9,8 +9,10 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-const logRuleStarting = require('../logRuleStarting');
-const createNewLogger = require('../../__mocks__/createNewLogger');
+import { describe, test, expect } from 'vitest';
+
+import logRuleStarting from '../logRuleStarting';
+import createNewLogger from '../../__mocks__/createNewLogger';
 
 describe('logRuleStarting', () => {
   test('logs the call to and returns the contextData', () => {
