@@ -23,21 +23,21 @@ describe('getCurrentTimestamp', () => {
   });
 
   test('returns a timestamp', () => {
-    const date = new Date(2000, 1, 1, 13);
+    const date = new Date(Date.UTC(2000, 1, 1, 13));
     vi.setSystemTime(date);
 
     const getCurrentTimestamp = createGetCurrentTimestamp();
 
-    expect(getCurrentTimestamp()).toBe(949435200000);
+    expect(getCurrentTimestamp()).toBe(949410000000);
   });
 
   test('returns an unique timestamp if the same timestamp is returned multiple times', () => {
-    const date = new Date(2000, 1, 1, 13);
+    const date = new Date(Date.UTC(2000, 1, 1, 13));
     vi.setSystemTime(date);
 
     const getCurrentTimestamp = createGetCurrentTimestamp();
 
-    expect(getCurrentTimestamp()).toBe(949435200000);
-    expect(getCurrentTimestamp()).toBe(949435200001);
+    expect(getCurrentTimestamp()).toBe(949410000000);
+    expect(getCurrentTimestamp()).toBe(949410000001);
   });
 });
