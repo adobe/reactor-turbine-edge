@@ -16,11 +16,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js '23.x'
+      - name: Set up Node.js version
         uses: actions/setup-node@v4
         with:
-          node-version: '23.x'
-      - run: npm ci
+          node-version: '22.x'
+      - uses: actions/cache@v4
+        id: npm-cache
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}-${{ secrets.NPM_CACHE_VERSION }}
+      - name: Install dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm ci
       - run: npm run build --if-present
       - run: npm test
       - name: Coveralls
