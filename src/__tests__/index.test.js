@@ -33,13 +33,16 @@ describe('index', () => {
       request: { header: {}, body: { xdm: {}, data: {} } }
     };
 
-    const execute = index.initialize(containerInitFunction, {
-      fetch: globalFetch
-    });
+    const execute = index.initialize(containerInitFunction);
 
-    return execute(callData, {
-      headersForSubrequests: {}
-    }).then((result) => {
+    return execute(
+      callData,
+      {},
+      {
+        headersForSubrequests: {},
+        fetch: globalFetch
+      }
+    ).then((result) => {
       expect(result).toStrictEqual([
         {
           ruleId: 'RLbb1d94c79fee4733a510564a86ba3c59',

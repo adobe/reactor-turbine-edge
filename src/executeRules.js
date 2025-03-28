@@ -17,14 +17,14 @@ import logRuleStarting from './rules/logRuleStarting.js';
 import logRuleEnding from './rules/logRuleEnding.js';
 import returnRuleResult from './rules/returnRuleResult.js';
 import createPromiseChain from './rules/createPromiseChain.js';
+import getMtlsFetch from './getMtlsFetch.js';
 
 export default (
   moduleProvider,
   container,
-  globalFetch,
   requestData,
   env,
-  { headersForSubrequests } = {}
+  { headersForSubrequests, fetch: globalFetch } = {}
 ) => {
   const rulePromises = [];
 
@@ -53,11 +53,19 @@ export default (
       logger
     );
 
+    const mtlsFetch = getRuleFetchFn(
+      getMtlsFetch(env),
+      getHeaderOverrides(env),
+      headersForSubrequests,
+      logger
+    );
+
     const utils = {
       getRule: () => ({ id, name }),
       getBuildInfo: () => buildInfo,
       logger,
-      fetch
+      fetch,
+      mtlsFetch
     };
 
     const initialContext = {

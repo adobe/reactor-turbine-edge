@@ -29,14 +29,14 @@ const getDataElementValue = createGetDataElementValue(
 
 const getDataElementValues = createGetDataElementValues(getDataElementValue);
 
-const initialize = (containerInitFunction, { fetch }) => {
+const initialize = (containerInitFunction) => {
   const container = containerInitFunction(getDataElementValues);
   if (container.dataElements) {
     dataElements = container.dataElements;
   }
 
   moduleProvider.registerModules(container.modules, container.extensions);
-  return executeRules.bind(null, moduleProvider, container, fetch);
+  return executeRules.bind(null, moduleProvider, container);
 };
 
 export default {
