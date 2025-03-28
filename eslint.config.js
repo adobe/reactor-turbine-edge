@@ -29,7 +29,7 @@ const compat = new FlatCompat({
 
 export default defineConfig([
   ...compat.extends('airbnb-base'),
-  globalIgnores(['src/__tests_helpers__/largeJsonResponse.json']),
+  globalIgnores(['src/__tests_helpers__/largeJsonResponse.json', 'dist/**']),
   {
     files: ['**/*.{js,cjs,jsx}'],
     settings: {

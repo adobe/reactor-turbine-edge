@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "main": "dist/engine-server.min.js",
   "scripts": {
-    "build": "rollup -c && terser dist/engine-server.js -c -m -o dist/engine-server.min.js",
+    "build": "rollup -c",
     "build:watch": "touch ./dist/engine-server.js & rollup --watch -c & watch -f ./dist/engine-server.js -r './node_modules/.bin/terser ./dist/engine-server.js -c -m -o ./dist/engine-server.min.js'",
     "prepublishOnly": "npm run build",
     "lint": "eslint --cache --fix",
@@ -26,12 +26,9 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.23.0",
-    "@rollup/plugin-commonjs": "^28.0.3",
-    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-terser": "^0.4.4",
     "@vitest/coverage-v8": "^3.0.9",
     "@vitest/eslint-plugin": "^1.1.38",
-    "camelize": "1.0.1",
-    "cli-watch": "^1.0.7",
     "eslint": "^9.23.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.1",
@@ -39,13 +36,10 @@
     "eslint-plugin-prettier": "^5.2.5",
     "globals": "^16.0.0",
     "husky": "^9.1.7",
-    "inject-loader": "^4.0.1",
-    "kebab-case": "2.0.1",
     "lint-staged": "^15.5.0",
     "lodash": "^4.17.21",
     "prettier": "^3.5.3",
     "rollup": "^4.37.0",
-    "terser": "^5.39.0",
     "vitest": "^3.0.9"
   },
   "overrides": {
