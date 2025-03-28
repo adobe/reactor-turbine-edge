@@ -31,11 +31,11 @@ export default defineConfig([
   ...compat.extends('airbnb-base'),
   globalIgnores(['src/__tests_helpers__/largeJsonResponse.json', 'dist/**']),
   {
-    files: ['**/*.{js,cjs,jsx}'],
+    files: ['**/*.js'],
     settings: {
       'import/resolver': {
         node: {
-          extensions: ['.js', '.cjs', '.mjs', '.jsx']
+          extensions: ['.js']
         }
       }
     },
