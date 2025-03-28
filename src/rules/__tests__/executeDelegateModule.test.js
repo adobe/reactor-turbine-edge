@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect } from 'vitest';
 
-import executeDelegateModule from '../executeDelegateModule';
+import executeDelegateModule from '../executeDelegateModule.js';
 
 describe('executeDelegateModule', () => {
   test('executes the delegate module and adds the module output to the context', () => {

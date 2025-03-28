@@ -11,8 +11,8 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect } from 'vitest';
 
-import checkConditionResult from '../checkConditionResult';
-import ConditionNotMetError from '../conditionNotMetError';
+import checkConditionResult from '../checkConditionResult.js';
+import ConditionNotMetError from '../conditionNotMetError.js';
 
 describe('checkConditionResult', () => {
   test('returns a resolved promise in chain when condition result is true', () => {

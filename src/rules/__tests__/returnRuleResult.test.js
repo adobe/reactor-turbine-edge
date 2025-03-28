@@ -11,8 +11,8 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect } from 'vitest';
 
-import returnRuleResult from '../returnRuleResult';
-import ConditionNotMetError from '../conditionNotMetError';
+import returnRuleResult from '../returnRuleResult.js';
+import ConditionNotMetError from '../conditionNotMetError.js';
 
 describe('returnRuleResult', () => {
   test('returns the result for a successful rule', () => {

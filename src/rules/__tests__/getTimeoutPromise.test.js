@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect } from 'vitest';
 
-import getTimeoutPromise from '../getTimeoutPromise';
+import getTimeoutPromise from '../getTimeoutPromise.js';
 
 describe('getTimeoutPromise', () => {
   test('returns a promise that will get rejected when the timeout is hit', () =>

@@ -16,12 +16,10 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import pluginJs from '@eslint/js';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { glob } from 'glob';
 import globals from 'globals';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import vitest from '@vitest/eslint-plugin';
 
-const allComponentPaths = glob.sync('src/components/*/');
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
@@ -48,87 +46,40 @@ export default defineConfig([
       }
     },
     rules: {
+      'prettier/prettier': 'error'
+    }
+  },
+  {
+    files: ['src/**/*.js'],
+    rules: {
+      'import/no-extraneous-dependencies': 'error',
       'no-param-reassign': 'off',
-      'prettier/prettier': 'error',
-      'func-style': 'error',
-      // Turning this off allows us to import devDependencies in our build tools.
-      // We enable the rule in src/.eslintrc.js since that's the only place we
-      // want to disallow importing extraneous dependencies.
-      'import/no-extraneous-dependencies': 'off',
-      'prefer-destructuring': 'off',
-      'import/prefer-default-export': 'off',
-      'import/no-restricted-paths': [
+      'import/extensions': [
         'error',
         {
-          zones: [
-            // prevent components from importing from other components, but allow
-            // importing from themselves
-            ...allComponentPaths.map((componentPath, _, allPaths) => ({
-              target: componentPath,
-              from: [
-                'src/core',
-                'src/baseCode',
-                ...allPaths.filter((p) => p !== componentPath)
-              ]
-            })),
-            {
-              target: 'src/core',
-              from: 'src/baseCode'
-            },
-            {
-              target: 'src/utils',
-              from: ['src/core', 'src/components', 'src/baseCode']
-            },
-            {
-              target: 'src/constants',
-              from: ['src/core', 'src/components', 'src/utils', 'src/baseCode']
-            }
-          ]
+          js: 'always'
         }
       ]
     }
   },
   {
-    files: ['src/**/*.{cjs,js}'],
-    languageOptions: {
-      globals: {
-        turbine: 'readonly'
-      }
-    },
+    files: ['eslint.config.js'],
     rules: {
-      'import/no-extraneous-dependencies': 'error'
+      'import/no-extraneous-dependencies': [
+        'error',
+        {
+          devDependencies: true
+        }
+      ]
     }
   },
   {
-    files: ['test/unit/specs/**/*.{cjs,js}'],
+    files: ['src/**/*.test.js}'],
     plugins: {
       vitest
     },
     rules: {
       ...vitest.configs.recommended.rules
-    }
-  },
-  {
-    files: ['test/**/*.{cjs,js}'],
-    rules: {
-      'import/extensions': [
-        'error',
-        {
-          js: 'always'
-        }
-      ]
-    }
-  },
-  {
-    files: ['scripts/**/*.{cjs,js}'],
-    rules: {
-      'no-console': 'off',
-      'import/extensions': [
-        'error',
-        {
-          js: 'always'
-        }
-      ]
     }
   },
 

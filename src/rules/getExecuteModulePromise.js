@@ -9,9 +9,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import logDelegateModuleCall from './logDelegateModuleCall';
-import logDelegateModuleOutput from './logDelegateModuleOutput';
-import executeDelegateModule from './executeDelegateModule';
+import logDelegateModuleCall from './logDelegateModuleCall.js';
+import logDelegateModuleOutput from './logDelegateModuleOutput.js';
+import executeDelegateModule from './executeDelegateModule.js';
 
 export default (context) =>
   Promise.resolve(context)

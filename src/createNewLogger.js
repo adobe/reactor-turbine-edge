@@ -9,8 +9,8 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import anonymizeString from './anonymizeString';
-import createGetCurrentTimestamp from './createGetCurrentTimestamp';
+import anonymizeString from './anonymizeString.js';
+import createGetCurrentTimestamp from './createGetCurrentTimestamp.js';
 
 const getCurrentTimestamp = createGetCurrentTimestamp();
 

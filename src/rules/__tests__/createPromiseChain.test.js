@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect, vi } from 'vitest';
 
-import createPromiseChain from '../createPromiseChain';
+import createPromiseChain from '../createPromiseChain.js';
 
 vi.mock('../logModuleErrorAndRethrow.js');
 vi.mock('../normalizeDelegate.js');

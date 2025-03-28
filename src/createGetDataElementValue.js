@@ -9,9 +9,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import cleanTextFn from './cleanText';
-import normalizeDelegate from './rules/normalizeDelegate';
-import getExecuteModulePromise from './rules/getExecuteModulePromise';
+import cleanTextFn from './cleanText.js';
+import normalizeDelegate from './rules/normalizeDelegate.js';
+import getExecuteModulePromise from './rules/getExecuteModulePromise.js';
 
 const enhanceErrorMessage = (dataElementName, e) => {
   e.message = `Failed to execute module for data element "${dataElementName}". ${e.message}`;

@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect, afterAll, beforeAll, vi } from 'vitest';
 
-import createGetCurrentTimestamp from '../createGetCurrentTimestamp';
+import createGetCurrentTimestamp from '../createGetCurrentTimestamp.js';
 
 describe('getCurrentTimestamp', () => {
   beforeAll(() => {

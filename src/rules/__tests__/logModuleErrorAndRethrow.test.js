@@ -11,9 +11,9 @@ governing permissions and limitations under the License.
 
 import { describe, test, expect } from 'vitest';
 
-import logModuleErrorAndRethrow from '../logModuleErrorAndRethrow';
-import createNewLogger from '../../__mocks__/createNewLogger';
-import ConditionNotMetError from '../conditionNotMetError';
+import logModuleErrorAndRethrow from '../logModuleErrorAndRethrow.js';
+import createNewLogger from '../../__mocks__/createNewLogger.js';
+import ConditionNotMetError from '../conditionNotMetError.js';
 
 describe('logModuleErrorAndRethrow', () => {
   test('logs the error message with a stack when available and returs a rejected promise', () => {
