@@ -9,5 +9,5 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-module.exports = (lastPromiseInChain, resultFn, delegateConfig) =>
+export default (lastPromiseInChain, resultFn, delegateConfig) =>
   lastPromiseInChain.then(() => Promise.resolve(resultFn(delegateConfig)));
