@@ -1,5 +1,5 @@
 coverage
-jest.config.js
+vitest.config.js
 rollup.config.js
 eslint.config.js
 reactor-turbine-edge-*.tgz
