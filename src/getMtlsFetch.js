@@ -13,7 +13,9 @@ import { MTLS_BINDING } from './constants.js';
 
 export default (env) => {
   if (env && env[MTLS_BINDING]) {
-    return env[MTLS_BINDING].fetch;
+    // We need the binding here, otherwise the worker will throw an error:
+    // TypeError: Illegal invocation: function called with incorrect `this` reference.
+    return env[MTLS_BINDING].fetch.bind(env[MTLS_BINDING]);
   }
 
   return () => {

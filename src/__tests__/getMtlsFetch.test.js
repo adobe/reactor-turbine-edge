@@ -25,12 +25,14 @@ describe('getMtlsFetch', () => {
   it('should return the MTLS fetch function when the binding exists', () => {
     // Arrange
     mockEnv[MTLS_BINDING] = { fetch: mockFetch };
+    const boundMockFetch = mockFetch.bind(mockEnv[MTLS_BINDING]);
+    mockFetch.bind = vi.fn().mockReturnValue(boundMockFetch);
 
     // Act
     const result = getMtlsFetch(mockEnv);
 
     // Assert
-    expect(result).toBe(mockFetch);
+    expect(result).toBe(boundMockFetch);
   });
 
   it('should return a function that throws an error when the binding does not exist', () => {
