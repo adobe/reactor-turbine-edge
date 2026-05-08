@@ -171,61 +171,39 @@ describe('getRuleFetchFn', () => {
     });
   });
 
-  test('returns a function that logs a 4xx response as an error', () => {
-    const logger = createNewLogger({ ruleId: 1 });
-    const ruleFetchFn = getRuleFetchFn(createFakeFetch(404), [], {}, logger);
+  [400, 404, 500].forEach((status) => {
+    test(`returns a function that logs a ${status} response as an error`, () => {
+      const logger = createNewLogger({ ruleId: 1 });
+      const ruleFetchFn = getRuleFetchFn(
+        createFakeFetch(status),
+        [],
+        {},
+        logger
+      );
 
-    return ruleFetchFn('http://www.google.com').then((r) => {
-      expect(r.status).toBe(404);
-      expect(logger.getJsonLogs()).toStrictEqual([
-        {
-          attributes: { logLevel: 'error' },
-          context: { ruleId: 1 },
-          messages: [
-            '🚀',
-            'FETCH',
-            'Resource',
-            'http://www.google.com',
-            'Options',
-            '{"headers":{}}',
-            'Response Status',
-            '404',
-            'Response Body',
-            'http://www.google.com:arrayBuffer'
-          ],
-          name: 'evaluatingRule',
-          timestampMs: expect.any(Number)
-        }
-      ]);
-    });
-  });
-
-  test('returns a function that logs a 5xx response as an error', () => {
-    const logger = createNewLogger({ ruleId: 1 });
-    const ruleFetchFn = getRuleFetchFn(createFakeFetch(500), [], {}, logger);
-
-    return ruleFetchFn('http://www.google.com').then((r) => {
-      expect(r.status).toBe(500);
-      expect(logger.getJsonLogs()).toStrictEqual([
-        {
-          attributes: { logLevel: 'error' },
-          context: { ruleId: 1 },
-          messages: [
-            '🚀',
-            'FETCH',
-            'Resource',
-            'http://www.google.com',
-            'Options',
-            '{"headers":{}}',
-            'Response Status',
-            '500',
-            'Response Body',
-            'http://www.google.com:arrayBuffer'
-          ],
-          name: 'evaluatingRule',
-          timestampMs: expect.any(Number)
-        }
-      ]);
+      return ruleFetchFn('http://www.google.com').then((r) => {
+        expect(r.status).toBe(status);
+        expect(logger.getJsonLogs()).toStrictEqual([
+          {
+            attributes: { logLevel: 'error' },
+            context: { ruleId: 1 },
+            messages: [
+              '🚀',
+              'FETCH',
+              'Resource',
+              'http://www.google.com',
+              'Options',
+              '{"headers":{}}',
+              'Response Status',
+              String(status),
+              'Response Body',
+              'http://www.google.com:arrayBuffer'
+            ],
+            name: 'evaluatingRule',
+            timestampMs: expect.any(Number)
+          }
+        ]);
+      });
     });
   });
 
