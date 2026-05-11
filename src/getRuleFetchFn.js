@@ -66,7 +66,8 @@ export default (fetch, headerOverrides, headersForSubrequests, logger) => {
           r.arrayBuffer().then(byteArrayToString),
           r.status
         ]).then(([body, status]) => {
-          logger.log(
+          const logFn = status >= 400 ? logger.error : logger.log;
+          logFn(
             'FETCH',
             'Resource',
             resource,
